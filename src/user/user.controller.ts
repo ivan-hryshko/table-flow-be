@@ -4,7 +4,6 @@ import {
   Get,
   Post,
   Put,
-  Req,
   UseGuards,
   UsePipes,
   ValidationPipe,
@@ -13,14 +12,12 @@ import { UserService } from '@app/user/user.service';
 import { CreateUserDto } from './dto/createUser.dto';
 import { UserResponseInterface } from './types/userResponse.interface';
 import { LoginUserDto } from './dto/loginUser.dto';
-import { Request } from 'express';
-import { ExpressRequest } from '@app/types/expressRequest.interface';
 import { User } from './decorators/user.decorator';
 import { UserEntity } from './user.entity';
 import { AuthGuard } from './guards/auth.guard';
 import { UpdateUserDto } from './dto/updateUser.dto';
 
-@Controller()
+@Controller('api/v1')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
