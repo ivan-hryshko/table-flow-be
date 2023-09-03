@@ -4,18 +4,31 @@ import { PostgresConnectionOptions } from "typeorm/driver/postgres/PostgresConne
 
 export default class TypeOrmConfig {
   static getConfig(configService: ConfigService): PostgresConnectionOptions {
-    return {
-      type: 'postgres',
-      url: configService.get('DATABASE_URL'),
-      entities: [__dirname + '/**/*.entity{.ts,.js}'],
-      synchronize: true, // This for development
-      ssl: {
-        rejectUnauthorized: false,
-      },
-      migrations: [__dirname + '/migrations/**/*{.ts,.js}'],
-      cli: {
-        migrationsDir: 'src/migrations'
-      },
+    if (configService.get('IS_PROD')) {
+      return {
+        type: 'postgres',
+        url: configService.get('DATABASE_URL'),
+        entities: [__dirname + '/**/*.entity{.ts,.js}'],
+        synchronize: true, // This for development
+        ssl: {
+          rejectUnauthorized: false,
+        },
+        migrations: [__dirname + '/migrations/**/*{.ts,.js}'],
+        cli: {
+          migrationsDir: 'src/migrations'
+        },
+      }
+    } else {
+      return {
+        type: 'postgres',
+        url: configService.get('DATABASE_URL'),
+        entities: [__dirname + '/**/*.entity{.ts,.js}'],
+        synchronize: true, // This for development
+        migrations: [__dirname + '/migrations/**/*{.ts,.js}'],
+        cli: {
+          migrationsDir: 'src/migrations'
+        },
+      }
     }
   }
 }
