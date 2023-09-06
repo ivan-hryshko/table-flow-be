@@ -6,7 +6,7 @@ import { CreateRestaurantDto } from "./dto/createRestaurant.dto";
 import { RestaurantService } from "./restaurant.service";
 import { RestaurantResponseInterface } from "./types/restaurantResponse.interface";
 
-@Controller('/api/v1')
+@Controller('api/v1')
 export class RestaurantController {
   constructor(private readonly restaurantService: RestaurantService) {}
 
