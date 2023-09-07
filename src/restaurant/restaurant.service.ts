@@ -43,4 +43,8 @@ export class RestaurantService {
       .where('user.id = :userId', { userId: query.userId })
       .getMany()
   }
+
+  async getById(restaurantId: number) {
+    return this.restaurantRepository.findOne({ id: restaurantId})
+  }
 }

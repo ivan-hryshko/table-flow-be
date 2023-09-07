@@ -6,12 +6,14 @@ import { UserModule } from '@app/user/user.module';
 import { AuthMiddleWare } from './user/middlewares/auth.middleware';
 import { typeOrmConfigAsync } from '@app/ormconfig';
 import { RestaurantModule } from './restaurant/restaurant.modules';
+import { TableModule } from './table/table.module';
 
 @Module({
   imports: [
     TypeOrmModule.forRootAsync(typeOrmConfigAsync),
     UserModule,
     RestaurantModule,
+    TableModule,
   ],
   controllers: [AppController],
   providers: [AppService],

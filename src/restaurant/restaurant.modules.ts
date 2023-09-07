@@ -9,5 +9,6 @@ import { AuthGuard } from "@app/user/guards/auth.guard";
   imports: [TypeOrmModule.forFeature([RestaurantEntity])],
   controllers:[RestaurantController],
   providers: [RestaurantService, AuthGuard],
+  exports: [RestaurantService],
 })
 export class RestaurantModule {}
