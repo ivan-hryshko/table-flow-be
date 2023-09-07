@@ -5,6 +5,8 @@ import { Repository } from "typeorm";
 import { CreateRestaurantDto } from "./dto/createRestaurant.dto";
 import { UserEntity } from "@app/user/user.entity";
 import { RestaurantResponseInterface } from "./types/restaurantResponse.interface";
+import { RestaurantQueryParams } from "./types/restaurantQuery.types";
+import { RestaurantsResponseInterface } from "./types/restaurantsResponse.interface";
 
 @Injectable()
 export class RestaurantService {
@@ -20,6 +22,13 @@ export class RestaurantService {
     }
   }
 
+  buildRestaurantsResponse(restaurants: RestaurantEntity[]): RestaurantsResponseInterface {
+    return {
+      restaurants,
+      restaurantsCount: restaurants.length,
+    }
+  }
+
   async create(currentUser: UserEntity, createRestaurantDto: CreateRestaurantDto): Promise<RestaurantEntity> {
     const newRestaurant = new RestaurantEntity()
     Object.assign(newRestaurant, createRestaurantDto)
@@ -27,5 +36,11 @@ export class RestaurantService {
     return await this.restaurantRepository.save(newRestaurant)
   }
 
-
+  async getByUser(query: RestaurantQueryParams) {
+    return this.restaurantRepository
+      .createQueryBuilder("restaurant")
+      .innerJoinAndSelect("restaurant.user", "user")
+      .where('user.id = :userId', { userId: query.userId })
+      .getMany()
+  }
 }
