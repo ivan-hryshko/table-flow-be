@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { RestaurantEntity } from "./restaurant.entity";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
@@ -49,7 +49,17 @@ export class RestaurantService {
     return this.restaurantRepository.findOne({ id: restaurantId})
   }
 
-  async delete(deleteRestaurantDto: DeleteRestaurantDto) {
+  async delete(deleteRestaurantDto: DeleteRestaurantDto, currentUserId: number) {
+    const restaurant = await this.getById(deleteRestaurantDto.id)
+
+    if (!restaurant) {
+      throw new HttpException('Restaurant does not exist', HttpStatus.NOT_FOUND)
+    }
+
+    if (restaurant.user.id !== currentUserId) {
+      throw new HttpException('You are not author', HttpStatus.FORBIDDEN)
+    }
+
     return this.restaurantRepository.delete({ id: deleteRestaurantDto.id })
   }
 }

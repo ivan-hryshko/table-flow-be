@@ -38,6 +38,6 @@ export class RestaurantController {
     @User('id') currentUserId: number,
     @Body('restaurant') deleteRestaurantDto: DeleteRestaurantDto
     ): Promise<DeleteResult> {
-    return await this.restaurantService.delete(deleteRestaurantDto)
+    return await this.restaurantService.delete(deleteRestaurantDto, currentUserId)
   }
 }
