@@ -8,6 +8,7 @@ import { RestaurantResponseInterface } from "./types/restaurantResponse.interfac
 import { RestaurantQueryParams } from "./types/restaurantQuery.types";
 import { RestaurantsResponseInterface } from "./types/restaurantsResponse.interface";
 import { DeleteRestaurantDto } from "./dto/deleteRestaurant.dto";
+import { UpdateRestaurantDto } from "./dto/updateRestaurant.dto";
 
 @Injectable()
 export class RestaurantService {
@@ -61,5 +62,21 @@ export class RestaurantService {
     }
 
     return this.restaurantRepository.delete({ id: deleteRestaurantDto.id })
+  }
+
+  async update(updateRestaurantDto: UpdateRestaurantDto, currentUserId: number) {
+    const restaurant = await this.getById(updateRestaurantDto.id)
+
+    if (!restaurant) {
+      throw new HttpException('Restaurant does not exist', HttpStatus.NOT_FOUND)
+    }
+
+    if (restaurant.user.id !== currentUserId) {
+      throw new HttpException('You are not author', HttpStatus.FORBIDDEN)
+    }
+
+    Object.assign(restaurant, updateRestaurantDto)
+
+    return this.restaurantRepository.save(restaurant)
   }
 }

@@ -1,13 +1,14 @@
 import { User } from "@app/user/decorators/user.decorator";
 import { AuthGuard } from "@app/user/guards/auth.guard";
 import { UserEntity } from "@app/user/user.entity";
-import { Body, Controller, Delete, Get, Post, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Post, Put, UseGuards } from "@nestjs/common";
 import { CreateRestaurantDto } from "./dto/createRestaurant.dto";
 import { RestaurantService } from "./restaurant.service";
 import { RestaurantResponseInterface } from "./types/restaurantResponse.interface";
 import { RestaurantsResponseInterface } from "./types/restaurantsResponse.interface";
 import { DeleteResult } from "typeorm";
 import { DeleteRestaurantDto } from "./dto/deleteRestaurant.dto";
+import { UpdateRestaurantDto } from "./dto/updateRestaurant.dto";
 
 @Controller('api/v1')
 export class RestaurantController {
@@ -39,5 +40,15 @@ export class RestaurantController {
     @Body('restaurant') deleteRestaurantDto: DeleteRestaurantDto
     ): Promise<DeleteResult> {
     return await this.restaurantService.delete(deleteRestaurantDto, currentUserId)
+  }
+
+  @Put('restaurant')
+  @UseGuards(AuthGuard)
+  async update (
+    @User('id') currentUserId: number,
+    @Body('restaurant') updateRestaurantDto: UpdateRestaurantDto
+    ): Promise<RestaurantResponseInterface> {
+    const restaurant = await this.restaurantService.update(updateRestaurantDto, currentUserId)
+    return this.restaurantService.buildRestaurantResponse(restaurant)
   }
 }
