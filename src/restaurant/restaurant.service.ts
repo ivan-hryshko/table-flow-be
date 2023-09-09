@@ -7,6 +7,7 @@ import { UserEntity } from "@app/user/user.entity";
 import { RestaurantResponseInterface } from "./types/restaurantResponse.interface";
 import { RestaurantQueryParams } from "./types/restaurantQuery.types";
 import { RestaurantsResponseInterface } from "./types/restaurantsResponse.interface";
+import { DeleteRestaurantDto } from "./dto/deleteRestaurant.dto";
 
 @Injectable()
 export class RestaurantService {
@@ -46,5 +47,9 @@ export class RestaurantService {
 
   async getById(restaurantId: number) {
     return this.restaurantRepository.findOne({ id: restaurantId})
+  }
+
+  async delete(deleteRestaurantDto: DeleteRestaurantDto) {
+    return this.restaurantRepository.delete({ id: deleteRestaurantDto.id })
   }
 }
