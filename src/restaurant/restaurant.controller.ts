@@ -1,7 +1,7 @@
 import { User } from "@app/user/decorators/user.decorator";
 import { AuthGuard } from "@app/user/guards/auth.guard";
 import { UserEntity } from "@app/user/user.entity";
-import { Body, Controller, Delete, Get, Post, Put, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Post, Put, UseGuards, UsePipes, ValidationPipe } from "@nestjs/common";
 import { CreateRestaurantDto } from "./dto/createRestaurant.dto";
 import { RestaurantService } from "./restaurant.service";
 import { RestaurantResponseInterface } from "./types/restaurantResponse.interface";
@@ -16,6 +16,7 @@ export class RestaurantController {
 
   @Post('restaurant')
   @UseGuards(AuthGuard)
+  @UsePipes(new ValidationPipe())
   async create(
     @User() currentUser: UserEntity,
     @Body('restaurant') createRestaurantDto: CreateRestaurantDto
@@ -35,6 +36,7 @@ export class RestaurantController {
 
   @Delete('restaurant')
   @UseGuards(AuthGuard)
+  @UsePipes(new ValidationPipe())
   async delete (
     @User('id') currentUserId: number,
     @Body('restaurant') deleteRestaurantDto: DeleteRestaurantDto
@@ -44,6 +46,7 @@ export class RestaurantController {
 
   @Put('restaurant')
   @UseGuards(AuthGuard)
+  @UsePipes(new ValidationPipe())
   async update (
     @User('id') currentUserId: number,
     @Body('restaurant') updateRestaurantDto: UpdateRestaurantDto
