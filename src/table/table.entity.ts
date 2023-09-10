@@ -1,3 +1,4 @@
+import { FloorEntity } from "@app/floor/floor.entity";
 import { RestaurantEntity } from "@app/restaurant/restaurant.entity";
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 
@@ -18,6 +19,9 @@ export class TableEntity {
   @Column({ default: 2 })
   seatsCount: number
 
+  @ManyToOne(() => FloorEntity, (floor) => floor.tables, { eager: true })
+  floor: FloorEntity
+  
   @ManyToOne(() => RestaurantEntity, (restaurant) => restaurant.tables, { eager: true })
   restaurant: RestaurantEntity
 }
