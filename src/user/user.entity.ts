@@ -10,6 +10,12 @@ export class UserEntity {
   email: string
 
   @Column({ default: '' })
+  firstName: string
+
+  @Column({ default: '' })
+  lastName: string
+
+  @Column({ default: '' })
   bio: string
 
   @Column({ default: '' })

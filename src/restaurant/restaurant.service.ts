@@ -41,7 +41,8 @@ export class RestaurantService {
   async getByUser(query: RestaurantQueryParams) {
     return this.restaurantRepository
       .createQueryBuilder("restaurant")
-      .innerJoinAndSelect("restaurant.user", "user")
+      .innerJoin("restaurant.user", "user")
+      .addSelect(['user.id', 'user.firstName', 'user.lastName'])
       .where('user.id = :userId', { userId: query.userId })
       .getMany()
   }
