@@ -4,7 +4,6 @@ export class CreateFloorDto {
   @IsNotEmpty()
   readonly title: string
 
-  readonly description: string
-
-  readonly location: string
+  @IsNotEmpty()
+  readonly restaurantId: number
 }

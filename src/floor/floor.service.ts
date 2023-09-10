@@ -9,13 +9,15 @@ import { FloorQueryParams } from "./types/floorQuery.types";
 import { FloorsResponseInterface } from "./types/floorsResponse.interface";
 import { DeleteFloorDto } from "./dto/deleteFloor.dto";
 import { UpdateFloorDto } from "./dto/updateFloor.dto";
+import { RestaurantService } from "@app/restaurant/restaurant.service";
 
 @Injectable()
 export class FloorService {
   constructor(
     @InjectRepository(FloorEntity)
     private readonly floorRepository:
-    Repository<FloorEntity>
+    Repository<FloorEntity>,
+    private readonly restaurantService: RestaurantService
   ) {}
 
   buildFloorResponse(floor: FloorEntity): FloorResponseInterface {
@@ -33,8 +35,17 @@ export class FloorService {
 
   async create(currentUser: UserEntity, createFloorDto: CreateFloorDto): Promise<FloorEntity> {
     const newFloor = new FloorEntity()
-    Object.assign(newFloor, createFloorDto)
-    // newFloor.user = currentUser
+    newFloor.title = createFloorDto.title
+    const restaurant = await this.restaurantService.getById(createFloorDto.restaurantId)
+
+    if (!restaurant) {
+      throw new HttpException('Restaurant does not exist', HttpStatus.NOT_FOUND)
+    }
+
+    if (restaurant.user.id !== currentUser.id) {
+      throw new HttpException('You are not author of restaurant', HttpStatus.FORBIDDEN)
+    }
+    newFloor.restaurant = restaurant
     return await this.floorRepository.save(newFloor)
   }
 
@@ -59,7 +70,7 @@ export class FloorService {
     }
 
     if (floor.restaurant.user.id !== currentUserId) {
-      throw new HttpException('You are not author', HttpStatus.FORBIDDEN)
+      throw new HttpException('You are not author of restaurant', HttpStatus.FORBIDDEN)
     }
 
     return this.floorRepository.delete({ id: deleteFloorDto.id })
@@ -73,7 +84,7 @@ export class FloorService {
     }
 
     if (floor.restaurant.user.id !== currentUserId) {
-      throw new HttpException('You are not author', HttpStatus.FORBIDDEN)
+      throw new HttpException('You are not author of restaurant', HttpStatus.FORBIDDEN)
     }
 
     Object.assign(floor, updateFloorDto)

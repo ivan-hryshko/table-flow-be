@@ -59,7 +59,7 @@ export class RestaurantService {
     }
 
     if (restaurant.user.id !== currentUserId) {
-      throw new HttpException('You are not author', HttpStatus.FORBIDDEN)
+      throw new HttpException('You are not author of restaurant', HttpStatus.FORBIDDEN)
     }
 
     return this.restaurantRepository.delete({ id: deleteRestaurantDto.id })
@@ -73,7 +73,7 @@ export class RestaurantService {
     }
 
     if (restaurant.user.id !== currentUserId) {
-      throw new HttpException('You are not author', HttpStatus.FORBIDDEN)
+      throw new HttpException('You are not author of restaurant', HttpStatus.FORBIDDEN)
     }
 
     Object.assign(restaurant, updateRestaurantDto)

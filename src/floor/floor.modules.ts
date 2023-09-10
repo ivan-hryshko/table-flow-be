@@ -1,14 +1,18 @@
 import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { RestaurantEntity } from "./floor.entity";
-import { RestaurantController } from "./floor.controller";
-import { RestaurantService } from "./floor.service";
+import { FloorEntity } from "./floor.entity";
+import { FloorController } from "./floor.controller";
+import { FloorService } from "./floor.service";
 import { AuthGuard } from "@app/user/guards/auth.guard";
+import { RestaurantModule } from "@app/restaurant/restaurant.modules";
 
 @Module({
-  imports: [TypeOrmModule.forFeature([RestaurantEntity])],
-  controllers:[RestaurantController],
-  providers: [RestaurantService, AuthGuard],
-  exports: [RestaurantService],
+  imports: [
+    TypeOrmModule.forFeature([FloorEntity]),
+    RestaurantModule,
+  ],
+  controllers:[FloorController],
+  providers: [FloorService, AuthGuard],
+  exports: [FloorService],
 })
-export class RestaurantModule {}
+export class FloorModule {}

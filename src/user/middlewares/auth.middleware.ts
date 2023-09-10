@@ -4,36 +4,33 @@ import { Injectable, NestMiddleware } from "@nestjs/common";
 import { NextFunction, Response } from "express";
 import { verify } from "jsonwebtoken";
 import { UserService } from "../user.service";
+import { throwError } from "rxjs";
 
 @Injectable()
 export class AuthMiddleWare implements NestMiddleware {
   constructor(private readonly userService: UserService) {}
   async use(req: ExpressRequest, _: Response, next: NextFunction) {
-    const nullifyUser = () => {
+    if (!req.headers.authorization) {
       req.user = null
       next()
       return
     }
 
-    if (!req.headers.authorization) {
-      nullifyUser()
-    }
-
-    const tokenString = req.headers.authorization.split(' ')
-    const bearer = tokenString[0]
-
-    if (bearer !== 'Bearer') {
-      nullifyUser()
-    }
-    const token = tokenString[1]
+    const bearer = req.headers.authorization.split(' ')[0]
+    const token = req.headers.authorization.split(' ')[1]
 
     try {
+      if (bearer !== 'Bearer') {
+        throwError('Token don\'t valid')
+      }
       const decode = verify(token, JWT_SECRET)
       const user = await this.userService.findById(decode.id)
       req.user = user
       next()
     } catch (error) {
-      nullifyUser()
+      req.user = null
+      next()
+      return
     }
   }
 }

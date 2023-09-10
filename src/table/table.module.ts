@@ -9,7 +9,7 @@ import { AuthGuard } from "@app/user/guards/auth.guard";
 @Module({
   imports: [
     TypeOrmModule.forFeature([TableEntity]),
-    RestaurantModule
+    RestaurantModule,
   ],
   controllers: [TableController],
   providers: [TableService, AuthGuard],

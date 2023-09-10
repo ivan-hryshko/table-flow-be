@@ -19,7 +19,7 @@ export class FloorController {
   @UsePipes(new ValidationPipe())
   async create(
     @User() currentUser: UserEntity,
-    @Body('floor') createFloorDto: CreateFloorDto
+    @Body() createFloorDto: CreateFloorDto
   ): Promise<FloorResponseInterface> {
     const floor = await this.floorService.create(currentUser, createFloorDto)
     return this.floorService.buildFloorResponse(floor)
