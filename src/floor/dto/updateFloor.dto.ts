@@ -5,8 +5,4 @@ export class UpdateFloorDto {
   readonly id: number
 
   readonly title: string
-
-  readonly description: string
-
-  readonly location: string
 }
