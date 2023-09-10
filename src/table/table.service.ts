@@ -42,6 +42,7 @@ export class TableService {
     return this.tableRepository
       .createQueryBuilder("table")
       .innerJoinAndSelect("table.user", "user")
+      .innerJoinAndSelect("table.floor", "floor")
       .where('user.id = :userId', { userId: query.userId })
       .getMany()
   }

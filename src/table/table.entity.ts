@@ -21,7 +21,7 @@ export class TableEntity {
 
   @ManyToOne(() => FloorEntity, (floor) => floor.tables, { eager: true })
   floor: FloorEntity
-  
+
   @ManyToOne(() => RestaurantEntity, (restaurant) => restaurant.tables, { eager: true })
   restaurant: RestaurantEntity
 }
