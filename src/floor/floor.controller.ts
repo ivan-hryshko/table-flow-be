@@ -9,6 +9,7 @@ import { FloorsResponseInterface } from "./types/floorsResponse.interface";
 import { DeleteResult } from "typeorm";
 import { DeleteFloorDto } from "./dto/deleteFloor.dto";
 import { UpdateFloorDto } from "./dto/updateFloor.dto";
+import { BackendValidationPipe } from "@app/shared/pipes/backendValidation.pipe";
 
 @Controller('api/v1')
 export class FloorController {
@@ -16,7 +17,7 @@ export class FloorController {
 
   @Post('floor')
   @UseGuards(AuthGuard)
-  @UsePipes(new ValidationPipe())
+  @UsePipes(new BackendValidationPipe())
   async create(
     @User() currentUser: UserEntity,
     @Body() createFloorDto: CreateFloorDto
@@ -36,7 +37,7 @@ export class FloorController {
 
   @Delete('floor')
   @UseGuards(AuthGuard)
-  @UsePipes(new ValidationPipe())
+  @UsePipes(new BackendValidationPipe())
   async delete (
     @User('id') currentUserId: number,
     @Body('floor') deleteFloorDto: DeleteFloorDto
@@ -46,7 +47,7 @@ export class FloorController {
 
   @Put('floor')
   @UseGuards(AuthGuard)
-  @UsePipes(new ValidationPipe())
+  @UsePipes(new BackendValidationPipe())
   async update (
     @User('id') currentUserId: number,
     @Body('floor') updateFloorDto: UpdateFloorDto

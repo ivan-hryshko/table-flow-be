@@ -9,6 +9,7 @@ import { RestaurantsResponseInterface } from "./types/restaurantsResponse.interf
 import { DeleteResult } from "typeorm";
 import { DeleteRestaurantDto } from "./dto/deleteRestaurant.dto";
 import { UpdateRestaurantDto } from "./dto/updateRestaurant.dto";
+import { BackendValidationPipe } from "@app/shared/pipes/backendValidation.pipe";
 
 @Controller('api/v1')
 export class RestaurantController {
@@ -16,7 +17,7 @@ export class RestaurantController {
 
   @Post('restaurant')
   @UseGuards(AuthGuard)
-  @UsePipes(new ValidationPipe())
+  @UsePipes(new BackendValidationPipe())
   async create(
     @User() currentUser: UserEntity,
     @Body('restaurant') createRestaurantDto: CreateRestaurantDto
@@ -36,7 +37,7 @@ export class RestaurantController {
 
   @Delete('restaurant')
   @UseGuards(AuthGuard)
-  @UsePipes(new ValidationPipe())
+  @UsePipes(new BackendValidationPipe())
   async delete (
     @User('id') currentUserId: number,
     @Body('restaurant') deleteRestaurantDto: DeleteRestaurantDto
@@ -46,7 +47,7 @@ export class RestaurantController {
 
   @Put('restaurant')
   @UseGuards(AuthGuard)
-  @UsePipes(new ValidationPipe())
+  @UsePipes(new BackendValidationPipe())
   async update (
     @User('id') currentUserId: number,
     @Body('restaurant') updateRestaurantDto: UpdateRestaurantDto
