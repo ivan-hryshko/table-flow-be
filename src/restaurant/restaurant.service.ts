@@ -9,6 +9,7 @@ import { RestaurantQueryParams } from "./types/restaurantQuery.types";
 import { RestaurantsResponseInterface } from "./types/restaurantsResponse.interface";
 import { DeleteRestaurantDto } from "./dto/deleteRestaurant.dto";
 import { UpdateRestaurantDto } from "./dto/updateRestaurant.dto";
+import { ErrorHelper } from "@app/shared/errors/errorshelper.helper";
 
 @Injectable()
 export class RestaurantService {
@@ -54,28 +55,34 @@ export class RestaurantService {
   }
 
   async delete(deleteRestaurantDto: DeleteRestaurantDto, currentUserId: number) {
+    const errorHelper = new ErrorHelper()
     const restaurant = await this.getById(deleteRestaurantDto.id)
 
     if (!restaurant) {
-      throw new HttpException('Restaurant does not exist', HttpStatus.NOT_FOUND)
+      errorHelper.addNewError(`Restaurant with given id:${deleteRestaurantDto.id} does not exist`, 'restaurant')
+      throw new HttpException(errorHelper.getErrors(), HttpStatus.NOT_FOUND)
     }
 
     if (restaurant.user.id !== currentUserId) {
-      throw new HttpException('You are not author of restaurant', HttpStatus.FORBIDDEN)
+      errorHelper.addNewError(`You are not author of restaurant`, 'owner')
+      throw new HttpException(errorHelper.getErrors(), HttpStatus.FORBIDDEN)
     }
 
     return this.restaurantRepository.delete({ id: deleteRestaurantDto.id })
   }
 
   async update(updateRestaurantDto: UpdateRestaurantDto, currentUserId: number) {
+    const errorHelper = new ErrorHelper()
     const restaurant = await this.getById(updateRestaurantDto.id)
 
     if (!restaurant) {
-      throw new HttpException('Restaurant does not exist', HttpStatus.NOT_FOUND)
+      errorHelper.addNewError(`Restaurant with given id:${updateRestaurantDto.id} does not exist`, 'restaurant')
+      throw new HttpException(errorHelper.getErrors(), HttpStatus.NOT_FOUND)
     }
 
     if (restaurant.user.id !== currentUserId) {
-      throw new HttpException('You are not author of restaurant', HttpStatus.FORBIDDEN)
+      errorHelper.addNewError(`You are not author of restaurant`, 'owner')
+      throw new HttpException(errorHelper.getErrors(), HttpStatus.FORBIDDEN)
     }
 
     Object.assign(restaurant, updateRestaurantDto)
