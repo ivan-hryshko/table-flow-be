@@ -14,6 +14,12 @@ export class RestaurantEntity {
   description: string
 
   @Column({ default: '' })
+  city: string
+
+  @Column({ default: '' })
+  type: string
+
+  @Column({ default: '' })
   location: string
 
   @ManyToOne(() => UserEntity, (user) => user.restaurants, { eager: true })
