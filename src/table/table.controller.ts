@@ -7,6 +7,7 @@ import { TableService } from "./table.service";
 import { TableResponseInterface } from "./types/tableResponse.interface";
 import { TablesResponseInterface } from "./types/tablesResponse.interface";
 import { BackendValidationPipe } from "@app/shared/pipes/backendValidation.pipe";
+import { createTablePipe } from "./pipes/createTable.pipe";
 
 @Controller('api/v1')
 export class TableController {
@@ -15,6 +16,7 @@ export class TableController {
   @Post('table')
   @UseGuards(AuthGuard)
   @UsePipes(new BackendValidationPipe())
+  // @UsePipes(new createTablePipe())
   async create(
     @User() currentUser: UserEntity,
     @Body('table') createTableDto: CreateTableDto

@@ -15,8 +15,7 @@ import { RestaurantService } from "@app/restaurant/restaurant.service";
 export class FloorService {
   constructor(
     @InjectRepository(FloorEntity)
-    private readonly floorRepository:
-    Repository<FloorEntity>,
+    private readonly floorRepository: Repository<FloorEntity>,
     private readonly restaurantService: RestaurantService
   ) {}
 
@@ -53,13 +52,20 @@ export class FloorService {
     return this.floorRepository
       .createQueryBuilder("floor")
       .innerJoin("floor.user", "user")
+      .innerJoin("floor.restaurant", "restaurant")
       .addSelect(['user.id', 'user.firstName', 'user.lastName'])
+      .addSelect(['restaurant.id', 'restaurant.title'])
       .where('user.id = :userId', { userId: query.userId })
       .getMany()
   }
 
   async getById(floorId: number) {
-    return this.floorRepository.findOne({ id: floorId})
+    return this.floorRepository
+      .createQueryBuilder("floor")
+      .innerJoin("floor.restaurant", "restaurant")
+      .addSelect(['restaurant.id', 'restaurant.title'])
+      .where('floor.id = :floorId', { floorId })
+      .getOne()
   }
 
   async delete(deleteFloorDto: DeleteFloorDto, currentUserId: number) {

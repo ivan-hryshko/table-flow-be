@@ -3,18 +3,20 @@ import { plainToClass } from "class-transformer";
 import { ValidationError, validate } from "class-validator";
 
 @Injectable()
-export class BackendValidationPipe implements PipeTransform {
+export class createTablePipe implements PipeTransform {
   async transform(value: any, metadata: ArgumentMetadata) {
     const object = plainToClass(metadata.metatype, value)
     const errors = await validate(object)
-    // console.log('object :>> ', object);
-    // console.log('errors :>> ', errors);
+    console.log('value :>> ', value);
+    console.log('metadata :>> ', metadata);
+    console.log('object :>> ', object);
+    console.log('errors :>> ', errors);
 
-    if (errors.length === 0) {
-      return value
-    }
+    // if (errors.length === 0) {
+    return value
+    // }
 
-    throw new HttpException({errors: this.formatError(errors)}, HttpStatus.UNPROCESSABLE_ENTITY)
+    // throw new HttpException({errors: this.formatError(errors)}, HttpStatus.UNPROCESSABLE_ENTITY)
   }
 
   formatError(errors: ValidationError[]) {

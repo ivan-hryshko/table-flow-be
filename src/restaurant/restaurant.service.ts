@@ -51,7 +51,12 @@ export class RestaurantService {
   }
 
   async getById(restaurantId: number) {
-    return this.restaurantRepository.findOne({ id: restaurantId})
+    return this.restaurantRepository
+      .createQueryBuilder("restaurant")
+      .innerJoin("restaurant.user", "user")
+      .addSelect(['user.id', 'user.firstName', 'user.lastName'])
+      .where('restaurant.id = :restaurantId', { restaurantId })
+      .getOne()
   }
 
   async delete(deleteRestaurantDto: DeleteRestaurantDto, currentUserId: number) {
