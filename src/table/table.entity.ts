@@ -16,6 +16,9 @@ export class TableEntity {
   @Column({ default: 0 })
   y: number
 
+  @Column({ default: false })
+  isPlaced: boolean
+
   @Column({ default: 2 })
   seatsCount: number
 

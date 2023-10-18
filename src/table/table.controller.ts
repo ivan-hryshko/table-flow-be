@@ -1,11 +1,12 @@
 import { User } from "@app/user/decorators/user.decorator";
 import { AuthGuard } from "@app/user/guards/auth.guard";
 import { UserEntity } from "@app/user/user.entity";
-import { Body, Controller, Get, Post, UseGuards } from "@nestjs/common";
+import { Body, Controller, Get, Post, UseGuards, UsePipes } from "@nestjs/common";
 import { CreateTableDto } from "./dto/createTable.dto";
 import { TableService } from "./table.service";
 import { TableResponseInterface } from "./types/tableResponse.interface";
 import { TablesResponseInterface } from "./types/tablesResponse.interface";
+import { BackendValidationPipe } from "@app/shared/pipes/backendValidation.pipe";
 
 @Controller('api/v1')
 export class TableController {
@@ -13,6 +14,7 @@ export class TableController {
 
   @Post('table')
   @UseGuards(AuthGuard)
+  @UsePipes(new BackendValidationPipe())
   async create(
     @User() currentUser: UserEntity,
     @Body('table') createTableDto: CreateTableDto
