@@ -1,4 +1,4 @@
-import { UserEntity } from "../user/user.entity"
+import { UserEntity } from "../../user/user.entity"
 
 export type RestaurantQueryParams = {
   userId?: number
