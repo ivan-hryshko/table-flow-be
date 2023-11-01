@@ -2,10 +2,10 @@ import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { TableEntity } from "./table.entity";
 import { TableController } from "./table.controller";
-import { RestaurantModule } from "@app/restaurant/restaurant.modules";
+import { RestaurantModule } from "../restaurant/restaurant.modules";
 import { TableService } from "./table.service";
-import { AuthGuard } from "@app/user/guards/auth.guard";
-import { FloorModule } from "@app/floor/floor.modules";
+import { AuthGuard } from "../user/guards/auth.guard";
+import { FloorModule } from "../floor/floor.modules";
 
 @Module({
   imports: [

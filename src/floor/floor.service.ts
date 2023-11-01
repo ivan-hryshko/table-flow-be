@@ -3,13 +3,13 @@ import { FloorEntity } from "./floor.entity";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { CreateFloorDto } from "./dto/createFloor.dto";
-import { UserEntity } from "@app/user/user.entity";
+import { UserEntity } from "../user/user.entity";
 import { FloorResponseInterface } from "./types/floorResponse.interface";
 import { FloorQueryParams } from "./types/floorQuery.types";
 import { FloorsResponseInterface } from "./types/floorsResponse.interface";
 import { DeleteFloorDto } from "./dto/deleteFloor.dto";
 import { UpdateFloorDto } from "./dto/updateFloor.dto";
-import { RestaurantService } from "@app/restaurant/restaurant.service";
+import { RestaurantService } from "../restaurant/restaurant.service";
 
 @Injectable()
 export class FloorService {

@@ -3,13 +3,13 @@ import { TableEntity } from "./table.entity";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { CreateTableDto } from "./dto/createTable.dto";
-import { UserEntity } from "@app/user/user.entity";
+import { UserEntity } from "../user/user.entity";
 import { TableResponseInterface } from "./types/tableResponse.interface";
 import { TableQueryParams } from "./types/tableQuery.types";
 import { TablesResponseInterface } from "./types/tablesResponse.interface";
-import { RestaurantService } from "@app/restaurant/restaurant.service";
-import { ErrorHelper } from "@app/shared/errors/errorshelper.helper";
-import { FloorService } from "@app/floor/floor.service";
+import { RestaurantService } from "../restaurant/restaurant.service";
+import { ErrorHelper } from "../shared/errors/errorshelper.helper";
+import { FloorService } from "../floor/floor.service";
 
 @Injectable()
 export class TableService {

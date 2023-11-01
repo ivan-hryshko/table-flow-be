@@ -1,5 +1,5 @@
-import { FloorEntity } from "@app/floor/floor.entity";
-import { RestaurantEntity } from "@app/restaurant/restaurant.entity";
+import { FloorEntity } from "../floor/floor.entity";
+import { RestaurantEntity } from "../restaurant/restaurant.entity";
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity({ name: 'tables' })

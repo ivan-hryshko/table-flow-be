@@ -3,7 +3,7 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { RestaurantEntity } from "./restaurant.entity";
 import { RestaurantController } from "./restaurant.controller";
 import { RestaurantService } from "./restaurant.service";
-import { AuthGuard } from "@app/user/guards/auth.guard";
+import { AuthGuard } from "../user/guards/auth.guard";
 
 @Module({
   imports: [TypeOrmModule.forFeature([RestaurantEntity])],

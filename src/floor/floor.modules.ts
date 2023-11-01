@@ -3,8 +3,8 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { FloorEntity } from "./floor.entity";
 import { FloorController } from "./floor.controller";
 import { FloorService } from "./floor.service";
-import { AuthGuard } from "@app/user/guards/auth.guard";
-import { RestaurantModule } from "@app/restaurant/restaurant.modules";
+import { AuthGuard } from "../user/guards/auth.guard";
+import { RestaurantModule } from "../restaurant/restaurant.modules";
 
 @Module({
   imports: [

@@ -1,12 +1,12 @@
-import { User } from "@app/user/decorators/user.decorator";
-import { AuthGuard } from "@app/user/guards/auth.guard";
-import { UserEntity } from "@app/user/user.entity";
+import { User } from "../user/decorators/user.decorator";
+import { AuthGuard } from "../user/guards/auth.guard";
+import { UserEntity } from "../user/user.entity";
 import { Body, Controller, Get, Post, UseGuards, UsePipes } from "@nestjs/common";
 import { CreateTableDto } from "./dto/createTable.dto";
 import { TableService } from "./table.service";
 import { TableResponseInterface } from "./types/tableResponse.interface";
 import { TablesResponseInterface } from "./types/tablesResponse.interface";
-import { BackendValidationPipe } from "@app/shared/pipes/backendValidation.pipe";
+import { BackendValidationPipe } from "../shared/pipes/backendValidation.pipe";
 import { createTablePipe } from "./pipes/createTable.pipe";
 
 @Controller('api/v1')

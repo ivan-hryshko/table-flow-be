@@ -1,6 +1,6 @@
-import { User } from "@app/user/decorators/user.decorator";
-import { AuthGuard } from "@app/user/guards/auth.guard";
-import { UserEntity } from "@app/user/user.entity";
+import { User } from "../user/decorators/user.decorator";
+import { AuthGuard } from "../user/guards/auth.guard";
+import { UserEntity } from "../user/user.entity";
 import { Body, Controller, Delete, Get, Post, Put, UseGuards, UsePipes, ValidationPipe } from "@nestjs/common";
 import { CreateFloorDto } from "./dto/createFloor.dto";
 import { FloorService } from "./floor.service";
@@ -9,7 +9,7 @@ import { FloorsResponseInterface } from "./types/floorsResponse.interface";
 import { DeleteResult } from "typeorm";
 import { DeleteFloorDto } from "./dto/deleteFloor.dto";
 import { UpdateFloorDto } from "./dto/updateFloor.dto";
-import { BackendValidationPipe } from "@app/shared/pipes/backendValidation.pipe";
+import { BackendValidationPipe } from "../shared/pipes/backendValidation.pipe";
 
 @Controller('api/v1')
 export class FloorController {

@@ -3,13 +3,13 @@ import { RestaurantEntity } from "./restaurant.entity";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { CreateRestaurantDto } from "./dto/createRestaurant.dto";
-import { UserEntity } from "@app/user/user.entity";
+import { UserEntity } from "../user/user.entity";
 import { RestaurantResponseInterface } from "./types/restaurantResponse.interface";
 import { RestaurantQueryParams } from "./types/restaurantQuery.types";
 import { RestaurantsResponseInterface } from "./types/restaurantsResponse.interface";
 import { DeleteRestaurantDto } from "./dto/deleteRestaurant.dto";
 import { UpdateRestaurantDto } from "./dto/updateRestaurant.dto";
-import { ErrorHelper } from "@app/shared/errors/errorshelper.helper";
+import { ErrorHelper } from "../shared/errors/errorshelper.helper";
 
 @Injectable()
 export class RestaurantService {

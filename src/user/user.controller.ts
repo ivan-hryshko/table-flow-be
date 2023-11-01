@@ -8,7 +8,7 @@ import {
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
-import { UserService } from '@app/user/user.service';
+import { UserService } from '../user/user.service';
 import { CreateUserDto } from './dto/createUser.dto';
 import { UserResponseInterface } from './types/userResponse.interface';
 import { LoginUserDto } from './dto/loginUser.dto';
@@ -16,7 +16,7 @@ import { User } from './decorators/user.decorator';
 import { UserEntity } from './user.entity';
 import { AuthGuard } from './guards/auth.guard';
 import { UpdateUserDto } from './dto/updateUser.dto';
-import { BackendValidationPipe } from '@app/shared/pipes/backendValidation.pipe';
+import { BackendValidationPipe } from '../shared/pipes/backendValidation.pipe';
 
 @Controller('api/v1')
 export class UserController {

@@ -1,7 +1,7 @@
 import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
-import { UserEntity } from "@app/user/user.entity";
-import { TableEntity } from "@app/table/table.entity";
-import { RestaurantEntity } from "@app/restaurant/restaurant.entity";
+import { UserEntity } from "../user/user.entity";
+import { TableEntity } from "../table/table.entity";
+import { RestaurantEntity } from "../restaurant/restaurant.entity";
 @Entity({ name: 'floors' })
 export class FloorEntity {
   @PrimaryGeneratedColumn()
