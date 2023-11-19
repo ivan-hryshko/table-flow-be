@@ -1,9 +1,6 @@
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import {
-  TypeOrmModuleAsyncOptions,
-  TypeOrmModuleOptions,
-} from '@nestjs/typeorm';
-import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
+import { ConfigModule, ConfigService } from "@nestjs/config";
+import { TypeOrmModuleAsyncOptions, TypeOrmModuleOptions } from "@nestjs/typeorm";
+import { PostgresConnectionOptions } from "typeorm/driver/postgres/PostgresConnectionOptions";
 
 export default class TypeOrmConfig {
   static getConfig(configService: ConfigService): PostgresConnectionOptions {
@@ -38,8 +35,7 @@ export default class TypeOrmConfig {
 
 export const typeOrmConfigAsync: TypeOrmModuleAsyncOptions = {
   imports: [ConfigModule],
-  useFactory: async (
-    configService: ConfigService,
+  useFactory: async ( configService: ConfigService,
   ): Promise<PostgresConnectionOptions> =>
     TypeOrmConfig.getConfig(configService),
   inject: [ConfigService],
