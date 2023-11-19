@@ -1,7 +1,7 @@
 import { User } from "../user/decorators/user.decorator";
 import { AuthGuard } from "../user/guards/auth.guard";
 import { UserEntity } from "../user/user.entity";
-import { Body, Controller, Get, Post, UseGuards, UsePipes } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Post, UseGuards, UsePipes } from "@nestjs/common";
 import { CreateTableDto } from "./dto/createTable.dto";
 import { TableService } from "./table.service";
 import { TableResponseInterface } from "./types/tableResponse.interface";
@@ -33,4 +33,22 @@ export class TableController {
     const tables = await this.tableService.getByUser({ userId: currentUserId })
     return this.tableService.buildTablesResponse(tables)
   }
+
+  // @Delete('tables')
+  // @UseGuards(AuthGuard)
+  // async deleteByUser(
+  //   @User('id') currentUserId: number,
+  // ): Promise<TablesResponseInterface> {
+  //   const tables = await this.tableService.deleteByUser({ userId: currentUserId })
+  //   return this.tableService.buildTablesResponse(tables)
+  // }
+
+  /*
+  async deleteByUser(
+    @User('id') currentUserId: number,
+  ): Promise<DeleteResult> {
+    const result = await this.tableService.deleteByUser({ userId: currentUserId });
+    return result;
+  }
+   */
 }

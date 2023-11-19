@@ -8,6 +8,8 @@ import { typeOrmConfigAsync } from './ormconfig';
 import { RestaurantModule } from './restaurant/restaurant.modules';
 import { TableModule } from './table/table.module';
 import { FloorModule } from './floor/floor.modules';
+import { MyConfigModule } from "./config.module";
+
 
 @Module({
   imports: [
@@ -16,6 +18,7 @@ import { FloorModule } from './floor/floor.modules';
     RestaurantModule,
     TableModule,
     FloorModule,
+    MyConfigModule
   ],
   controllers: [AppController],
   providers: [AppService],
