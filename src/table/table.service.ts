@@ -62,4 +62,15 @@ export class TableService {
       .where('user.id = :userId', { userId: query.userId })
       .getMany()
   }
+
+  async deleteByUser(query: TableQueryParams) {
+    return this.tableRepository
+      .createQueryBuilder() //Створення нового об'єкта QueryBuilder для виконання SQL-запитів.
+      .delete() //Вказуємо, що це буде операція DELETE.
+      .from(TableEntity) //Визначення таблиці, з якої видаляємо дані. TableEntity - це клас сутності, який представляє таблицю "table" в базі даних.
+      .where('user.id = :userId', { userId: query.userId }) //Умова видалення → для рядків, де значення стовпця "user.id" дорівнює query.userId.
+      .execute(); //Запуск SQL-запиту на виконання. В даному випадку, це виконає видалення рядків у вказаних умовах.
+  }
+
+
 }

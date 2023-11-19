@@ -15,9 +15,9 @@ export default class TypeOrmConfig {
         },
         migrations: [__dirname + '/migrations/**/*{.ts,.js}'],
         cli: {
-          migrationsDir: 'src/migrations'
+          migrationsDir: 'src/migrations',
         },
-      }
+      };
     } else {
       return {
         type: 'postgres',
@@ -26,15 +26,17 @@ export default class TypeOrmConfig {
         synchronize: true, // This for development
         migrations: [__dirname + '/migrations/**/*{.ts,.js}'],
         cli: {
-          migrationsDir: 'src/migrations'
+          migrationsDir: 'src/migrations',
         },
-      }
+      };
     }
   }
 }
 
 export const typeOrmConfigAsync: TypeOrmModuleAsyncOptions = {
   imports: [ConfigModule],
-  useFactory: async (configService: ConfigService):Promise<PostgresConnectionOptions> => TypeOrmConfig.getConfig(configService),
-  inject: [ConfigService]
-}
+  useFactory: async ( configService: ConfigService,
+  ): Promise<PostgresConnectionOptions> =>
+    TypeOrmConfig.getConfig(configService),
+  inject: [ConfigService],
+};
