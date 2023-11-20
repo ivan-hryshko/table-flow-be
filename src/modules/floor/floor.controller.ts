@@ -12,7 +12,7 @@ import { DeleteResult } from 'typeorm';
 
 import { BackendValidationPipe } from '../../utils/pipes/backendValidation.pipe';
 import { AuthGuard } from '../auth/guards/auth.guard';
-import { User } from '../user/model/decorators/user.decorator';
+import { User } from '../user/decorators/user.decorator';
 import { UserEntity } from '../user/user.entity';
 import { CreateFloorRequestDto } from './model/dtos/request/create-floor.request.dto';
 import { DeleteFloorRequestDto } from './model/dtos/request/delete-floor.request.dto';

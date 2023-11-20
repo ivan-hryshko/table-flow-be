@@ -10,7 +10,7 @@ import {
 
 import { BackendValidationPipe } from '../../utils/pipes/backendValidation.pipe';
 import { AuthGuard } from '../auth/guards/auth.guard';
-import { User } from './model/decorators/user.decorator';
+import { User } from './decorators/user.decorator';
 import { CreateUserRequestDto } from './model/dtos/request/create-user.request.dto';
 import { LoginUserDto } from './model/dtos/request/login-user.request.dto';
 import { UpdateUserDto } from './model/dtos/request/updateUser.dto';
