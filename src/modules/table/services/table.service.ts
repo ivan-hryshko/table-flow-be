@@ -5,10 +5,10 @@ import { Repository } from 'typeorm';
 import { ErrorHelper } from '../../../utils/errors/errorshelper.helper';
 import { FloorService } from '../../floor/services/floor.service';
 import { RestaurantService } from '../../restaurant/services/restaurant.service';
-import { CreateTableRequestDto } from '../model/dtos/request/create-table.request.dto';
-import { TableQueryParams } from '../model/types/tableQuery.types';
-import { TableResponseInterface } from '../model/types/tableResponse.interface';
-import { TablesResponseInterface } from '../model/types/tablesResponse.interface';
+import { CreateTableRequestDto } from '../models/dtos/request/create-table.request.dto';
+import { TableQueryParams } from '../models/types/tableQuery.types';
+import { TableResponseInterface } from '../models/types/tableResponse.interface';
+import { TablesResponseInterface } from '../models/types/tablesResponse.interface';
 import { TableEntity } from '../table.entity';
 
 @Injectable()

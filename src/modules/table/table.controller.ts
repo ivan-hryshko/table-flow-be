@@ -11,9 +11,9 @@ import { BackendValidationPipe } from '../../utils/pipes/backendValidation.pipe'
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { User } from '../user/decorators/user.decorator';
 import { UserEntity } from '../user/user.entity';
-import { CreateTableRequestDto } from './model/dtos/request/create-table.request.dto';
-import { TableResponseInterface } from './model/types/tableResponse.interface';
-import { TablesResponseInterface } from './model/types/tablesResponse.interface';
+import { CreateTableRequestDto } from './models/dtos/request/create-table.request.dto';
+import { TableResponseInterface } from './models/types/tableResponse.interface';
+import { TablesResponseInterface } from './models/types/tablesResponse.interface';
 import { TableService } from './services/table.service';
 
 @Controller('api/v1')

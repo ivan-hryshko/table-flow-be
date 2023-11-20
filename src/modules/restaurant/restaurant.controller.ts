@@ -14,11 +14,11 @@ import { BackendValidationPipe } from '../../utils/pipes/backendValidation.pipe'
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { User } from '../user/decorators/user.decorator';
 import { UserEntity } from '../user/user.entity';
-import { CreateRestaurantRequestDto } from './model/dtos/request/create-restaurant.request.dto';
-import { DeleteRestaurantRequestDto } from './model/dtos/request/delete-restaurant.request.dto';
-import { UpdateRestaurantRequestDto } from './model/dtos/request/update-restaurant.request.dto';
-import { RestaurantResponseInterface } from './model/types/restaurantResponse.interface';
-import { RestaurantsResponseInterface } from './model/types/restaurantsResponse.interface';
+import { CreateRestaurantRequestDto } from './models/dtos/request/create-restaurant.request.dto';
+import { DeleteRestaurantRequestDto } from './models/dtos/request/delete-restaurant.request.dto';
+import { UpdateRestaurantRequestDto } from './models/dtos/request/update-restaurant.request.dto';
+import { RestaurantResponseInterface } from './models/types/restaurantResponse.interface';
+import { RestaurantsResponseInterface } from './models/types/restaurantsResponse.interface';
 import { RestaurantService } from './services/restaurant.service';
 
 @UseGuards(AuthGuard)

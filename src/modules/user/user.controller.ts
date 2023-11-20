@@ -11,10 +11,10 @@ import {
 import { BackendValidationPipe } from '../../utils/pipes/backendValidation.pipe';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { User } from './decorators/user.decorator';
-import { CreateUserRequestDto } from './model/dtos/request/create-user.request.dto';
-import { LoginUserDto } from './model/dtos/request/login-user.request.dto';
-import { UpdateUserDto } from './model/dtos/request/updateUser.dto';
-import { UserResponseInterface } from './model/types/userResponse.interface';
+import { CreateUserRequestDto } from './models/dtos/request/create-user.request.dto';
+import { LoginUserDto } from './models/dtos/request/login-user.request.dto';
+import { UpdateUserDto } from './models/dtos/request/updateUser.dto';
+import { UserResponseInterface } from './models/types/userResponse.interface';
 import { UserService } from './services/user.service';
 import { UserEntity } from './user.entity';
 

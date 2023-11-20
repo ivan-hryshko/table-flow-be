@@ -5,10 +5,10 @@ import { sign } from 'jsonwebtoken';
 import { Repository } from 'typeorm';
 
 import { JWT_SECRET } from '../../../config';
-import { CreateUserRequestDto } from '../model/dtos/request/create-user.request.dto';
-import { LoginUserDto } from '../model/dtos/request/login-user.request.dto';
-import { UpdateUserDto } from '../model/dtos/request/updateUser.dto';
-import { UserResponseInterface } from '../model/types/userResponse.interface';
+import { CreateUserRequestDto } from '../models/dtos/request/create-user.request.dto';
+import { LoginUserDto } from '../models/dtos/request/login-user.request.dto';
+import { UpdateUserDto } from '../models/dtos/request/updateUser.dto';
+import { UserResponseInterface } from '../models/types/userResponse.interface';
 import { UserEntity } from '../user.entity';
 
 @Injectable()

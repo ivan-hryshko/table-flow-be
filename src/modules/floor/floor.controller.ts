@@ -14,11 +14,11 @@ import { BackendValidationPipe } from '../../utils/pipes/backendValidation.pipe'
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { User } from '../user/decorators/user.decorator';
 import { UserEntity } from '../user/user.entity';
-import { CreateFloorRequestDto } from './model/dtos/request/create-floor.request.dto';
-import { DeleteFloorRequestDto } from './model/dtos/request/delete-floor.request.dto';
-import { UpdateFloorRequestDto } from './model/dtos/request/update-floor.request.dto';
-import { FloorResponseInterface } from './model/types/floorResponse.interface';
-import { FloorsResponseInterface } from './model/types/floorsResponse.interface';
+import { CreateFloorRequestDto } from './models/dtos/request/create-floor.request.dto';
+import { DeleteFloorRequestDto } from './models/dtos/request/delete-floor.request.dto';
+import { UpdateFloorRequestDto } from './models/dtos/request/update-floor.request.dto';
+import { FloorResponseInterface } from './models/types/floorResponse.interface';
+import { FloorsResponseInterface } from './models/types/floorsResponse.interface';
 import { FloorService } from './services/floor.service';
 
 @Controller('api/v1')

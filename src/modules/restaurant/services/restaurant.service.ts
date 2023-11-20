@@ -4,12 +4,12 @@ import { Repository } from 'typeorm';
 
 import { ErrorHelper } from '../../../utils/errors/errorshelper.helper';
 import { UserEntity } from '../../user/user.entity';
-import { CreateRestaurantRequestDto } from '../model/dtos/request/create-restaurant.request.dto';
-import { DeleteRestaurantRequestDto } from '../model/dtos/request/delete-restaurant.request.dto';
-import { UpdateRestaurantRequestDto } from '../model/dtos/request/update-restaurant.request.dto';
-import { RestaurantQueryParams } from '../model/types/restaurantQuery.types';
-import { RestaurantResponseInterface } from '../model/types/restaurantResponse.interface';
-import { RestaurantsResponseInterface } from '../model/types/restaurantsResponse.interface';
+import { CreateRestaurantRequestDto } from '../models/dtos/request/create-restaurant.request.dto';
+import { DeleteRestaurantRequestDto } from '../models/dtos/request/delete-restaurant.request.dto';
+import { UpdateRestaurantRequestDto } from '../models/dtos/request/update-restaurant.request.dto';
+import { RestaurantQueryParams } from '../models/types/restaurantQuery.types';
+import { RestaurantResponseInterface } from '../models/types/restaurantResponse.interface';
+import { RestaurantsResponseInterface } from '../models/types/restaurantsResponse.interface';
 import { RestaurantEntity } from '../restaurant.entity';
 
 @Injectable()

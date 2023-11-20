@@ -5,12 +5,12 @@ import { Repository } from 'typeorm';
 import { RestaurantService } from '../../restaurant/services/restaurant.service';
 import { UserEntity } from '../../user/user.entity';
 import { FloorEntity } from '../floor.entity';
-import { CreateFloorRequestDto } from '../model/dtos/request/create-floor.request.dto';
-import { DeleteFloorRequestDto } from '../model/dtos/request/delete-floor.request.dto';
-import { UpdateFloorRequestDto } from '../model/dtos/request/update-floor.request.dto';
-import { FloorQueryParams } from '../model/types/floorQuery.types';
-import { FloorResponseInterface } from '../model/types/floorResponse.interface';
-import { FloorsResponseInterface } from '../model/types/floorsResponse.interface';
+import { CreateFloorRequestDto } from '../models/dtos/request/create-floor.request.dto';
+import { DeleteFloorRequestDto } from '../models/dtos/request/delete-floor.request.dto';
+import { UpdateFloorRequestDto } from '../models/dtos/request/update-floor.request.dto';
+import { FloorQueryParams } from '../models/types/floorQuery.types';
+import { FloorResponseInterface } from '../models/types/floorResponse.interface';
+import { FloorsResponseInterface } from '../models/types/floorsResponse.interface';
 
 @Injectable()
 export class FloorService {
