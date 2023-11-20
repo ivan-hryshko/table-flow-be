@@ -15,8 +15,8 @@ import { CreateUserRequestDto } from './model/dtos/request/create-user.request.d
 import { LoginUserDto } from './model/dtos/request/login-user.request.dto';
 import { UpdateUserDto } from './model/dtos/request/updateUser.dto';
 import { UserResponseInterface } from './model/types/userResponse.interface';
+import { UserService } from './services/user.service';
 import { UserEntity } from './user.entity';
-import { UserService } from './user.service';
 
 @Controller('api/v1')
 export class UserController {

@@ -5,7 +5,7 @@ import { throwError } from 'rxjs';
 
 import { JWT_SECRET } from '../../../config';
 import { ExpressRequest } from '../../../utils/types/expressRequest.interface';
-import { UserService } from '../../user/user.service';
+import { UserService } from '../../user/services/user.service';
 
 @Injectable()
 export class AuthMiddleWare implements NestMiddleware {

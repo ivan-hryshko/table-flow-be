@@ -4,9 +4,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { FloorModule } from '../floor/floor.module';
 import { RestaurantModule } from '../restaurant/restaurant.module';
+import { TableService } from './services/table.service';
 import { TableController } from './table.controller';
 import { TableEntity } from './table.entity';
-import { TableService } from './table.service';
 
 @Module({
   imports: [

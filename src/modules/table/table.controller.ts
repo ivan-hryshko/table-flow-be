@@ -14,7 +14,7 @@ import { UserEntity } from '../user/user.entity';
 import { CreateTableRequestDto } from './model/dtos/request/create-table.request.dto';
 import { TableResponseInterface } from './model/types/tableResponse.interface';
 import { TablesResponseInterface } from './model/types/tablesResponse.interface';
-import { TableService } from './table.service';
+import { TableService } from './services/table.service';
 
 @Controller('api/v1')
 export class TableController {
