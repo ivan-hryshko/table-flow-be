@@ -87,14 +87,19 @@ export class TableService {
     const errorHelper = new ErrorHelper();
     const table = await this.getById(deleteTableDto.id);
 
-    console.log('table >>>>>>', table);
-
     if (!table) {
       errorHelper.addNewError(
         `Table with given id:${deleteTableDto.id} does not exist`,
-        'restaurant',
+        'table',
       );
       throw new HttpException(errorHelper.getErrors(), HttpStatus.NOT_FOUND);
+    }
+    const floor = await this.floorService.getById(deleteTableDto.id);
+    if (floor.restaurant.user.id !== currentUserId) {
+      throw new HttpException(
+        'You are not author of floor',
+        HttpStatus.FORBIDDEN,
+      );
     }
 
     return this.tableRepository.delete({ id: deleteTableDto.id });
