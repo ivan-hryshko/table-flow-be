@@ -51,7 +51,7 @@ export class TableService {
     if (!floor) {
       errorHelper.addNewError(
         `Floor with given id:${createTableDto.floorId} does not exist`,
-        'restaurant',
+        'floor',
       );
       throw new HttpException(errorHelper.getErrors(), HttpStatus.NOT_FOUND);
     }
@@ -94,10 +94,10 @@ export class TableService {
       );
       throw new HttpException(errorHelper.getErrors(), HttpStatus.NOT_FOUND);
     }
-    const floor = await this.floorService.getById(deleteTableDto.id);
-    if (floor.restaurant.user.id !== currentUserId) {
+
+    if (table.restaurant.user.id !== currentUserId) {
       throw new HttpException(
-        'You are not author of floor',
+        'You are not author of restaurant',
         HttpStatus.FORBIDDEN,
       );
     }
