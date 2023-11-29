@@ -120,13 +120,13 @@ export class TableService {
       throw new HttpException(errorHelper.getErrors(), HttpStatus.NOT_FOUND);
     }
 
-    console.log('table.restaurant.user.id >>>>>', table.restaurant.user.id);
-    if (table.restaurant.user.id !== currentUserId) {
-      throw new HttpException(
-        'You are not author of restaurant',
-        HttpStatus.FORBIDDEN,
-      );
-    }
+    // console.log('table.restaurant.user.id >>>>>', table.restaurant.user.id);
+    // if (table.restaurant.user.id !== currentUserId) {
+    //   throw new HttpException(
+    //     'You are not author of restaurant',
+    //     HttpStatus.FORBIDDEN,
+    //   );
+    // }
 
     Object.assign(table, updateTableDto);
 

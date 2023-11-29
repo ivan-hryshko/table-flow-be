@@ -71,7 +71,7 @@ export class TableController {
     return this.tableService.buildTableResponse(table);
   }
 
-  @Delete('table')
+  @Delete('tables')
   @UseGuards(AuthGuard)
   @UsePipes(new BackendValidationPipe())
   async delete(
@@ -81,7 +81,7 @@ export class TableController {
     return await this.tableService.delete(deleteTableDto, currentUserId);
   }
 
-  @Put('table')
+  @Put('tables')
   @UseGuards(AuthGuard)
   @UsePipes(new BackendValidationPipe())
   async update(
