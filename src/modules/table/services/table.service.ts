@@ -11,6 +11,7 @@ import { TableResponseInterface } from '../models/types/tableResponse.interface'
 import { TablesResponseInterface } from '../models/types/tablesResponse.interface';
 import { TableEntity } from '../table.entity';
 import { DeleteTableRequestDto } from '../models/dtos/request/delete-table.request.dto';
+import { UpdateTableRequestDto } from '../models/dtos/request/update-table.request.dto';
 
 @Injectable()
 export class TableService {
@@ -22,9 +23,7 @@ export class TableService {
   ) {}
 
   buildTableResponse(table: TableEntity): TableResponseInterface {
-    return {
-      table,
-    };
+    return { table };
   }
 
   buildTablesResponse(tables: TableEntity[]): TablesResponseInterface {
@@ -103,5 +102,34 @@ export class TableService {
     }
 
     return this.tableRepository.delete({ id: deleteTableDto.id });
+  }
+
+  async update(updateTableDto: UpdateTableRequestDto, currentUserId: number) {
+    const errorHelper = new ErrorHelper();
+    const table: TableEntity = await this.getById(updateTableDto.id);
+    console.log('table >>>>>', table);
+
+    //TODO Як отримати user.id ??
+    //TODO Як змінити floor.id ??
+
+    if (!table) {
+      errorHelper.addNewError(
+        `Table with given id:${updateTableDto.id} does not exist`,
+        'table',
+      );
+      throw new HttpException(errorHelper.getErrors(), HttpStatus.NOT_FOUND);
+    }
+
+    console.log('table.restaurant.user.id >>>>>', table.restaurant.user.id);
+    if (table.restaurant.user.id !== currentUserId) {
+      throw new HttpException(
+        'You are not author of restaurant',
+        HttpStatus.FORBIDDEN,
+      );
+    }
+
+    Object.assign(table, updateTableDto);
+
+    return this.tableRepository.save(table);
   }
 }
