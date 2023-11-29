@@ -10,6 +10,7 @@ import { TableQueryParams } from '../models/types/tableQuery.types';
 import { TableResponseInterface } from '../models/types/tableResponse.interface';
 import { TablesResponseInterface } from '../models/types/tablesResponse.interface';
 import { TableEntity } from '../table.entity';
+import { DeleteTableRequestDto } from '../models/dtos/request/delete-table.request.dto';
 
 @Injectable()
 export class TableService {
@@ -50,7 +51,7 @@ export class TableService {
     if (!floor) {
       errorHelper.addNewError(
         `Floor with given id:${createTableDto.floorId} does not exist`,
-        'restaurant',
+        'floor',
       );
       throw new HttpException(errorHelper.getErrors(), HttpStatus.NOT_FOUND);
     }
@@ -58,24 +59,49 @@ export class TableService {
     const newTable = new TableEntity();
     Object.assign(newTable, createTableDto);
     newTable.restaurant = restaurant;
+    newTable.floor = floor;
     return await this.tableRepository.save(newTable);
   }
 
   async getByUser(query: TableQueryParams) {
     return this.tableRepository
       .createQueryBuilder('table')
-      .innerJoinAndSelect('table.user', 'user')
-      .innerJoinAndSelect('table.floor', 'floor')
+      .innerJoin('table.floor', 'floor')
+      .innerJoin('table.restaurant', 'restaurant')
+      .innerJoin('restaurant.user', 'user')
       .where('user.id = :userId', { userId: query.userId })
       .getMany();
   }
 
-  async deleteByUser(query: TableQueryParams) {
+  async getById(tableId: number) {
     return this.tableRepository
-      .createQueryBuilder() //Створення нового об'єкта QueryBuilder для виконання SQL-запитів.
-      .delete() //Вказуємо, що це буде операція DELETE.
-      .from(TableEntity) //Визначення таблиці, з якої видаляємо дані. TableEntity - це клас сутності, який представляє таблицю "table" в базі даних.
-      .where('user.id = :userId', { userId: query.userId }) //Умова видалення → для рядків, де значення стовпця "user.id" дорівнює query.userId.
-      .execute(); //Запуск SQL-запиту на виконання. В даному випадку, це виконає видалення рядків у вказаних умовах.
+      .createQueryBuilder('table')
+      .innerJoin('table.floor', 'floor')
+      .innerJoin('table.restaurant', 'restaurant')
+      .innerJoin('restaurant.user', 'user')
+      .where('table.id = :tableId', { tableId })
+      .getOne();
+  }
+
+  async delete(deleteTableDto: DeleteTableRequestDto, currentUserId: number) {
+    const errorHelper = new ErrorHelper();
+    const table = await this.getById(deleteTableDto.id);
+
+    if (!table) {
+      errorHelper.addNewError(
+        `Table with given id:${deleteTableDto.id} does not exist`,
+        'table',
+      );
+      throw new HttpException(errorHelper.getErrors(), HttpStatus.NOT_FOUND);
+    }
+
+    if (table.restaurant.user.id !== currentUserId) {
+      throw new HttpException(
+        'You are not author of restaurant',
+        HttpStatus.FORBIDDEN,
+      );
+    }
+
+    return this.tableRepository.delete({ id: deleteTableDto.id });
   }
 }

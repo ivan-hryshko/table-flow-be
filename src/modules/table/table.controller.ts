@@ -1,11 +1,14 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
+  Param,
   Post,
   UseGuards,
   UsePipes,
 } from '@nestjs/common';
+import { DeleteResult } from 'typeorm';
 
 import { BackendValidationPipe } from '../../utils/pipes/backendValidation.pipe';
 import { AuthGuard } from '../auth/guards/auth.guard';
@@ -15,6 +18,7 @@ import { CreateTableRequestDto } from './models/dtos/request/create-table.reques
 import { TableResponseInterface } from './models/types/tableResponse.interface';
 import { TablesResponseInterface } from './models/types/tablesResponse.interface';
 import { TableService } from './services/table.service';
+import { DeleteTableRequestDto } from './models/dtos/request/delete-table.request.dto';
 
 @Controller('api/v1')
 export class TableController {
@@ -41,21 +45,20 @@ export class TableController {
     return this.tableService.buildTablesResponse(tables);
   }
 
-  // @Delete('tables')
-  // @UseGuards(AuthGuard)
-  // async deleteByUser(
-  //   @User('id') currentUserId: number,
-  // ): Promise<TablesResponseInterface> {
-  //   const tables = await this.tableService.deleteByUser({ userId: currentUserId })
-  //   return this.tableService.buildTablesResponse(tables)
-  // }
-
-  /*
-  async deleteByUser(
-    @User('id') currentUserId: number,
-  ): Promise<DeleteResult> {
-    const result = await this.tableService.deleteByUser({ userId: currentUserId });
-    return result;
+  @Get('tables/:id')
+  @UseGuards(AuthGuard)
+  async getById(@Param('id') tableId: number): Promise<TableResponseInterface> {
+    const table = await this.tableService.getById(tableId);
+    return this.tableService.buildTableResponse(table);
   }
-   */
+
+  @Delete('table')
+  @UseGuards(AuthGuard)
+  @UsePipes(new BackendValidationPipe())
+  async delete(
+    @User('id') currentUserId: number,
+    @Body('table') deleteTableDto: DeleteTableRequestDto,
+  ): Promise<DeleteResult> {
+    return await this.tableService.delete(deleteTableDto, currentUserId);
+  }
 }
