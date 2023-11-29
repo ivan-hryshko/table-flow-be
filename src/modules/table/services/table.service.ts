@@ -73,11 +73,14 @@ export class TableService {
   }
 
   async getById(tableId: number) {
-    return this.tableRepository
+    return await this.tableRepository
       .createQueryBuilder('table')
       .innerJoin('table.floor', 'floor')
       .innerJoin('table.restaurant', 'restaurant')
       .innerJoin('restaurant.user', 'user')
+      .addSelect(['user.id', 'user.firstName', 'user.lastName'])
+      .addSelect(['restaurant.id', 'restaurant.title'])
+      .addSelect(['floor.id', 'floor.title'])
       .where('table.id = :tableId', { tableId })
       .getOne();
   }
@@ -107,10 +110,6 @@ export class TableService {
   async update(updateTableDto: UpdateTableRequestDto, currentUserId: number) {
     const errorHelper = new ErrorHelper();
     const table: TableEntity = await this.getById(updateTableDto.id);
-    console.log('table >>>>>', table);
-
-    //TODO Як отримати user.id ??
-    //TODO Як змінити floor.id ??
 
     if (!table) {
       errorHelper.addNewError(
@@ -120,15 +119,30 @@ export class TableService {
       throw new HttpException(errorHelper.getErrors(), HttpStatus.NOT_FOUND);
     }
 
-    // console.log('table.restaurant.user.id >>>>>', table.restaurant.user.id);
-    // if (table.restaurant.user.id !== currentUserId) {
-    //   throw new HttpException(
-    //     'You are not author of restaurant',
-    //     HttpStatus.FORBIDDEN,
-    //   );
-    // }
+    if (table.restaurant.user.id !== currentUserId) {
+      throw new HttpException(
+        'You are not author of restaurant',
+        HttpStatus.FORBIDDEN,
+      );
+    }
 
-    Object.assign(table, updateTableDto);
+    // Object.assign(table, updateTableDto);
+    const { floorId, ...updatedFields } = updateTableDto;
+    Object.assign(table, updatedFields);
+
+    if (floorId !== undefined) {
+      const floorToUpdate = await this.floorService.getById(floorId);
+
+      if (!floorToUpdate) {
+        errorHelper.addNewError(
+          `Floor with id:${floorId} does not exist`,
+          'floor',
+        );
+        throw new HttpException(errorHelper.getErrors(), HttpStatus.NOT_FOUND);
+      }
+
+      table.floor = floorToUpdate;
+    }
 
     return this.tableRepository.save(table);
   }

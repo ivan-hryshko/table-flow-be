@@ -21,29 +21,15 @@ import { TablesResponseInterface } from './models/types/tablesResponse.interface
 import { CreateTableRequestDto } from './models/dtos/request/create-table.request.dto';
 import { DeleteTableRequestDto } from './models/dtos/request/delete-table.request.dto';
 import { UpdateTableRequestDto } from './models/dtos/request/update-table.request.dto';
-import { RestaurantEntity } from '../restaurant/restaurant.entity';
-import { RestaurantResponseInterface } from '../restaurant/models/types/restaurantResponse.interface';
-import { RestaurantsResponseInterface } from '../restaurant/models/types/restaurantsResponse.interface';
 import { TableEntity } from './table.entity';
 
 @Controller('api/v1')
 export class TableController {
   constructor(private readonly tableService: TableService) {}
 
-  buildTableResponse(table: TableEntity): TableResponseInterface {
-    return {
-      table,
-    };
-  }
 
-  buildRTableResponse(tables: TableEntity[]): TablesResponseInterface {
-    return {
-      tables,
-      tablesCount: tables.length,
-    };
-  }
 
-  @Post('table')
+  @Post('tables')
   @UseGuards(AuthGuard)
   @UsePipes(new BackendValidationPipe())
   // @UsePipes(new createTablePipe())
@@ -88,10 +74,7 @@ export class TableController {
     @User('id') currentUserId: number,
     @Body('table') updateTableDto: UpdateTableRequestDto,
   ): Promise<TableResponseInterface> {
-    const table = await this.tableService.update(
-      updateTableDto,
-      currentUserId,
-    );
+    const table = await this.tableService.update(updateTableDto, currentUserId);
     return this.tableService.buildTableResponse(table);
   }
 }
