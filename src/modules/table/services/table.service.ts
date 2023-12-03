@@ -126,11 +126,11 @@ export class TableService {
       );
     }
 
-    // Object.assign(table, updateTableDto);
     const { floorId, ...updatedFields } = updateTableDto;
+
     Object.assign(table, updatedFields);
 
-    if (floorId !== undefined) {
+    if (floorId) {
       const floorToUpdate = await this.floorService.getById(floorId);
 
       if (!floorToUpdate) {
@@ -139,6 +139,17 @@ export class TableService {
           'floor',
         );
         throw new HttpException(errorHelper.getErrors(), HttpStatus.NOT_FOUND);
+      }
+
+      const restaurant = await this.restaurantService.getById(
+        floorToUpdate.restaurant.id,
+      );
+
+      if (restaurant.user.id !== currentUserId) {
+        throw new HttpException(
+          'You are not author of restaurant',
+          HttpStatus.FORBIDDEN,
+        );
       }
 
       table.floor = floorToUpdate;
