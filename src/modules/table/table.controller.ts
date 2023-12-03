@@ -2,13 +2,15 @@ import {
   Body,
   Controller,
   Delete,
-  Get, HttpException, HttpStatus,
+  Get,
+  HttpException,
+  HttpStatus,
   Param,
   Post,
   Put,
   UseGuards,
-  UsePipes
-} from "@nestjs/common";
+  UsePipes,
+} from '@nestjs/common';
 import { DeleteResult } from 'typeorm';
 
 import { ErrorHelper } from '../../utils/errors/errorshelper.helper';
@@ -54,7 +56,7 @@ export class TableController {
   async getById(@Param('id') tableId: number): Promise<TableResponseInterface> {
     const errorHelper = new ErrorHelper();
     const table = await this.tableService.getById(tableId);
-    if(!table){
+    if (!table) {
       errorHelper.addNewError(
         `Table with given id:${tableId} does not exist`,
         'table',
