@@ -11,6 +11,7 @@ import { TableResponseInterface } from '../models/types/tableResponse.interface'
 import { TablesResponseInterface } from '../models/types/tablesResponse.interface';
 import { TableEntity } from '../table.entity';
 import { DeleteTableRequestDto } from '../models/dtos/request/delete-table.request.dto';
+import { UpdateTableRequestDto } from '../models/dtos/request/update-table.request.dto';
 
 @Injectable()
 export class TableService {
@@ -22,9 +23,7 @@ export class TableService {
   ) {}
 
   buildTableResponse(table: TableEntity): TableResponseInterface {
-    return {
-      table,
-    };
+    return { table };
   }
 
   buildTablesResponse(tables: TableEntity[]): TablesResponseInterface {
@@ -74,11 +73,14 @@ export class TableService {
   }
 
   async getById(tableId: number) {
-    return this.tableRepository
+    return await this.tableRepository
       .createQueryBuilder('table')
       .innerJoin('table.floor', 'floor')
       .innerJoin('table.restaurant', 'restaurant')
       .innerJoin('restaurant.user', 'user')
+      .addSelect(['user.id', 'user.firstName', 'user.lastName'])
+      .addSelect(['restaurant.id', 'restaurant.title'])
+      .addSelect(['floor.id', 'floor.title'])
       .where('table.id = :tableId', { tableId })
       .getOne();
   }
@@ -103,5 +105,56 @@ export class TableService {
     }
 
     return this.tableRepository.delete({ id: deleteTableDto.id });
+  }
+
+  async update(updateTableDto: UpdateTableRequestDto, currentUserId: number) {
+    const errorHelper = new ErrorHelper();
+    const table: TableEntity = await this.getById(updateTableDto.id);
+
+    if (!table) {
+      errorHelper.addNewError(
+        `Table with given id:${updateTableDto.id} does not exist`,
+        'table',
+      );
+      throw new HttpException(errorHelper.getErrors(), HttpStatus.NOT_FOUND);
+    }
+
+    if (table.restaurant.user.id !== currentUserId) {
+      throw new HttpException(
+        'You are not author of restaurant',
+        HttpStatus.FORBIDDEN,
+      );
+    }
+
+    const { floorId, ...updatedFields } = updateTableDto;
+
+    Object.assign(table, updatedFields);
+
+    if (floorId) {
+      const floorToUpdate = await this.floorService.getById(floorId);
+
+      if (!floorToUpdate) {
+        errorHelper.addNewError(
+          `Floor with id:${floorId} does not exist`,
+          'floor',
+        );
+        throw new HttpException(errorHelper.getErrors(), HttpStatus.NOT_FOUND);
+      }
+
+      const restaurant = await this.restaurantService.getById(
+        floorToUpdate.restaurant.id,
+      );
+
+      if (restaurant.user.id !== currentUserId) {
+        throw new HttpException(
+          'You are not author of restaurant',
+          HttpStatus.FORBIDDEN,
+        );
+      }
+
+      table.floor = floorToUpdate;
+    }
+
+    return this.tableRepository.save(table);
   }
 }
