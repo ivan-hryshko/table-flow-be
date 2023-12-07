@@ -1,7 +1,8 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 import { FloorEntity } from '../floor/floor.entity';
 import { RestaurantEntity } from '../restaurant/restaurant.entity';
+import { ReserveEntity } from "../reserve/reserve.entity";
 
 @Entity({ name: 'tables' })
 export class TableEntity {
@@ -26,8 +27,9 @@ export class TableEntity {
   @ManyToOne(() => FloorEntity, (floor) => floor.tables, { eager: true })
   floor: FloorEntity;
 
-  @ManyToOne(() => RestaurantEntity, (restaurant) => restaurant.tables, {
-    eager: true,
-  })
+  @ManyToOne(() => RestaurantEntity, (restaurant) => restaurant.tables, { eager: true })
   restaurant: RestaurantEntity;
+
+  @OneToMany(() => ReserveEntity, (reserve) => reserve.table)
+  reserves: ReserveEntity[];
 }
