@@ -1,6 +1,6 @@
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
-import { TableEntity } from '../table/table.entity';
+import { RestaurantEntity } from "../restaurant/restaurant.entity";
 
 @Entity({ name: 'reserves' })
 export class ReserveEntity {
@@ -19,6 +19,6 @@ export class ReserveEntity {
   @Column({ default: 1 })
   countOfGuests: number;
 
-  @ManyToOne(() => TableEntity, (table) => table.reserves, { eager: true })
-  table: TableEntity;
+  @ManyToOne(() => RestaurantEntity, (restaurant) => restaurant.reserves, { eager: true })
+  restaurant: RestaurantEntity;
 }

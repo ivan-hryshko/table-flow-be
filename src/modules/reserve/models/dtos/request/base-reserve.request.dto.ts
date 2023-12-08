@@ -2,7 +2,7 @@ import { IsNotEmpty } from 'class-validator';
 
 export class BaseReserveRequestDto {
   @IsNotEmpty()
-  readonly tableId: number;
+  readonly restaurantId: number;
 
   readonly reserveDate: Date;
 
@@ -11,5 +11,4 @@ export class BaseReserveRequestDto {
   readonly reserveDurationTime: number;
 
   readonly countOfGuests: number;
-
 }
