@@ -85,6 +85,24 @@ export class TableService {
       .getOne();
   }
 
+  async getAllTablesByRestaurantId(
+    restaurantId: number,
+    currentUserId: number,
+  ):Promise<TableEntity[]> {
+    //TODO Додати перевірку неіснуючого "111" та невірного "114aaa" restaurantId
+
+    if (!restaurantId) {
+      throw new HttpException(`Restaurant with id ${restaurantId} not found`, HttpStatus.NOT_FOUND);
+    }
+
+    return this.tableRepository
+      .createQueryBuilder('table')
+      .innerJoin('table.restaurant', 'restaurant')
+      .innerJoin('restaurant.user', 'user')
+      .where('restaurant.id = :restaurantId', { restaurantId })
+      .getMany();
+  }
+
   async delete(deleteTableDto: DeleteTableRequestDto, currentUserId: number) {
     const errorHelper = new ErrorHelper();
     const table = await this.getById(deleteTableDto.id);

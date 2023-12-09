@@ -36,8 +36,8 @@ export class ReserveService {
     const errorHelper = new ErrorHelper();
 
     const restaurant = await this.restaurantService.getById(
-      createReserveDto.restaurantId
-    )
+      createReserveDto.restaurantId,
+    );
     if (!restaurant) {
       errorHelper.addNewError(
         `Restaurant with given id:${createReserveDto.restaurantId} does not exist`,
@@ -46,27 +46,8 @@ export class ReserveService {
       throw new HttpException(errorHelper.getErrors(), HttpStatus.NOT_FOUND);
     }
 
-    // const floor = await this.floorService.getById(createReserveDto.floorId);
-    // if (!floor) {
-    //   errorHelper.addNewError(
-    //     `Floor with given id:${createReserveDto.floorId} does not exist`,
-    //     'floor',
-    //   );
-    //   throw new HttpException(errorHelper.getErrors(), HttpStatus.NOT_FOUND);
-    // }
-
-    // const table = await this.tableService.getById(createReserveDto.tableId);
-    // if (!table) {
-    //   errorHelper.addNewError(
-    //     `Table with given id:${createReserveDto.tableId} does not exist`,
-    //     'table',
-    //   );
-    //   throw new HttpException(errorHelper.getErrors(), HttpStatus.NOT_FOUND);
-    // }
-
     const newReserve = new ReserveEntity();
     Object.assign(newReserve, createReserveDto);
-    newReserve.restaurant = restaurant;
     return await this.reserveRepository.save(newReserve);
   }
 }

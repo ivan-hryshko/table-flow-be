@@ -9,7 +9,7 @@ import {
 import { FloorEntity } from '../floor/floor.entity';
 import { TableEntity } from '../table/table.entity';
 import { UserEntity } from '../user/user.entity';
-import { ReserveEntity } from "../reserve/reserve.entity";
+
 @Entity({ name: 'restaurants' })
 export class RestaurantEntity {
   @PrimaryGeneratedColumn()
@@ -38,7 +38,4 @@ export class RestaurantEntity {
 
   @OneToMany(() => TableEntity, (table) => table.restaurant)
   tables: TableEntity[];
-
-  @OneToMany(() => ReserveEntity, (reserve) => reserve.restaurant)
-  reserves: ReserveEntity[];
 }

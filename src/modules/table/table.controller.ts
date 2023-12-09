@@ -24,7 +24,6 @@ import { TablesResponseInterface } from './models/types/tablesResponse.interface
 import { CreateTableRequestDto } from './models/dtos/request/create-table.request.dto';
 import { DeleteTableRequestDto } from './models/dtos/request/delete-table.request.dto';
 import { UpdateTableRequestDto } from './models/dtos/request/update-table.request.dto';
-import { TableEntity } from './table.entity';
 
 @Controller('api/v1/tables')
 export class TableController {
@@ -65,6 +64,19 @@ export class TableController {
     }
 
     return this.tableService.buildTableResponse(table);
+  }
+
+  @Get('/restid/:restaurantId')
+  @UseGuards(AuthGuard)
+  async getAllTablesByRestaurantId(
+    @User('id') currentUserId: number,
+    @Param('restaurantId') restaurantId: number,
+  ): Promise<TablesResponseInterface> {
+    const tables = await this.tableService.getAllTablesByRestaurantId(
+      restaurantId,
+      currentUserId,
+    );
+    return this.tableService.buildTablesResponse(tables);
   }
 
   @Delete()

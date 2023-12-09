@@ -2,7 +2,7 @@ import {
   Column,
   Entity,
   ManyToOne,
-  OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
@@ -37,4 +37,7 @@ export class TableEntity {
     eager: true,
   })
   restaurant: RestaurantEntity;
+
+  @OneToOne(() => ReserveEntity, (reserve) => reserve.table)
+  reserve: ReserveEntity;
 }
