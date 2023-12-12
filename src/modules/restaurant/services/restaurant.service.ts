@@ -7,9 +7,9 @@ import { UserEntity } from '../../user/user.entity';
 import { CreateRestaurantRequestDto } from '../models/dtos/request/create-restaurant.request.dto';
 import { DeleteRestaurantRequestDto } from '../models/dtos/request/delete-restaurant.request.dto';
 import { UpdateRestaurantRequestDto } from '../models/dtos/request/update-restaurant.request.dto';
+import { CreateRestaurantResponseDto } from '../models/dtos/response/create-restaurant.response.dto';
+import { RestaurantsResponseDto } from '../models/dtos/response/restaurants.response.dto';
 import { RestaurantQueryParams } from '../models/types/restaurantQuery.types';
-import { RestaurantResponseInterface } from '../models/types/restaurantResponse.interface';
-import { RestaurantsResponseInterface } from '../models/types/restaurantsResponse.interface';
 import { RestaurantEntity } from '../restaurant.entity';
 
 @Injectable()
@@ -19,17 +19,9 @@ export class RestaurantService {
     private readonly restaurantRepository: Repository<RestaurantEntity>,
   ) {}
 
-  buildRestaurantResponse(
-    restaurant: RestaurantEntity,
-  ): RestaurantResponseInterface {
-    return {
-      restaurant,
-    };
-  }
-
   buildRestaurantsResponse(
     restaurants: RestaurantEntity[],
-  ): RestaurantsResponseInterface {
+  ): RestaurantsResponseDto {
     return {
       restaurants,
       restaurantsCount: restaurants.length,
@@ -39,7 +31,7 @@ export class RestaurantService {
   async create(
     currentUser: UserEntity,
     createRestaurantDto: CreateRestaurantRequestDto,
-  ): Promise<RestaurantEntity> {
+  ): Promise<CreateRestaurantResponseDto> {
     const newRestaurant = new RestaurantEntity();
     Object.assign(newRestaurant, createRestaurantDto);
     newRestaurant.user = currentUser;

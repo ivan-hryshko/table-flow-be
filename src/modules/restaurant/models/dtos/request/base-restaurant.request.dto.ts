@@ -2,14 +2,17 @@ import { IsNotEmpty } from 'class-validator';
 
 export class BaseRestaurantRequestDto {
   @IsNotEmpty()
-  readonly title: string;
+  title: string;
 
   @IsNotEmpty()
-  readonly city: string;
+  city: string;
 
-  readonly type: string;
+  @IsNotEmpty()
+  type: string;
 
-  readonly description: string;
+  @IsNotEmpty()
+  description: string;
 
-  readonly location: string;
+  @IsNotEmpty()
+  location: string;
 }

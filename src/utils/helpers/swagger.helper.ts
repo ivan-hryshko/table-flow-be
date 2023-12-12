@@ -1,6 +1,4 @@
 import { OpenAPIObject } from '@nestjs/swagger';
-import { RequestBodyObject } from '@nestjs/swagger/dist/interfaces/open-api-spec.interface';
-
 const pathMethods = ['get', 'post', 'put', 'patch', 'delete'] as const;
 
 const generalResponses = {
@@ -17,12 +15,13 @@ const deleteResponses = {
   204: { description: 'No content' },
 };
 
-const mediaResponses = {
-  415: { description: 'Unsupported Media Type' },
+const postAndPutResponses = {
+  400: { description: 'Bad request' },
 };
 
 export class SwaggerHelper {
   static setDefaultResponses(document: OpenAPIObject): void {
+    console.log(document);
     for (const path of Object.keys(document.paths)) {
       for (const method of pathMethods) {
         const route = document.paths[path]?.[method];
@@ -34,14 +33,13 @@ export class SwaggerHelper {
             Object.assign(route.responses, authResponses);
           }
 
+          if (method === 'put' || method === 'post') {
+            Object.assign(route.responses, postAndPutResponses);
+          }
+
           if (method === 'delete') {
             Object.assign(route.responses, deleteResponses);
             delete route.responses[200];
-          }
-
-          const bodyContent = (route.requestBody as RequestBodyObject)?.content;
-          if (bodyContent?.hasOwnProperty('multipart/form-data')) {
-            Object.assign(route.responses, mediaResponses);
           }
         }
       }

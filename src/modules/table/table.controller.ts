@@ -6,16 +6,18 @@ import {
   UseGuards,
   UsePipes,
 } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 
 import { BackendValidationPipe } from '../../utils/pipes/backendValidation.pipe';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { User } from '../user/decorators/user.decorator';
 import { UserEntity } from '../user/user.entity';
 import { CreateTableRequestDto } from './models/dtos/request/create-table.request.dto';
-import { TableResponseInterface } from './models/types/tableResponse.interface';
-import { TablesResponseInterface } from './models/types/tablesResponse.interface';
+import { CreateTableResponseDto } from './models/dtos/response/create-table.response.dto';
+import { TablesWithCountResponseDto } from './models/dtos/response/tables-with-count.response.dto';
 import { TableService } from './services/table.service';
 
+@ApiTags('Table')
 @Controller('api/v1')
 export class TableController {
   constructor(private readonly tableService: TableService) {}
@@ -26,17 +28,17 @@ export class TableController {
   // @UsePipes(new createTablePipe())
   async create(
     @User() currentUser: UserEntity,
-    @Body('table') createTableDto: CreateTableRequestDto,
-  ): Promise<TableResponseInterface> {
+    @Body() createTableDto: CreateTableRequestDto,
+  ): Promise<CreateTableResponseDto> {
     const table = await this.tableService.create(createTableDto);
     return this.tableService.buildTableResponse(table);
   }
 
   @Get('tables')
   @UseGuards(AuthGuard)
-  async getByUser(
+  async getAllByUserId(
     @User('id') currentUserId: number,
-  ): Promise<TablesResponseInterface> {
+  ): Promise<TablesWithCountResponseDto> {
     const tables = await this.tableService.getByUser({ userId: currentUserId });
     return this.tableService.buildTablesResponse(tables);
   }

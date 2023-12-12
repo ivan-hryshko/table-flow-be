@@ -8,6 +8,7 @@ import {
   UseGuards,
   UsePipes,
 } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { DeleteResult } from 'typeorm';
 
 import { BackendValidationPipe } from '../../utils/pipes/backendValidation.pipe';
@@ -17,10 +18,12 @@ import { UserEntity } from '../user/user.entity';
 import { CreateFloorRequestDto } from './models/dtos/request/create-floor.request.dto';
 import { DeleteFloorRequestDto } from './models/dtos/request/delete-floor.request.dto';
 import { UpdateFloorRequestDto } from './models/dtos/request/update-floor.request.dto';
-import { FloorResponseInterface } from './models/types/floorResponse.interface';
-import { FloorsResponseInterface } from './models/types/floorsResponse.interface';
+import { CreateFloorResponseDto } from './models/dtos/response/create-floor.response.dto';
+import { FloorsResponseDto } from './models/dtos/response/floors.response.dto';
+import { UpdateFloorResponseDto } from './models/dtos/response/update-floor.response.dto';
 import { FloorService } from './services/floor.service';
 
+@ApiTags('Floor')
 @Controller('api/v1')
 export class FloorController {
   constructor(private readonly floorService: FloorService) {}
@@ -31,16 +34,15 @@ export class FloorController {
   async create(
     @User() currentUser: UserEntity,
     @Body() createFloorDto: CreateFloorRequestDto,
-  ): Promise<FloorResponseInterface> {
-    const floor = await this.floorService.create(currentUser, createFloorDto);
-    return this.floorService.buildFloorResponse(floor);
+  ): Promise<CreateFloorResponseDto> {
+    return await this.floorService.create(currentUser, createFloorDto);
   }
 
   @Get('floors')
   @UseGuards(AuthGuard)
-  async getByUser(
+  async getAllByUserId(
     @User('id') currentUserId: number,
-  ): Promise<FloorsResponseInterface> {
+  ): Promise<FloorsResponseDto> {
     const floors = await this.floorService.getByUser({ userId: currentUserId });
     return this.floorService.buildFloorsResponse(floors);
   }
@@ -50,7 +52,7 @@ export class FloorController {
   @UsePipes(new BackendValidationPipe())
   async delete(
     @User('id') currentUserId: number,
-    @Body('floor') deleteFloorDto: DeleteFloorRequestDto,
+    @Body() deleteFloorDto: DeleteFloorRequestDto,
   ): Promise<DeleteResult> {
     return await this.floorService.delete(deleteFloorDto, currentUserId);
   }
@@ -60,9 +62,8 @@ export class FloorController {
   @UsePipes(new BackendValidationPipe())
   async update(
     @User('id') currentUserId: number,
-    @Body('floor') updateFloorDto: UpdateFloorRequestDto,
-  ): Promise<FloorResponseInterface> {
-    const floor = await this.floorService.update(updateFloorDto, currentUserId);
-    return this.floorService.buildFloorResponse(floor);
+    @Body() updateFloorDto: UpdateFloorRequestDto,
+  ): Promise<UpdateFloorResponseDto> {
+    return await this.floorService.update(updateFloorDto, currentUserId);
   }
 }
