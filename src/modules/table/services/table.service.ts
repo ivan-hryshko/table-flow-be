@@ -87,7 +87,8 @@ export class TableService {
 
   async getAllTablesByRestaurantId(
     restaurantId: number,
-    currentUserId: number,
+    //TODO чи треба нам другий параметр ??
+    currentUserId: number = 11,
   ):Promise<TableEntity[]> {
     //TODO Додати перевірку неіснуючого "111" та невірного "114aaa" restaurantId
 

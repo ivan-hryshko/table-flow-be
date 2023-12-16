@@ -6,9 +6,9 @@ import { ReserveResponseInterface } from '../models/types/reserveResponse.interf
 import { CreateReserveRequestDto } from '../models/dtos/request/create-reserve.request.dto';
 import { ErrorHelper } from '../../../utils/errors/errorshelper.helper';
 import { RestaurantService } from '../../restaurant/services/restaurant.service';
-// import { FloorService } from '../../floor/services/floor.service';
-// import { TableService } from '../../table/services/table.service';
+import { TableService } from '../../table/services/table.service';
 import { ReservesResponseInterface } from '../models/types/reservesResponse.interface';
+import { TableEntity } from '../../table/table.entity';
 
 @Injectable()
 export class ReserveService {
@@ -16,8 +16,7 @@ export class ReserveService {
     @InjectRepository(ReserveEntity)
     private readonly reserveRepository: Repository<ReserveEntity>,
     private readonly restaurantService: RestaurantService,
-    // private readonly floorService: FloorService,
-    // private readonly tableService: TableService,
+    private readonly tableService: TableService,
   ) {}
 
   buildReserveResponse(reserve: ReserveEntity): ReserveResponseInterface {
@@ -34,7 +33,6 @@ export class ReserveService {
     createReserveDto: CreateReserveRequestDto,
   ): Promise<ReserveEntity> {
     const errorHelper = new ErrorHelper();
-
     const restaurant = await this.restaurantService.getById(
       createReserveDto.restaurantId,
     );
@@ -46,8 +44,36 @@ export class ReserveService {
       throw new HttpException(errorHelper.getErrors(), HttpStatus.NOT_FOUND);
     }
 
+    function getRandomTable(tables: TableEntity[]): TableEntity {
+      if (!tables.length) {
+        const errorHelper = new ErrorHelper();
+        errorHelper.addNewError(`No tables exist`, 'table');
+        throw new HttpException(errorHelper.getErrors(), HttpStatus.NOT_FOUND);
+      }
+      const randomIndex = Math.floor(Math.random() * tables.length);
+      return tables[randomIndex];
+    }
+
+    const allTablesByRestaurant =
+      await this.tableService.getAllTablesByRestaurantId(restaurant.id);
+
+    const randomTable = getRandomTable(allTablesByRestaurant);
+    if (!randomTable) {
+      errorHelper.addNewError(`No tables available`, 'table');
+      throw new HttpException(errorHelper.getErrors(), HttpStatus.NOT_FOUND);
+    }
+
+    const tableId = randomTable.id;
+
     const newReserve = new ReserveEntity();
-    Object.assign(newReserve, createReserveDto);
+    Object.assign(newReserve, createReserveDto, randomTable);
+    newReserve.tableId = randomTable?.id; // Set the tableId property
+
+    // Convert 'reserveStartTime' string to Date
+    newReserve.reserveStartTime = new Date(
+      `${createReserveDto.reserveDate}T${createReserveDto.reserveStartTime}`,
+    );
+
     return await this.reserveRepository.save(newReserve);
   }
 }
