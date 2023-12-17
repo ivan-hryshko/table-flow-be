@@ -19,16 +19,6 @@ export class ReserveEntity {
   @Column({ default: 1 })
   countOfGuests: number;
 
-  //TODO Додаю до таблиці `Reserves` дані резервного столику
-  @Column({ default: '' })
-  title: string;
-
-  @Column({ default: null })
-  seatsCount: number;
-
-  @Column({ default: null })
-  restaurantId: number;
-
   @Column({ default: null })
   tableId: number;
 

@@ -63,8 +63,6 @@ export class ReserveService {
       throw new HttpException(errorHelper.getErrors(), HttpStatus.NOT_FOUND);
     }
 
-    const tableId = randomTable.id;
-
     const newReserve = new ReserveEntity();
     Object.assign(newReserve, createReserveDto, randomTable);
     newReserve.tableId = randomTable?.id; // Set the tableId property

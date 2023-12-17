@@ -8,7 +8,7 @@ export class BaseReserveRequestDto {
 
   readonly reserveStartTime: Date;
 
-  readonly reserveDurationTime: number;
+  readonly reserveDurationTime: number; //TODO додати дефолтне значення
 
   readonly countOfGuests: number;
 }
