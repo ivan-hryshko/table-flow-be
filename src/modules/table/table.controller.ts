@@ -1,63 +1,97 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
+  HttpException,
+  HttpStatus,
+  Param,
   Post,
+  Put,
   UseGuards,
   UsePipes,
 } from '@nestjs/common';
+import { DeleteResult } from 'typeorm';
 import { ApiTags } from '@nestjs/swagger';
 
+import { ErrorHelper } from '../../utils/errors/errorshelper.helper';
 import { BackendValidationPipe } from '../../utils/pipes/backendValidation.pipe';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { User } from '../user/decorators/user.decorator';
 import { UserEntity } from '../user/user.entity';
+import { TableService } from './services/table.service';
+import { TableResponseInterface } from './models/types/tableResponse.interface';
+import { TablesResponseInterface } from './models/types/tablesResponse.interface';
+import { CreateTableRequestDto } from './models/dtos/request/create-table.request.dto';
+import { DeleteTableRequestDto } from './models/dtos/request/delete-table.request.dto';
+import { UpdateTableRequestDto } from './models/dtos/request/update-table.request.dto';
+import { TableEntity } from './table.entity';
 import { CreateTableRequestDto } from './models/dtos/request/create-table.request.dto';
 import { CreateTableResponseDto } from './models/dtos/response/create-table.response.dto';
 import { TablesWithCountResponseDto } from './models/dtos/response/tables-with-count.response.dto';
 import { TableService } from './services/table.service';
 
+@Controller('api/v1/tables')
 @ApiTags('Table')
 @Controller('api/v1')
 export class TableController {
   constructor(private readonly tableService: TableService) {}
 
-  @Post('table')
+  @Post()
   @UseGuards(AuthGuard)
   @UsePipes(new BackendValidationPipe())
   // @UsePipes(new createTablePipe())
   async create(
     @User() currentUser: UserEntity,
-    @Body() createTableDto: CreateTableRequestDto,
-  ): Promise<CreateTableResponseDto> {
+    @Body('table') createTableDto: CreateTableRequestDto,
+  ): Promise<TableResponseInterface> {
     const table = await this.tableService.create(createTableDto);
     return this.tableService.buildTableResponse(table);
   }
 
-  @Get('tables')
+  @Get()
   @UseGuards(AuthGuard)
-  async getAllByUserId(
+  async getByUser(
     @User('id') currentUserId: number,
-  ): Promise<TablesWithCountResponseDto> {
+  ): Promise<TablesResponseInterface> {
     const tables = await this.tableService.getByUser({ userId: currentUserId });
     return this.tableService.buildTablesResponse(tables);
   }
 
-  // @Delete('tables')
-  // @UseGuards(AuthGuard)
-  // async deleteByUser(
-  //   @User('id') currentUserId: number,
-  // ): Promise<TablesResponseInterface> {
-  //   const tables = await this.tableService.deleteByUser({ userId: currentUserId })
-  //   return this.tableService.buildTablesResponse(tables)
-  // }
+  @Get('/:id')
+  @UseGuards(AuthGuard)
+  async getById(@Param('id') tableId: number): Promise<TableResponseInterface> {
+    const errorHelper = new ErrorHelper();
+    const table = await this.tableService.getById(tableId);
+    if (!table) {
+      errorHelper.addNewError(
+        `Table with given id:${tableId} does not exist`,
+        'table',
+      );
+      throw new HttpException(errorHelper.getErrors(), HttpStatus.NOT_FOUND);
+    }
 
-  /*
-  async deleteByUser(
-    @User('id') currentUserId: number,
-  ): Promise<DeleteResult> {
-    const result = await this.tableService.deleteByUser({ userId: currentUserId });
-    return result;
+    return this.tableService.buildTableResponse(table);
   }
-   */
+
+  @Delete()
+  @UseGuards(AuthGuard)
+  @UsePipes(new BackendValidationPipe())
+  async delete(
+    @User('id') currentUserId: number,
+    @Body('table') deleteTableDto: DeleteTableRequestDto,
+  ): Promise<DeleteResult> {
+    return await this.tableService.delete(deleteTableDto, currentUserId);
+  }
+
+  @Put()
+  @UseGuards(AuthGuard)
+  @UsePipes(new BackendValidationPipe())
+  async update(
+    @User('id') currentUserId: number,
+    @Body('table') updateTableDto: UpdateTableRequestDto,
+  ): Promise<TableResponseInterface> {
+    const table = await this.tableService.update(updateTableDto, currentUserId);
+    return this.tableService.buildTableResponse(table);
+  }
 }
