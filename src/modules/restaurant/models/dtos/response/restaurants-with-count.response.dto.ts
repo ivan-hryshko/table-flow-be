@@ -1,6 +1,6 @@
 import { RestaurantResponseDto } from './restaurant.response.dto';
 
-export class RestaurantsResponseDto {
+export class RestaurantsWithCountResponseDto {
   restaurants: RestaurantResponseDto[];
   restaurantsCount: number;
 }

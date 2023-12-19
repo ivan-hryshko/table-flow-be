@@ -1,5 +1,5 @@
-import { FloorEntity } from '../../../../floor/floor.entity';
-import { TableEntity } from '../../../../table/table.entity';
+import { FloorResponseDto } from '../../../../floor/models/dtos/response/floor.response.dto';
+import { TableResponseDto } from '../../../../table/models/dtos/response/table.response.dto';
 import { UserEntity } from '../../../../user/user.entity';
 
 export class BaseRestaurantResponseDto {
@@ -10,6 +10,6 @@ export class BaseRestaurantResponseDto {
   type: string;
   location: string;
   user: UserEntity;
-  floors: FloorEntity[];
-  tables: TableEntity[];
+  floors: FloorResponseDto[];
+  tables: TableResponseDto[];
 }

@@ -12,9 +12,9 @@ import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { BackendValidationPipe } from '../../utils/pipes/backendValidation.pipe';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { User } from './decorators/user.decorator';
-import { CreateUserRequestDto } from './models/dtos/request/create-user.request.dto';
-import { LoginUserRequestDto } from './models/dtos/request/login-user.request.dto';
-import { UpdateUserRequestDto } from './models/dtos/request/update-user.request.dto';
+import { CreateUserWrapperRequestDto } from './models/dtos/request/create-user-wrapper.request.dto';
+import { LoginUserWrapperRequestDto } from './models/dtos/request/login-user-wrapper.request.dto';
+import { UpdateUserWrapperRequestDto } from './models/dtos/request/update-user-wrapper.request.dto';
 import { CreateUserResponseDto } from './models/dtos/response/create-user.response.dto';
 import { LoginUserResponseDto } from './models/dtos/response/login-user.response.dto';
 import { UpdateUserResponseDto } from './models/dtos/response/update-user.response.dto';
@@ -30,9 +30,9 @@ export class UserController {
   @Post()
   @UsePipes(new BackendValidationPipe())
   async createUser(
-    @Body('user') createUserDto: CreateUserRequestDto,
+    @Body() createUserDto: CreateUserWrapperRequestDto,
   ): Promise<CreateUserResponseDto> {
-    const user = await this.userService.createUser(createUserDto);
+    const user = await this.userService.createUser(createUserDto.user);
     return this.userService.buildUserResponse(user);
   }
 
@@ -40,9 +40,9 @@ export class UserController {
   @Post('login')
   @UsePipes(new BackendValidationPipe())
   async login(
-    @Body('user') loginDto: LoginUserRequestDto,
+    @Body() loginDto: LoginUserWrapperRequestDto,
   ): Promise<LoginUserResponseDto> {
-    const user = await this.userService.loginUser(loginDto);
+    const user = await this.userService.loginUser(loginDto.user);
     return this.userService.buildUserResponse(user);
   }
 
@@ -57,10 +57,10 @@ export class UserController {
   @UsePipes(new BackendValidationPipe())
   async updateUser(
     @User('id') currentUserId: number,
-    @Body('user') updateUserDto: UpdateUserRequestDto,
+    @Body() updateUserDto: UpdateUserWrapperRequestDto,
   ): Promise<UpdateUserResponseDto> {
     const user = await this.userService.updateUser(
-      updateUserDto,
+      updateUserDto.user,
       currentUserId,
     );
     return this.userService.buildUserResponse(user);

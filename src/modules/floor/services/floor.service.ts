@@ -22,6 +22,12 @@ export class FloorService {
     private readonly restaurantService: RestaurantService,
   ) {}
 
+  buildFloorResponse(floor: FloorEntity): { floor: FloorEntity } {
+    return {
+      floor,
+    };
+  }
+
   buildFloorsResponse(floors: FloorEntity[]): FloorsResponseDto {
     return {
       floors,

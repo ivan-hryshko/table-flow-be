@@ -1,11 +1,19 @@
-import { PartialType } from '@nestjs/swagger';
-import { IsNotEmpty } from 'class-validator';
+import { PartialType, PickType } from '@nestjs/swagger';
+import { IsNotEmpty, Min } from 'class-validator';
 
 import { BaseRestaurantRequestDto } from './base-restaurant.request.dto';
 
 export class UpdateRestaurantRequestDto extends PartialType(
-  BaseRestaurantRequestDto,
+  PickType(BaseRestaurantRequestDto, [
+    'type',
+    'description',
+    'city',
+    'title',
+    'description',
+    'location',
+  ]),
 ) {
   @IsNotEmpty()
-  readonly id: number;
+  @Min(0)
+  id: number;
 }

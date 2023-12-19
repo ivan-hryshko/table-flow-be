@@ -6,9 +6,10 @@ import { ErrorHelper } from '../../../utils/errors/errorshelper.helper';
 import { FloorService } from '../../floor/services/floor.service';
 import { RestaurantService } from '../../restaurant/services/restaurant.service';
 import { CreateTableRequestDto } from '../models/dtos/request/create-table.request.dto';
+import { DeleteTableRequestDto } from '../models/dtos/request/delete-table.request.dto';
+import { UpdateTableRequestDto } from '../models/dtos/request/update-table.request.dto';
+import { TablesWithCountResponseDto } from '../models/dtos/response/tables-with-count.response.dto';
 import { TableQueryParams } from '../models/types/tableQuery.types';
-import { TableResponseInterface } from '../models/types/tableResponse.interface';
-import { TablesResponseInterface } from '../models/types/tablesResponse.interface';
 import { TableEntity } from '../table.entity';
 
 @Injectable()
@@ -20,7 +21,7 @@ export class TableService {
     private readonly floorService: FloorService,
   ) {}
 
-  buildTableResponse(table: TableEntity): { table: TableResponseDto } {
+  buildTableResponse(table: TableEntity): { table: TableEntity } {
     return {
       table,
     };

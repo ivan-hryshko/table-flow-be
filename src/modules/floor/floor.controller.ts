@@ -15,10 +15,10 @@ import { BackendValidationPipe } from '../../utils/pipes/backendValidation.pipe'
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { User } from '../user/decorators/user.decorator';
 import { UserEntity } from '../user/user.entity';
-import { CreateFloorRequestDto } from './models/dtos/request/create-floor.request.dto';
-import { DeleteFloorRequestDto } from './models/dtos/request/delete-floor.request.dto';
-import { UpdateFloorRequestDto } from './models/dtos/request/update-floor.request.dto';
-import { CreateFloorResponseDto } from './models/dtos/response/create-floor.response.dto';
+import { CreateFloorWrapperRequestDto } from './models/dtos/request/create-floor-wrapper.request.dto';
+import { DeleteFloorWrapperRequestDto } from './models/dtos/request/delete-floor-wrapper.request.dto';
+import { UpdateFloorWrapperRequestDto } from './models/dtos/request/update-floor-wrapper.request.dto';
+import { CreateFloorWrapperResponseDto } from './models/dtos/response/create-floor-wrapper.response.dto';
 import { FloorsResponseDto } from './models/dtos/response/floors.response.dto';
 import { UpdateFloorResponseDto } from './models/dtos/response/update-floor.response.dto';
 import { FloorService } from './services/floor.service';
@@ -33,9 +33,13 @@ export class FloorController {
   @UsePipes(new BackendValidationPipe())
   async create(
     @User() currentUser: UserEntity,
-    @Body() createFloorDto: CreateFloorRequestDto,
-  ): Promise<CreateFloorResponseDto> {
-    return await this.floorService.create(currentUser, createFloorDto);
+    @Body() createFloorDto: CreateFloorWrapperRequestDto,
+  ): Promise<CreateFloorWrapperResponseDto> {
+    const floor = await this.floorService.create(
+      currentUser,
+      createFloorDto.floor,
+    );
+    return this.floorService.buildFloorResponse(floor);
   }
 
   @Get('floors')
@@ -52,9 +56,9 @@ export class FloorController {
   @UsePipes(new BackendValidationPipe())
   async delete(
     @User('id') currentUserId: number,
-    @Body() deleteFloorDto: DeleteFloorRequestDto,
+    @Body() deleteFloorDto: DeleteFloorWrapperRequestDto,
   ): Promise<DeleteResult> {
-    return await this.floorService.delete(deleteFloorDto, currentUserId);
+    return await this.floorService.delete(deleteFloorDto.floor, currentUserId);
   }
 
   @Put('floor')
@@ -62,8 +66,8 @@ export class FloorController {
   @UsePipes(new BackendValidationPipe())
   async update(
     @User('id') currentUserId: number,
-    @Body() updateFloorDto: UpdateFloorRequestDto,
+    @Body() updateFloorDto: UpdateFloorWrapperRequestDto,
   ): Promise<UpdateFloorResponseDto> {
-    return await this.floorService.update(updateFloorDto, currentUserId);
+    return await this.floorService.update(updateFloorDto.floor, currentUserId);
   }
 }

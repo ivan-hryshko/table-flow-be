@@ -14,12 +14,11 @@ import { DeleteResult } from 'typeorm';
 import { BackendValidationPipe } from '../../utils/pipes/backendValidation.pipe';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { User } from '../user/decorators/user.decorator';
-import { CreateRestaurantRequestDto } from './models/dtos/request/create-restaurant.request.dto';
-import { DeleteRestaurantRequestDto } from './models/dtos/request/delete-restaurant.request.dto';
-import { UpdateRestaurantRequestDto } from './models/dtos/request/update-restaurant.request.dto';
-import { CreateRestaurantResponseDto } from './models/dtos/response/create-restaurant.response.dto';
-import { RestaurantsResponseDto } from './models/dtos/response/restaurants.response.dto';
-import { UpdateRestaurantResponseDto } from './models/dtos/response/update-restaurant.response.dto';
+import { CreateRestaurantWrapperRequestDto } from './models/dtos/request/create-restaurant-wrapper.request.dto';
+import { DeleteRestaurantWrapperRequestDto } from './models/dtos/request/delete-restaurant-wrapper.request.dto';
+import { UpdateRestaurantWrapperRequestDto } from './models/dtos/request/update-restaurant-wrapper.request.dto';
+import { CreateRestaurantWrapperResponseDto } from './models/dtos/response/create-restaurant-wrapper.response.dto';
+import { UpdateRestaurantWrapperResponseDto } from './models/dtos/response/update-restaurant-wrapper.response.dto';
 import { RestaurantService } from './services/restaurant.service';
 
 @ApiTags('Restaurant')
@@ -34,19 +33,18 @@ export class RestaurantController {
   @UsePipes(new BackendValidationPipe())
   async create(
     @User() currentUser,
-    @Body() createRestaurantDto: CreateRestaurantRequestDto,
-  ): Promise<CreateRestaurantResponseDto> {
-    return await this.restaurantService.create(
+    @Body() createRestaurantDto: CreateRestaurantWrapperRequestDto,
+  ): Promise<CreateRestaurantWrapperResponseDto> {
+    const restaurant = await this.restaurantService.create(
       currentUser,
-      createRestaurantDto,
+      createRestaurantDto.restaurant,
     );
+    return this.restaurantService.buildRestaurantResponse(restaurant);
   }
 
   @Get('restaurants')
   @UseGuards(AuthGuard)
-  async getAllByUserId(
-    @User('id') currentUserId: number,
-  ): Promise<RestaurantsResponseDto> {
+  async getAllByUserId(@User('id') currentUserId: number): Promise<any> {
     const restaurants = await this.restaurantService.getByUser({
       userId: currentUserId,
     });
@@ -58,10 +56,10 @@ export class RestaurantController {
   @UsePipes(new BackendValidationPipe())
   async delete(
     @User('id') currentUserId: number,
-    @Body() deleteRestaurantDto: DeleteRestaurantRequestDto,
+    @Body() deleteRestaurantDto: DeleteRestaurantWrapperRequestDto,
   ): Promise<DeleteResult> {
     return await this.restaurantService.delete(
-      deleteRestaurantDto,
+      deleteRestaurantDto.restaurant,
       currentUserId,
     );
   }
@@ -71,11 +69,12 @@ export class RestaurantController {
   @UsePipes(new BackendValidationPipe())
   async update(
     @User('id') currentUserId: number,
-    @Body() updateRestaurantDto: UpdateRestaurantRequestDto,
-  ): Promise<UpdateRestaurantResponseDto> {
-    return await this.restaurantService.update(
-      updateRestaurantDto,
+    @Body() updateRestaurantDto: UpdateRestaurantWrapperRequestDto,
+  ): Promise<UpdateRestaurantWrapperResponseDto> {
+    const restaurant = await this.restaurantService.update(
+      updateRestaurantDto.restaurant,
       currentUserId,
     );
+    return this.restaurantService.buildRestaurantResponse(restaurant);
   }
 }

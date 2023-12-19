@@ -8,7 +8,7 @@ import { CreateRestaurantRequestDto } from '../models/dtos/request/create-restau
 import { DeleteRestaurantRequestDto } from '../models/dtos/request/delete-restaurant.request.dto';
 import { UpdateRestaurantRequestDto } from '../models/dtos/request/update-restaurant.request.dto';
 import { CreateRestaurantResponseDto } from '../models/dtos/response/create-restaurant.response.dto';
-import { RestaurantsResponseDto } from '../models/dtos/response/restaurants.response.dto';
+import { RestaurantsWithCountResponseDto } from '../models/dtos/response/restaurants-with-count.response.dto';
 import { RestaurantQueryParams } from '../models/types/restaurantQuery.types';
 import { RestaurantEntity } from '../restaurant.entity';
 
@@ -18,10 +18,17 @@ export class RestaurantService {
     @InjectRepository(RestaurantEntity)
     private readonly restaurantRepository: Repository<RestaurantEntity>,
   ) {}
+  buildRestaurantResponse(restaurant: RestaurantEntity): {
+    restaurant: RestaurantEntity;
+  } {
+    return {
+      restaurant,
+    };
+  }
 
   buildRestaurantsResponse(
     restaurants: RestaurantEntity[],
-  ): RestaurantsResponseDto {
+  ): RestaurantsWithCountResponseDto {
     return {
       restaurants,
       restaurantsCount: restaurants.length,

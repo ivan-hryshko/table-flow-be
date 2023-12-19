@@ -11,29 +11,25 @@ import {
   UseGuards,
   UsePipes,
 } from '@nestjs/common';
-import { DeleteResult } from 'typeorm';
 import { ApiTags } from '@nestjs/swagger';
+import { DeleteResult } from 'typeorm';
 
 import { ErrorHelper } from '../../utils/errors/errorshelper.helper';
 import { BackendValidationPipe } from '../../utils/pipes/backendValidation.pipe';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { User } from '../user/decorators/user.decorator';
 import { UserEntity } from '../user/user.entity';
-import { TableService } from './services/table.service';
+import { CreateTableWrapperRequestDto } from './models/dtos/request/create-table-wrapper.request.dto';
+import { DeleteTableWrapperRequestDto } from './models/dtos/request/delete-table-wrapper.request.dto';
+import { UpdateTableWrapperRequestDto } from './models/dtos/request/update-table-wrapper.request.dto';
+import { CreateTableWrapperResponseDto } from './models/dtos/response/create-table-wrapper.response.dto';
+import { UpdateTableWrapperResponseDto } from './models/dtos/response/update-table-wrapper.response.dto';
 import { TableResponseInterface } from './models/types/tableResponse.interface';
 import { TablesResponseInterface } from './models/types/tablesResponse.interface';
-import { CreateTableRequestDto } from './models/dtos/request/create-table.request.dto';
-import { DeleteTableRequestDto } from './models/dtos/request/delete-table.request.dto';
-import { UpdateTableRequestDto } from './models/dtos/request/update-table.request.dto';
-import { TableEntity } from './table.entity';
-import { CreateTableRequestDto } from './models/dtos/request/create-table.request.dto';
-import { CreateTableResponseDto } from './models/dtos/response/create-table.response.dto';
-import { TablesWithCountResponseDto } from './models/dtos/response/tables-with-count.response.dto';
 import { TableService } from './services/table.service';
 
-@Controller('api/v1/tables')
 @ApiTags('Table')
-@Controller('api/v1')
+@Controller('api/v1/tables')
 export class TableController {
   constructor(private readonly tableService: TableService) {}
 
@@ -43,9 +39,9 @@ export class TableController {
   // @UsePipes(new createTablePipe())
   async create(
     @User() currentUser: UserEntity,
-    @Body('table') createTableDto: CreateTableRequestDto,
-  ): Promise<TableResponseInterface> {
-    const table = await this.tableService.create(createTableDto);
+    @Body() createTableDto: CreateTableWrapperRequestDto,
+  ): Promise<CreateTableWrapperResponseDto> {
+    const table = await this.tableService.create(createTableDto.table);
     return this.tableService.buildTableResponse(table);
   }
 
@@ -79,9 +75,9 @@ export class TableController {
   @UsePipes(new BackendValidationPipe())
   async delete(
     @User('id') currentUserId: number,
-    @Body('table') deleteTableDto: DeleteTableRequestDto,
+    @Body() deleteTableDto: DeleteTableWrapperRequestDto,
   ): Promise<DeleteResult> {
-    return await this.tableService.delete(deleteTableDto, currentUserId);
+    return await this.tableService.delete(deleteTableDto.table, currentUserId);
   }
 
   @Put()
@@ -89,9 +85,12 @@ export class TableController {
   @UsePipes(new BackendValidationPipe())
   async update(
     @User('id') currentUserId: number,
-    @Body('table') updateTableDto: UpdateTableRequestDto,
-  ): Promise<TableResponseInterface> {
-    const table = await this.tableService.update(updateTableDto, currentUserId);
+    @Body() updateTableDto: UpdateTableWrapperRequestDto,
+  ): Promise<UpdateTableWrapperResponseDto> {
+    const table = await this.tableService.update(
+      updateTableDto.table,
+      currentUserId,
+    );
     return this.tableService.buildTableResponse(table);
   }
 }
