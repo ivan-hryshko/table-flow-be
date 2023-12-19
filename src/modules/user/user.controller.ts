@@ -46,12 +46,14 @@ export class UserController {
     return this.userService.buildUserResponse(user);
   }
 
+  @ApiOperation({ description: 'Get current user' })
   @Get()
   @UseGuards(AuthGuard)
   async currentUser(@User() user: UserEntity): Promise<CreateUserResponseDto> {
     return this.userService.buildUserResponse(user);
   }
 
+  @ApiOperation({ description: 'Update user' })
   @Put()
   @UseGuards(AuthGuard)
   @UsePipes(new BackendValidationPipe())

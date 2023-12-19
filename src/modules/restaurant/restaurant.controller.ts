@@ -18,6 +18,7 @@ import { CreateRestaurantWrapperRequestDto } from './models/dtos/request/create-
 import { DeleteRestaurantWrapperRequestDto } from './models/dtos/request/delete-restaurant-wrapper.request.dto';
 import { UpdateRestaurantWrapperRequestDto } from './models/dtos/request/update-restaurant-wrapper.request.dto';
 import { CreateRestaurantWrapperResponseDto } from './models/dtos/response/create-restaurant-wrapper.response.dto';
+import { RestaurantsWithCountResponseDto } from './models/dtos/response/restaurants-with-count.response.dto';
 import { UpdateRestaurantWrapperResponseDto } from './models/dtos/response/update-restaurant-wrapper.response.dto';
 import { RestaurantService } from './services/restaurant.service';
 
@@ -42,15 +43,19 @@ export class RestaurantController {
     return this.restaurantService.buildRestaurantResponse(restaurant);
   }
 
+  @ApiOperation({ description: 'Get all restaurants by user' })
   @Get('restaurants')
   @UseGuards(AuthGuard)
-  async getAllByUserId(@User('id') currentUserId: number): Promise<any> {
+  async getAllByUserId(
+    @User('id') currentUserId: number,
+  ): Promise<RestaurantsWithCountResponseDto> {
     const restaurants = await this.restaurantService.getByUser({
       userId: currentUserId,
     });
     return this.restaurantService.buildRestaurantsResponse(restaurants);
   }
 
+  @ApiOperation({ description: 'Delete restaurant' })
   @Delete('restaurant')
   @UseGuards(AuthGuard)
   @UsePipes(new BackendValidationPipe())
@@ -64,6 +69,7 @@ export class RestaurantController {
     );
   }
 
+  @ApiOperation({ description: 'Update restaurant' })
   @Put('restaurant')
   @UseGuards(AuthGuard)
   @UsePipes(new BackendValidationPipe())

@@ -8,7 +8,7 @@ import {
   UseGuards,
   UsePipes,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { DeleteResult } from 'typeorm';
 
 import { BackendValidationPipe } from '../../utils/pipes/backendValidation.pipe';
@@ -28,6 +28,7 @@ import { FloorService } from './services/floor.service';
 export class FloorController {
   constructor(private readonly floorService: FloorService) {}
 
+  @ApiOperation({ description: 'Create floor' })
   @Post('floor')
   @UseGuards(AuthGuard)
   @UsePipes(new BackendValidationPipe())
@@ -42,6 +43,7 @@ export class FloorController {
     return this.floorService.buildFloorResponse(floor);
   }
 
+  @ApiOperation({ description: 'Get all floors by User' })
   @Get('floors')
   @UseGuards(AuthGuard)
   async getAllByUserId(
@@ -51,6 +53,7 @@ export class FloorController {
     return this.floorService.buildFloorsResponse(floors);
   }
 
+  @ApiOperation({ description: 'Delete floor' })
   @Delete('floor')
   @UseGuards(AuthGuard)
   @UsePipes(new BackendValidationPipe())
@@ -61,6 +64,7 @@ export class FloorController {
     return await this.floorService.delete(deleteFloorDto.floor, currentUserId);
   }
 
+  @ApiOperation({ description: 'Update floor' })
   @Put('floor')
   @UseGuards(AuthGuard)
   @UsePipes(new BackendValidationPipe())

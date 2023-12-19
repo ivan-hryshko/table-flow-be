@@ -11,7 +11,7 @@ import {
   UseGuards,
   UsePipes,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { DeleteResult } from 'typeorm';
 
 import { ErrorHelper } from '../../utils/errors/errorshelper.helper';
@@ -23,8 +23,8 @@ import { CreateTableWrapperRequestDto } from './models/dtos/request/create-table
 import { DeleteTableWrapperRequestDto } from './models/dtos/request/delete-table-wrapper.request.dto';
 import { UpdateTableWrapperRequestDto } from './models/dtos/request/update-table-wrapper.request.dto';
 import { CreateTableWrapperResponseDto } from './models/dtos/response/create-table-wrapper.response.dto';
+import { TableWrapperResponseDto } from './models/dtos/response/table-wrapper.response.dto';
 import { UpdateTableWrapperResponseDto } from './models/dtos/response/update-table-wrapper.response.dto';
-import { TableResponseInterface } from './models/types/tableResponse.interface';
 import { TablesResponseInterface } from './models/types/tablesResponse.interface';
 import { TableService } from './services/table.service';
 
@@ -33,6 +33,7 @@ import { TableService } from './services/table.service';
 export class TableController {
   constructor(private readonly tableService: TableService) {}
 
+  @ApiOperation({ description: 'Create table' })
   @Post()
   @UseGuards(AuthGuard)
   @UsePipes(new BackendValidationPipe())
@@ -45,6 +46,7 @@ export class TableController {
     return this.tableService.buildTableResponse(table);
   }
 
+  @ApiOperation({ description: 'Get all tables by user' })
   @Get()
   @UseGuards(AuthGuard)
   async getByUser(
@@ -54,9 +56,12 @@ export class TableController {
     return this.tableService.buildTablesResponse(tables);
   }
 
+  @ApiOperation({ description: 'Get table' })
   @Get('/:id')
   @UseGuards(AuthGuard)
-  async getById(@Param('id') tableId: number): Promise<TableResponseInterface> {
+  async getById(
+    @Param('id') tableId: number,
+  ): Promise<TableWrapperResponseDto> {
     const errorHelper = new ErrorHelper();
     const table = await this.tableService.getById(tableId);
     if (!table) {
@@ -70,6 +75,7 @@ export class TableController {
     return this.tableService.buildTableResponse(table);
   }
 
+  @ApiOperation({ description: 'Delete table' })
   @Delete()
   @UseGuards(AuthGuard)
   @UsePipes(new BackendValidationPipe())
@@ -80,6 +86,7 @@ export class TableController {
     return await this.tableService.delete(deleteTableDto.table, currentUserId);
   }
 
+  @ApiOperation({ description: 'Update table' })
   @Put()
   @UseGuards(AuthGuard)
   @UsePipes(new BackendValidationPipe())
