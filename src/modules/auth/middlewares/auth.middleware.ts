@@ -22,7 +22,7 @@ export class AuthMiddleWare implements NestMiddleware {
 
     try {
       if (bearer !== 'Bearer') {
-        throwError("Token don't valid");
+        throwError("Токен не дійсний");
       }
       const decode = verify(token, JWT_SECRET) as any;
       req.user = await this.userService.findById(decode.id);

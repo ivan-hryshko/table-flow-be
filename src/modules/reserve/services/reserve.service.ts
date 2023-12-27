@@ -38,7 +38,7 @@ export class ReserveService {
     );
     if (!restaurant) {
       errorHelper.addNewError(
-        `Restaurant with given id:${createReserveDto.restaurantId} does not exist`,
+        `Ресторан з заданим id:${createReserveDto.restaurantId} не існує`,
         'restaurant',
       );
       throw new HttpException(errorHelper.getErrors(), HttpStatus.NOT_FOUND);
@@ -47,7 +47,7 @@ export class ReserveService {
     function getRandomTable(tables: TableEntity[]): TableEntity {
       if (!tables.length) {
         const errorHelper = new ErrorHelper();
-        errorHelper.addNewError(`No tables exist`, 'table');
+        errorHelper.addNewError(`Столик не існує`, 'table');
         throw new HttpException(errorHelper.getErrors(), HttpStatus.NOT_FOUND);
       }
       const randomIndex = Math.floor(Math.random() * tables.length);
@@ -59,7 +59,7 @@ export class ReserveService {
 
     const randomTable = getRandomTable(allTablesByRestaurant);
     if (!randomTable) {
-      errorHelper.addNewError(`No tables available`, 'table');
+      errorHelper.addNewError(`Нема доступних столиків`, 'table');
       throw new HttpException(errorHelper.getErrors(), HttpStatus.NOT_FOUND);
     }
 
