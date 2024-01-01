@@ -10,6 +10,10 @@ import {
   Patch,
   Post,
   Put,
+<<<<<<< HEAD
+=======
+  Patch,
+>>>>>>> 03a06b2 (Progress)
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -32,6 +36,7 @@ import { FloorWrapperResponseDto } from './models/dtos/response/floor-wrapper.re
 import { FloorsResponseDto } from './models/dtos/response/floors.response.dto';
 import { UpdateFloorWrapperResponseDto } from './models/dtos/response/update-floor-wrapper.response.dto';
 import { FloorService } from './services/floor.service';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @ApiTags('Floor')
 @Controller('api/v1/floors')
@@ -105,6 +110,7 @@ export class FloorController {
     return this.floorService.buildFloorResponse(floor);
   }
 
+<<<<<<< HEAD
   @Patch('/:id/image')
   @UseGuards(AuthGuard)
   @UsePipes(new BackendValidationPipe())
@@ -116,5 +122,11 @@ export class FloorController {
   ) {
     const floor = await this.floorService.updateImage(id, file, currentUserId);
     return this.floorService.buildFloorResponse(floor);
+=======
+  @Patch('floor')
+  @UseInterceptors(FileInterceptor('file'))
+  uploadFile(@UploadedFile() file: Express.Multer.File) {
+    console.log(file);
+>>>>>>> 03a06b2 (Progress)
   }
 }
