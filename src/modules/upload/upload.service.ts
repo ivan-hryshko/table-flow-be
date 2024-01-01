@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 import * as fs from 'node:fs';
 
 =======
@@ -9,6 +10,13 @@ import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as path from 'path';
+=======
+import { Injectable } from '@nestjs/common';
+import { S3Client } from "@aws-sdk/client-s3";
+import { Progress, Upload } from "@aws-sdk/lib-storage";
+import { ConfigService } from '@nestjs/config';
+import * as fs from 'node:fs';
+>>>>>>> 03a06b2 (Progress)
 import { v4 as uuid } from 'uuid';
 
 import { UploadFileOptions } from './models/types/upload-file-options.interface';
@@ -22,10 +30,13 @@ export class UploadService {
     this.configService = configService;
     this.s3Client = new S3Client({
       region: configService.get('S3_REGION'),
+<<<<<<< HEAD
       credentials: {
         accessKeyId: configService.get('S3_ACCESS_KEY_ID'),
         secretAccessKey: configService.get('S3_SECRET_ACCESS_KEY'),
       },
+=======
+>>>>>>> 03a06b2 (Progress)
     });
   }
 
@@ -33,6 +44,7 @@ export class UploadService {
     const {
       file,
       directory,
+<<<<<<< HEAD
       progressCallback = () => {},
     } = options;
 
@@ -46,6 +58,22 @@ export class UploadService {
           Bucket: this.configService.get('S3_BUCKET'),
           Key: key,
           Body: file.buffer,
+=======
+      progressCallback,
+    } = options;
+
+    const key = `${directory}/${uuid()}`;
+
+    try {
+      const upload = new Upload({
+        client: new S3Client({
+          region: this.configService.get('S3_REGION'),
+        }),
+        params: {
+          Bucket: this.configService.get('S3_BUCKET'),
+          Key: key,
+          Body: fs.createReadStream(file.path),
+>>>>>>> 03a06b2 (Progress)
         },
         queueSize: 4, // optional concurrency configuration
         partSize: 1024 * 1024 * 5, // optional size of each part, in bytes, at least 5MB
@@ -56,15 +84,22 @@ export class UploadService {
         progressCallback(progress);
       });
 
+<<<<<<< HEAD
       const output = await upload.done();
 
       return output;
     }
 
+=======
+      await upload.done();
+    }
+    
+>>>>>>> 03a06b2 (Progress)
     catch (e) {
       console.log(e);
     }
   }
+<<<<<<< HEAD
 
   async getSignedUrl(key: string, expiresIn: number): Promise<string> {
     const command = new GetObjectCommand({
@@ -75,4 +110,6 @@ export class UploadService {
 
     return url;
   }
+=======
+>>>>>>> 03a06b2 (Progress)
 }
