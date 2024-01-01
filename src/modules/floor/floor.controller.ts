@@ -7,26 +7,30 @@ import {
   HttpStatus,
   NotFoundException,
   Param,
+  Patch,
   Post,
   Put,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
   UsePipes,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
 import { BackendValidationPipe } from '../../utils/pipes/backendValidation.pipe';
+import { IntegerValidationPipe } from '../../utils/pipes/integer-validation.pipe';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { User } from '../user/decorators/user.decorator';
 import { UserEntity } from '../user/user.entity';
 import { FloorEntity } from './floor.entity';
-import { FloorService } from './services/floor.service';
 import { CreateFloorWrapperRequestDto } from './models/dtos/request/create-floor-wrapper.request.dto';
 import { UpdateFloorWrapperRequestDto } from './models/dtos/request/update-floor-wrapper.request.dto';
 import { CreateFloorWrapperResponseDto } from './models/dtos/response/create-floor-wrapper.response.dto';
-import { UpdateFloorWrapperResponseDto } from './models/dtos/response/update-floor-wrapper.response.dto';
-import { FloorsResponseDto } from './models/dtos/response/floors.response.dto';
 import { FloorWrapperResponseDto } from './models/dtos/response/floor-wrapper.response.dto';
-import { IntegerValidationPipe } from '../../utils/pipes/integer-validation.pipe';
+import { FloorsResponseDto } from './models/dtos/response/floors.response.dto';
+import { UpdateFloorWrapperResponseDto } from './models/dtos/response/update-floor-wrapper.response.dto';
+import { FloorService } from './services/floor.service';
 
 @ApiTags('Floor')
 @Controller('api/v1')
@@ -98,5 +102,11 @@ export class FloorController {
       currentUserId,
     );
     return this.floorService.buildFloorResponse(floor);
+  }
+
+  @Patch('floor')
+  @UseInterceptors(FileInterceptor('file'))
+  uploadFile(@UploadedFile() file: Express.Multer.File) {
+    console.log(file);
   }
 }
