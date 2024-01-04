@@ -1,4 +1,11 @@
-import { Column, Entity, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  OneToOne,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 
 import { TableEntity } from '../table/table.entity';
 
@@ -24,4 +31,10 @@ export class ReserveEntity {
 
   @OneToOne(() => TableEntity, (table) => table.reserve, { eager: true })
   table: TableEntity;
+
+  @CreateDateColumn()
+  createAt: Date;
+
+  @UpdateDateColumn()
+  updateAt: Date;
 }

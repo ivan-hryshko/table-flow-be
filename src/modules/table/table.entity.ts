@@ -1,9 +1,11 @@
 import {
   Column,
+  CreateDateColumn,
   Entity,
   ManyToOne,
   OneToOne,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 
 import { FloorEntity } from '../floor/floor.entity';
@@ -40,4 +42,10 @@ export class TableEntity {
 
   @OneToOne(() => ReserveEntity, (reserve) => reserve.table)
   reserve: ReserveEntity;
+
+  @CreateDateColumn()
+  createAt: Date;
+
+  @UpdateDateColumn()
+  updateAt: Date;
 }
