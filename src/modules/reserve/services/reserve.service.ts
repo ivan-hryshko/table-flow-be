@@ -65,7 +65,25 @@ export class ReserveService {
 
     // Перевірка кількості гостей
     if (createReserveDto.countOfGuests > randomTable.seatsCount) {
-      errorHelper.addNewError(`Кількість гостей перевищує кількість посадочних місць за столиком`, 'countOfGuests');
+      errorHelper.addNewError(
+        `Кількість гостей перевищує кількість посадочних місць за столиком`,
+        'countOfGuests',
+      );
+      throw new HttpException(errorHelper.getErrors(), HttpStatus.BAD_REQUEST);
+    }
+
+    // Перевірка дати на вчора
+    const currentDateTime = new Date();
+    const reserveDateTime = new Date(
+      `${createReserveDto.reserveDate}T${createReserveDto.reserveStartTime}`,
+    );
+    // reserveDateTime.setHours(reserveDateTime.getHours() + createReserveDto.reserveDurationTime ); // час закінчення резерву
+
+    if (reserveDateTime <= currentDateTime) {
+      errorHelper.addNewError(
+        `Неприпустима дата чи час резерву`,
+        'reserveDateTime',
+      );
       throw new HttpException(errorHelper.getErrors(), HttpStatus.BAD_REQUEST);
     }
 
@@ -80,4 +98,3 @@ export class ReserveService {
     return await this.reserveRepository.save(newReserve);
   }
 }
-
