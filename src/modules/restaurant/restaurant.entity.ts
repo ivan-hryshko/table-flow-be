@@ -9,6 +9,7 @@ import {
 import { FloorEntity } from '../floor/floor.entity';
 import { TableEntity } from '../table/table.entity';
 import { UserEntity } from '../user/user.entity';
+
 @Entity({ name: 'restaurants' })
 export class RestaurantEntity {
   @PrimaryGeneratedColumn()
