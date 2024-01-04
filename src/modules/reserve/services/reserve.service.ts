@@ -63,15 +63,21 @@ export class ReserveService {
       throw new HttpException(errorHelper.getErrors(), HttpStatus.NOT_FOUND);
     }
 
+    // Перевірка кількості гостей
+    if (createReserveDto.countOfGuests > randomTable.seatsCount) {
+      errorHelper.addNewError(`Кількість гостей перевищує кількість посадочних місць за столиком`, 'countOfGuests');
+      throw new HttpException(errorHelper.getErrors(), HttpStatus.BAD_REQUEST);
+    }
+
     const newReserve = new ReserveEntity();
     Object.assign(newReserve, createReserveDto, randomTable);
-    newReserve.tableId = randomTable?.id; // Set the tableId property
 
-    // Convert 'reserveStartTime' string to Date
+    newReserve.tableId = randomTable?.id; // Set the tableId property
     newReserve.reserveStartTime = new Date(
       `${createReserveDto.reserveDate}T${createReserveDto.reserveStartTime}`,
-    );
+    ); // Convert 'reserveStartTime' string to Date
 
     return await this.reserveRepository.save(newReserve);
   }
 }
+
