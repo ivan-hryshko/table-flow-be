@@ -23,7 +23,7 @@ export class UserService {
       email: createUserDto.email,
     });
     if (userByEmail) {
-      throw new HttpException('Email taken', HttpStatus.UNPROCESSABLE_ENTITY);
+      throw new HttpException('Email зайнятий', HttpStatus.UNPROCESSABLE_ENTITY);
     }
     const newUser = new UserEntity();
     Object.assign(newUser, createUserDto);
@@ -39,7 +39,7 @@ export class UserService {
     });
     if (!user) {
       throw new HttpException(
-        'Credential are not valid',
+        'Облікові дані не є дійсними',
         HttpStatus.UNPROCESSABLE_ENTITY,
       );
     }
@@ -49,7 +49,7 @@ export class UserService {
     );
     if (!isPasswordCorrect) {
       throw new HttpException(
-        'Password is incorrect',
+        'Пароль невірний',
         HttpStatus.UNPROCESSABLE_ENTITY,
       );
     }

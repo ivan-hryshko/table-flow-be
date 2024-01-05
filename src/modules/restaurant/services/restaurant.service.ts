@@ -77,14 +77,14 @@ export class RestaurantService {
 
     if (!restaurant) {
       errorHelper.addNewError(
-        `Restaurant with given id:${deleteRestaurantDto.id} does not exist`,
+        `Ресторан з заданим id:${deleteRestaurantDto.id} не існує`,
         'restaurant',
       );
       throw new HttpException(errorHelper.getErrors(), HttpStatus.NOT_FOUND);
     }
 
     if (restaurant.user.id !== currentUserId) {
-      errorHelper.addNewError(`You are not author of restaurant`, 'owner');
+      errorHelper.addNewError(`Ви не є автором ресторану`, 'owner');
       throw new HttpException(errorHelper.getErrors(), HttpStatus.FORBIDDEN);
     }
 
@@ -100,14 +100,14 @@ export class RestaurantService {
 
     if (!restaurant) {
       errorHelper.addNewError(
-        `Restaurant with given id:${updateRestaurantDto.id} does not exist`,
+        `Ресторан з заданим id:${updateRestaurantDto.id} не існує`,
         'restaurant',
       );
       throw new HttpException(errorHelper.getErrors(), HttpStatus.NOT_FOUND);
     }
 
     if (restaurant.user.id !== currentUserId) {
-      errorHelper.addNewError(`You are not author of restaurant`, 'owner');
+      errorHelper.addNewError(`Ви не є автором ресторану`, 'owner');
       throw new HttpException(errorHelper.getErrors(), HttpStatus.FORBIDDEN);
     }
 
