@@ -20,7 +20,7 @@ import { DeleteFloorWrapperRequestDto } from './models/dtos/request/delete-floor
 import { UpdateFloorWrapperRequestDto } from './models/dtos/request/update-floor-wrapper.request.dto';
 import { CreateFloorWrapperResponseDto } from './models/dtos/response/create-floor-wrapper.response.dto';
 import { FloorsResponseDto } from './models/dtos/response/floors.response.dto';
-import { UpdateFloorResponseDto } from './models/dtos/response/update-floor.response.dto';
+import { UpdateFloorWrapperResponseDto } from './models/dtos/response/update-floor-wrapper.response.dto';
 import { FloorService } from './services/floor.service';
 
 @ApiTags('Floor')
@@ -71,7 +71,11 @@ export class FloorController {
   async update(
     @User('id') currentUserId: number,
     @Body() updateFloorDto: UpdateFloorWrapperRequestDto,
-  ): Promise<UpdateFloorResponseDto> {
-    return await this.floorService.update(updateFloorDto.floor, currentUserId);
+  ): Promise<UpdateFloorWrapperResponseDto> {
+    const floor = await this.floorService.update(
+      updateFloorDto.floor,
+      currentUserId,
+    );
+    return this.floorService.buildFloorResponse(floor);
   }
 }

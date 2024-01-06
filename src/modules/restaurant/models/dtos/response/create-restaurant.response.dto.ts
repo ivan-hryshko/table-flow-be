@@ -4,15 +4,5 @@ import { BaseRestaurantResponseDto } from './base-restaurant.response.dto';
 
 export class CreateRestaurantResponseDto extends PickType(
   BaseRestaurantResponseDto,
-  [
-    'id',
-    'title',
-    'description',
-    'city',
-    'type',
-    'location',
-    'user',
-    'floors',
-    'tables',
-  ],
+  ['id', 'title', 'description', 'city', 'type', 'location'],
 ) {}
