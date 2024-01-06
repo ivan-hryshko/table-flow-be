@@ -1,8 +1,9 @@
-import { IsNotEmpty } from 'class-validator';
+import { PickType } from '@nestjs/swagger';
 
-export class UpdateFloorRequestDto {
-  @IsNotEmpty()
-  readonly id: number;
+import { BaseFloorRequestDto } from './base-floor.request.dto';
 
+export class UpdateFloorRequestDto extends PickType(BaseFloorRequestDto, [
+  'id',
+]) {
   readonly title: string;
 }

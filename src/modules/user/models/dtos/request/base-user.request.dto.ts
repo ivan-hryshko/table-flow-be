@@ -7,4 +7,12 @@ export class BaseUserRequestDto {
 
   @IsNotEmpty()
   readonly password: string;
+
+  readonly bio: string;
+
+  readonly image: string;
+
+  readonly firstName: string;
+
+  readonly lastName: string;
 }
