@@ -58,7 +58,7 @@ export class ReserveService {
       countOfGuests <= table.seatsCount;
 
     // 2 // Перевірка часу резерву
-
+    //TODO переписати дати використовуючи лібу moment.js
     const reserveStartDateTime: Date = new Date(
       `${reserveDate}T${reserveStartTime}`,
     );
