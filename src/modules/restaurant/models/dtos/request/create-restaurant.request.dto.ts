@@ -4,5 +4,13 @@ import { BaseRestaurantRequestDto } from './base-restaurant.request.dto';
 
 export class CreateRestaurantRequestDto extends PickType(
   BaseRestaurantRequestDto,
-  ['title', 'city', 'type', 'description', 'location'],
+  [
+    'title',
+    'city',
+    'type',
+    'description',
+    'location',
+    'openingTime',
+    'closingTime',
+  ],
 ) {}
