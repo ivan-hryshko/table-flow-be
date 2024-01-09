@@ -32,7 +32,7 @@ export class ReserveService {
   async create(
     createReserveDto: CreateReserveRequestDto,
   ): Promise<ReserveEntity> {
-    const errorHelper = new ErrorHelper();
+    const errorHelper: ErrorHelper = new ErrorHelper();
     const {
       reserveDate,
       reserveStartTime,
@@ -54,7 +54,7 @@ export class ReserveService {
       await this.tableService.getAllTablesByRestaurantId(restaurant.id);
 
     // 1 // Перевірка кількості гостей
-    const isGuestCountValid = (table: TableEntity) =>
+    const isGuestCountValid = (table: TableEntity): boolean =>
       countOfGuests <= table.seatsCount;
 
     // 2 // Перевірка часу резерву
@@ -68,7 +68,7 @@ export class ReserveService {
     );
 
     const isReservationTimeValid = (table: TableEntity) => {
-      const openingRestaurantDateTime = new Date(
+      const openingRestaurantDateTime: Date = new Date(
         reserveStartDateTime.toISOString().split('T')[0] +
           'T' +
           restaurant.openingTime,
@@ -89,25 +89,29 @@ export class ReserveService {
     };
 
     // 3 // Перевірка наявності інших бронювань на той же час
-    const isNoOverlapReservations = async (table: TableEntity) => {
-      const reservations = await this.reserveRepository.find({
+    const isNoOverlapReservations = async (
+      table: TableEntity,
+    ): Promise<boolean> => {
+      const reservations: ReserveEntity[] = await this.reserveRepository.find({
         where: { tableId: table.id },
       });
 
-      const isValid = !reservations.some((reservation) => {
-        const existingStart = new Date(reservation.reserveStartTime);
-        const existingEnd = new Date(existingStart);
-        existingEnd.setHours(
-          existingEnd.getHours() + reservation.reserveDurationTime,
-        );
+      const isValid: boolean = !reservations.some(
+        (reservation: ReserveEntity) => {
+          const existingStart: Date = new Date(reservation.reserveStartTime);
+          const existingEnd: Date = new Date(existingStart);
+          existingEnd.setHours(
+            existingEnd.getHours() + reservation.reserveDurationTime,
+          );
 
-        return (
-          (reserveStartDateTime >= existingStart &&
-            reserveStartDateTime < existingEnd) ||
-          (reserveEndDateTime > existingStart &&
-            reserveEndDateTime <= existingEnd)
-        );
-      });
+          return (
+            (reserveStartDateTime >= existingStart &&
+              reserveStartDateTime < existingEnd) ||
+            (reserveEndDateTime > existingStart &&
+              reserveEndDateTime <= existingEnd)
+          );
+        },
+      );
 
       console.log('isNoOverlapReservations >>>>', isValid);
       return isValid;
@@ -115,9 +119,10 @@ export class ReserveService {
 
     // Перевірка кожного столу
     const checkTableConditions = async (table: TableEntity) => {
-      const isGuestCountValidResult = await isGuestCountValid(table);
-      const isReservationTimeValidResult = await isReservationTimeValid(table);
-      const isNoOverlapReservationsResult =
+      const isGuestCountValidResult: boolean = await isGuestCountValid(table);
+      const isReservationTimeValidResult: boolean =
+        await isReservationTimeValid(table);
+      const isNoOverlapReservationsResult: boolean =
         await isNoOverlapReservations(table);
 
       return (
@@ -129,7 +134,7 @@ export class ReserveService {
 
     const availableTables: TableEntity[] = [];
     for (const table of allTablesByRestaurant) {
-      const isValid = await checkTableConditions(table);
+      const isValid: boolean = await checkTableConditions(table);
 
       if (isValid) availableTables.push(table);
     }
@@ -143,11 +148,11 @@ export class ReserveService {
     }
 
     // Обираємо перший стіл з наіменшою кількістю посадкових місць
-    const selectedTable = availableTables.sort(
-      (a, b) => a.seatsCount - b.seatsCount,
+    const selectedTable: TableEntity = availableTables.sort(
+      (a: TableEntity, b: TableEntity) => a.seatsCount - b.seatsCount,
     )[0];
 
-    const newReserve = new ReserveEntity();
+    const newReserve: ReserveEntity = new ReserveEntity();
     Object.assign(newReserve, createReserveDto, selectedTable);
 
     newReserve.tableId = selectedTable?.id; // Set the tableId property
@@ -156,7 +161,8 @@ export class ReserveService {
     ); // Convert 'reserveStartTime' string to Date
 
     // Додавання нового  бронювання
-    const createdReserve = await this.reserveRepository.save(newReserve);
+    const createdReserve: ReserveEntity =
+      await this.reserveRepository.save(newReserve);
 
     /*
     // Видаляємо інші бронювання на той же час для вибраного столу
