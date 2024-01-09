@@ -142,8 +142,10 @@ export class ReserveService {
       throw new HttpException(errorHelper.getErrors(), HttpStatus.NOT_FOUND);
     }
 
-    // Обираємо перший доступний стіл
-    const selectedTable = filteredTables[0];
+    // Обираємо перший стіл з наіменшою кількістю посадкових місць
+    const selectedTable = filteredTables.sort(
+      (a, b) => a.seatsCount - b.seatsCount,
+    )[0];
 
     const newReserve = new ReserveEntity();
     Object.assign(newReserve, createReserveDto, selectedTable);
