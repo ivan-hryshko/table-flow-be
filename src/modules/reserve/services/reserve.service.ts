@@ -33,12 +33,18 @@ export class ReserveService {
     createReserveDto: CreateReserveRequestDto,
   ): Promise<ReserveEntity> {
     const errorHelper = new ErrorHelper();
-    const restaurant = await this.restaurantService.getById(
-      createReserveDto.restaurantId,
-    );
+    const {
+      reserveDate,
+      reserveStartTime,
+      reserveDurationTime,
+      restaurantId,
+      countOfGuests,
+    } = createReserveDto;
+
+    const restaurant = await this.restaurantService.getById(restaurantId);
     if (!restaurant) {
       errorHelper.addNewError(
-        `Ресторан з заданим id:${createReserveDto.restaurantId} не існує`,
+        `Ресторан з заданим id:${restaurantId} не існує`,
         'restaurant',
       );
       throw new HttpException(errorHelper.getErrors(), HttpStatus.NOT_FOUND);
@@ -47,77 +53,44 @@ export class ReserveService {
     const allTablesByRestaurant: TableEntity[] =
       await this.tableService.getAllTablesByRestaurantId(restaurant.id);
 
-    // Функція для перевірки кількості гостей
-    const isGuestCountValid = (table: TableEntity) => {
-      console.log('Checking guest count for table with id:', table.id);
-      const isValid: boolean =
-        createReserveDto.countOfGuests <= table.seatsCount;
-      console.log('Result isGuestCountValid >>>>', isValid);
-      return isValid;
-    };
+    // 1 // Перевірка кількості гостей
+    const isGuestCountValid = (table: TableEntity) =>
+      countOfGuests <= table.seatsCount;
 
-    const reserveStartDateTime: Date = new Date(
-      `${createReserveDto.reserveDate}T${createReserveDto.reserveStartTime}`,
-    );
-    const reserveEndDateTime: Date = new Date(reserveStartDateTime);
+    // 2 // Перевірка часу резерву
+
+    const reserveStartDateTime = new Date(`${reserveDate}T${reserveStartTime}`);
+    const reserveEndDateTime = new Date(reserveStartDateTime);
     reserveEndDateTime.setHours(
-      reserveEndDateTime.getHours() + createReserveDto.reserveDurationTime,
+      reserveEndDateTime.getHours() + reserveDurationTime,
     );
 
-    // Функція для перевірки часу резерву
     const isReservationTimeValid = (table: TableEntity) => {
-      console.log('Checking reservation time for table with id:', table.id);
-      // const reserveStartDateTime: Date = new Date(
-      //   `${createReserveDto.reserveDate}T${createReserveDto.reserveStartTime}`,
-      // );
-      // const reserveEndDateTime: Date = new Date(reserveStartDateTime);
-      // reserveEndDateTime.setHours(
-      //   reserveEndDateTime.getHours() + createReserveDto.reserveDurationTime,
-      // );
-
-      const currentDateTime: Date = new Date();
-
-      // Перевірка часу початку резерву
-      const openingTime: '14:00' = '14:00';
-      const openingTimeDate: Date = new Date(
-        currentDateTime.getFullYear(),
-        currentDateTime.getMonth(),
-        currentDateTime.getDate(),
-        Number(openingTime.split(':')[0]),
-        Number(openingTime.split(':')[1]),
+      const openingRestaurantDateTime = new Date(
+        reserveStartDateTime.toISOString().split('T')[0] +
+          'T' +
+          restaurant.openingTime,
       );
-      const isStartTimeValid: boolean = reserveStartDateTime >= openingTimeDate;
-      console.log('isStartTimeValid >>>>', isStartTimeValid);
-      //TODO додати в Entity час відкриття ресторану. Після – прибрати тимчасову логіку часу початку
-      // const isStartTimeValid = reserveStartDateTime >= restaurant.openingTime;
 
-      // Перевірка часу закінчення резерву
-      const closingTime: '24:00' = '24:00';
-      const closingTimeDate: Date = new Date(
-        reserveEndDateTime.getFullYear(),
-        reserveEndDateTime.getMonth(),
-        reserveEndDateTime.getDate(),
-        Number(closingTime.split(':')[0]),
-        Number(closingTime.split(':')[1]),
+      const isStartTimeValid: boolean =
+        reserveStartDateTime >= openingRestaurantDateTime;
+
+      const closingRestaurantDateTime: Date = new Date(
+        reserveStartDateTime.toISOString().split('T')[0] +
+          'T' +
+          restaurant.closingTime,
       );
-      const isEndTimeValid: boolean = reserveEndDateTime <= closingTimeDate;
-      console.log('isEndTimeValid >>>>', isEndTimeValid);
-      console.log('reserveEndDateTime >>>>', reserveEndDateTime);
-      console.log('closingTimeDate >>>>', closingTimeDate);
-      //TODO додати в Entity час закриття ресторану. Після – прибрати тимчасову логіку часу закриття
-      // const isEndTimeValid = reserveEndDateTime <= restaurant.closingTime;
+      const isEndTimeValid: boolean =
+        reserveEndDateTime <= closingRestaurantDateTime;
 
-      const isValid: boolean = isStartTimeValid && isEndTimeValid;
-      console.log('Result isReservationTimeValid >>>>', isValid);
-      return isValid;
+      return isStartTimeValid && isEndTimeValid;
     };
 
-    // Функція для перевірки наявності інших бронювань на той же час
+    // 3 // Перевірка наявності інших бронювань на той же час
     const isNoOverlapReservations = async (table: TableEntity) => {
       const reservations = await this.reserveRepository.find({
         where: { tableId: table.id },
       });
-      console.log('reservations >>>>', reservations);
 
       const isValid = !reservations.some((reservation) => {
         const existingStart = new Date(reservation.reserveStartTime);
@@ -133,7 +106,8 @@ export class ReserveService {
             reserveEndDateTime <= existingEnd)
         );
       });
-      console.log('Result isNoOverlapReservations >>>>', isValid);
+
+      console.log('isNoOverlapReservations >>>>', isValid);
       return isValid;
     };
 
@@ -163,8 +137,6 @@ export class ReserveService {
       .filter(({ isValid }) => isValid)
       .map(({ table }) => table);
 
-    console.log('filteredTables >>>>', filteredTables);
-
     if (filteredTables.length === 0) {
       errorHelper.addNewError(`Немає доступних столів`, 'table');
       throw new HttpException(errorHelper.getErrors(), HttpStatus.NOT_FOUND);
@@ -178,7 +150,7 @@ export class ReserveService {
 
     newReserve.tableId = selectedTable?.id; // Set the tableId property
     newReserve.reserveStartTime = new Date(
-      `${createReserveDto.reserveDate}T${createReserveDto.reserveStartTime}`,
+      `${reserveDate}T${reserveStartTime}`,
     ); // Convert 'reserveStartTime' string to Date
 
     // Додавання нового  бронювання
