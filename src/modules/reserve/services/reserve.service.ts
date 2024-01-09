@@ -59,8 +59,10 @@ export class ReserveService {
 
     // 2 // Перевірка часу резерву
 
-    const reserveStartDateTime = new Date(`${reserveDate}T${reserveStartTime}`);
-    const reserveEndDateTime = new Date(reserveStartDateTime);
+    const reserveStartDateTime: Date = new Date(
+      `${reserveDate}T${reserveStartTime}`,
+    );
+    const reserveEndDateTime: Date = new Date(reserveStartDateTime);
     reserveEndDateTime.setHours(
       reserveEndDateTime.getHours() + reserveDurationTime,
     );
@@ -113,37 +115,35 @@ export class ReserveService {
 
     // Перевірка кожного столу
     const checkTableConditions = async (table: TableEntity) => {
-      const isGuestCountValidResult = isGuestCountValid(table);
-      const isReservationTimeValidResult = isReservationTimeValid(table);
-      const isNoOverlapReservationsResult = isNoOverlapReservations(table);
+      const isGuestCountValidResult = await isGuestCountValid(table);
+      const isReservationTimeValidResult = await isReservationTimeValid(table);
+      const isNoOverlapReservationsResult =
+        await isNoOverlapReservations(table);
 
-      return Promise.all([
-        isGuestCountValidResult,
-        isReservationTimeValidResult,
-        isNoOverlapReservationsResult,
-      ]).then(([guestCountValid, reservationTimeValid, noOverlapValid]) => {
-        return guestCountValid && reservationTimeValid && noOverlapValid;
-      });
+      return (
+        isGuestCountValidResult &&
+        isReservationTimeValidResult &&
+        isNoOverlapReservationsResult
+      );
     };
 
-    const availableTables = await Promise.all(
-      allTablesByRestaurant.map(async (table) => ({
-        table,
-        isValid: await checkTableConditions(table),
-      })),
-    );
+    const availableTables: TableEntity[] = [];
+    for (const table of allTablesByRestaurant) {
+      const isValid = await checkTableConditions(table);
 
-    const filteredTables = availableTables
-      .filter(({ isValid }) => isValid)
-      .map(({ table }) => table);
+      if (isValid) availableTables.push(table);
+    }
 
-    if (filteredTables.length === 0) {
-      errorHelper.addNewError(`Немає доступних столів`, 'table');
+    if (availableTables.length === 0) {
+      errorHelper.addNewError(
+        `На цей час або дату немає доступних столів`,
+        'table',
+      );
       throw new HttpException(errorHelper.getErrors(), HttpStatus.NOT_FOUND);
     }
 
     // Обираємо перший стіл з наіменшою кількістю посадкових місць
-    const selectedTable = filteredTables.sort(
+    const selectedTable = availableTables.sort(
       (a, b) => a.seatsCount - b.seatsCount,
     )[0];
 
