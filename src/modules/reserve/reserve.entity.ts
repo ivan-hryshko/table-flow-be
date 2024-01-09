@@ -2,7 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  OneToOne,
+  ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -29,7 +29,7 @@ export class ReserveEntity {
   @Column({ default: null })
   tableId: number;
 
-  @OneToOne(() => TableEntity, (table) => table.reserve, { eager: true })
+  @ManyToOne(() => TableEntity, (table) => table.reserves)
   table: TableEntity;
 
   @CreateDateColumn()

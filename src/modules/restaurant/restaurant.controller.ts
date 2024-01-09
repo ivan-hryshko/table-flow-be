@@ -26,7 +26,7 @@ import { RestaurantService } from './services/restaurant.service';
 export class RestaurantController {
   constructor(private readonly restaurantService: RestaurantService) {}
 
-  @Post('restaurant')
+  @Post('restaurants')
   @UseGuards(AuthGuard)
   @UsePipes(new BackendValidationPipe())
   async create(
