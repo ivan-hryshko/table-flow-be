@@ -40,7 +40,7 @@ export class TableService {
     );
     if (!restaurant) {
       errorHelper.addNewError(
-        `Restaurant with given id:${createTableDto.restaurantId} does not exist`,
+        `Ресторану з заданим id:${createTableDto.restaurantId} не існує`,
         'restaurant',
       );
       throw new HttpException(errorHelper.getErrors(), HttpStatus.NOT_FOUND);
@@ -49,7 +49,7 @@ export class TableService {
     const floor = await this.floorService.getById(createTableDto.floorId);
     if (!floor) {
       errorHelper.addNewError(
-        `Floor with given id:${createTableDto.floorId} does not exist`,
+        `Поверху з заданим id:${createTableDto.floorId} не існує`,
         'floor',
       );
       throw new HttpException(errorHelper.getErrors(), HttpStatus.NOT_FOUND);
@@ -89,11 +89,14 @@ export class TableService {
     restaurantId: number,
     //TODO чи треба нам другий параметр ??
     currentUserId: number = 11,
-  ):Promise<TableEntity[]> {
+  ): Promise<TableEntity[]> {
     //TODO Додати перевірку неіснуючого "111" та невірного "114aaa" restaurantId
 
     if (!restaurantId) {
-      throw new HttpException(`Restaurant with id ${restaurantId} not found`, HttpStatus.NOT_FOUND);
+      throw new HttpException(
+        `Ресторану з заданим id ${restaurantId} не знайдено`,
+        HttpStatus.NOT_FOUND,
+      );
     }
 
     return this.tableRepository
@@ -110,7 +113,7 @@ export class TableService {
 
     if (!table) {
       errorHelper.addNewError(
-        `Table with given id:${deleteTableDto.id} does not exist`,
+        `Столик з заданим id:${deleteTableDto.id} не існує`,
         'table',
       );
       throw new HttpException(errorHelper.getErrors(), HttpStatus.NOT_FOUND);
@@ -118,7 +121,7 @@ export class TableService {
 
     if (table.restaurant.user.id !== currentUserId) {
       throw new HttpException(
-        'You are not author of restaurant',
+        'Ви не є автором ресторану',
         HttpStatus.FORBIDDEN,
       );
     }
@@ -132,7 +135,7 @@ export class TableService {
 
     if (!table) {
       errorHelper.addNewError(
-        `Table with given id:${updateTableDto.id} does not exist`,
+        `Столик з заданим id:${updateTableDto.id} не існує`,
         'table',
       );
       throw new HttpException(errorHelper.getErrors(), HttpStatus.NOT_FOUND);
@@ -140,7 +143,7 @@ export class TableService {
 
     if (table.restaurant.user.id !== currentUserId) {
       throw new HttpException(
-        'You are not author of restaurant',
+        'Ви не є автором ресторану',
         HttpStatus.FORBIDDEN,
       );
     }
@@ -154,7 +157,7 @@ export class TableService {
 
       if (!floorToUpdate) {
         errorHelper.addNewError(
-          `Floor with id:${floorId} does not exist`,
+          `Поверху з заданим id:${floorId} не існує`,
           'floor',
         );
         throw new HttpException(errorHelper.getErrors(), HttpStatus.NOT_FOUND);
@@ -166,7 +169,7 @@ export class TableService {
 
       if (restaurant.user.id !== currentUserId) {
         throw new HttpException(
-          'You are not author of restaurant',
+          'Ви не є автором ресторану',
           HttpStatus.FORBIDDEN,
         );
       }
