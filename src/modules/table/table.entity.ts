@@ -3,7 +3,7 @@ import {
   CreateDateColumn,
   Entity,
   ManyToOne,
-  OneToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -40,8 +40,8 @@ export class TableEntity {
   })
   restaurant: RestaurantEntity;
 
-  @OneToOne(() => ReserveEntity, (reserve) => reserve.table)
-  reserve: ReserveEntity;
+  @OneToMany(() => ReserveEntity, (reserve) => reserve.table)
+  reserves: ReserveEntity[];
 
   @CreateDateColumn()
   createAt: Date;

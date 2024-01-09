@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ReserveEntity } from '../reserve.entity';
-import { Repository } from 'typeorm';
+import { getConnection, LessThan, MoreThan, Repository } from 'typeorm';
 import { ReserveResponseInterface } from '../models/types/reserveResponse.interface';
 import { CreateReserveRequestDto } from '../models/dtos/request/create-reserve.request.dto';
 import { ErrorHelper } from '../../../utils/errors/errorshelper.helper';
@@ -44,57 +44,155 @@ export class ReserveService {
       throw new HttpException(errorHelper.getErrors(), HttpStatus.NOT_FOUND);
     }
 
-    function getRandomTable(tables: TableEntity[]): TableEntity {
-      if (!tables.length) {
-        const errorHelper = new ErrorHelper();
-        errorHelper.addNewError(`Столів не існує`, 'table');
-        throw new HttpException(errorHelper.getErrors(), HttpStatus.NOT_FOUND);
-      }
-      const randomIndex = Math.floor(Math.random() * tables.length);
-      return tables[randomIndex];
-    }
-
-    const allTablesByRestaurant =
+    const allTablesByRestaurant: TableEntity[] =
       await this.tableService.getAllTablesByRestaurantId(restaurant.id);
 
-    const randomTable = getRandomTable(allTablesByRestaurant);
-    if (!randomTable) {
+    // Функція для перевірки кількості гостей
+    const isGuestCountValid = (table: TableEntity) => {
+      console.log('Checking guest count for table with id:', table.id);
+      const isValid: boolean =
+        createReserveDto.countOfGuests <= table.seatsCount;
+      console.log('Result isGuestCountValid >>>>', isValid);
+      return isValid;
+    };
+
+    const reserveStartDateTime: Date = new Date(
+      `${createReserveDto.reserveDate}T${createReserveDto.reserveStartTime}`,
+    );
+    const reserveEndDateTime: Date = new Date(reserveStartDateTime);
+    reserveEndDateTime.setHours(
+      reserveEndDateTime.getHours() + createReserveDto.reserveDurationTime,
+    );
+
+    // Функція для перевірки часу резерву
+    const isReservationTimeValid = (table: TableEntity) => {
+      console.log('Checking reservation time for table with id:', table.id);
+      // const reserveStartDateTime: Date = new Date(
+      //   `${createReserveDto.reserveDate}T${createReserveDto.reserveStartTime}`,
+      // );
+      // const reserveEndDateTime: Date = new Date(reserveStartDateTime);
+      // reserveEndDateTime.setHours(
+      //   reserveEndDateTime.getHours() + createReserveDto.reserveDurationTime,
+      // );
+
+      const currentDateTime: Date = new Date();
+
+      // Перевірка часу початку резерву
+      const openingTime: '14:00' = '14:00';
+      const openingTimeDate: Date = new Date(
+        currentDateTime.getFullYear(),
+        currentDateTime.getMonth(),
+        currentDateTime.getDate(),
+        Number(openingTime.split(':')[0]),
+        Number(openingTime.split(':')[1]),
+      );
+      const isStartTimeValid: boolean = reserveStartDateTime >= openingTimeDate;
+      console.log('isStartTimeValid >>>>', isStartTimeValid);
+      //TODO додати в Entity час відкриття ресторану. Після – прибрати тимчасову логіку часу початку
+      // const isStartTimeValid = reserveStartDateTime >= restaurant.openingTime;
+
+      // Перевірка часу закінчення резерву
+      const closingTime: '24:00' = '24:00';
+      const closingTimeDate: Date = new Date(
+        reserveEndDateTime.getFullYear(),
+        reserveEndDateTime.getMonth(),
+        reserveEndDateTime.getDate(),
+        Number(closingTime.split(':')[0]),
+        Number(closingTime.split(':')[1]),
+      );
+      const isEndTimeValid: boolean = reserveEndDateTime <= closingTimeDate;
+      console.log('isEndTimeValid >>>>', isEndTimeValid);
+      console.log('reserveEndDateTime >>>>', reserveEndDateTime);
+      console.log('closingTimeDate >>>>', closingTimeDate);
+      //TODO додати в Entity час закриття ресторану. Після – прибрати тимчасову логіку часу закриття
+      // const isEndTimeValid = reserveEndDateTime <= restaurant.closingTime;
+
+      const isValid: boolean = isStartTimeValid && isEndTimeValid;
+      console.log('Result isReservationTimeValid >>>>', isValid);
+      return isValid;
+    };
+
+    // Функція для перевірки наявності інших бронювань на той же час
+    const isNoOverlapReservations = async (table: TableEntity) => {
+      const reservations = await this.reserveRepository.find({
+        where: { tableId: table.id },
+      });
+      console.log('reservations >>>>', reservations);
+
+      const isValid = !reservations.some((reservation) => {
+        const existingStart = new Date(reservation.reserveStartTime);
+        const existingEnd = new Date(existingStart);
+        existingEnd.setHours(
+          existingEnd.getHours() + reservation.reserveDurationTime,
+        );
+
+        return (
+          (reserveStartDateTime >= existingStart &&
+            reserveStartDateTime < existingEnd) ||
+          (reserveEndDateTime > existingStart &&
+            reserveEndDateTime <= existingEnd)
+        );
+      });
+      console.log('Result isNoOverlapReservations >>>>', isValid);
+      return isValid;
+    };
+
+    // Перевірка кожного столу
+    const checkTableConditions = async (table: TableEntity) => {
+      const isGuestCountValidResult = isGuestCountValid(table);
+      const isReservationTimeValidResult = isReservationTimeValid(table);
+      const isNoOverlapReservationsResult = isNoOverlapReservations(table);
+
+      return Promise.all([
+        isGuestCountValidResult,
+        isReservationTimeValidResult,
+        isNoOverlapReservationsResult,
+      ]).then(([guestCountValid, reservationTimeValid, noOverlapValid]) => {
+        return guestCountValid && reservationTimeValid && noOverlapValid;
+      });
+    };
+
+    const availableTables = await Promise.all(
+      allTablesByRestaurant.map(async (table) => ({
+        table,
+        isValid: await checkTableConditions(table),
+      })),
+    );
+
+    const filteredTables = availableTables
+      .filter(({ isValid }) => isValid)
+      .map(({ table }) => table);
+
+    console.log('filteredTables >>>>', filteredTables);
+
+    if (filteredTables.length === 0) {
       errorHelper.addNewError(`Немає доступних столів`, 'table');
       throw new HttpException(errorHelper.getErrors(), HttpStatus.NOT_FOUND);
     }
 
-    // Перевірка кількості гостей
-    if (createReserveDto.countOfGuests > randomTable.seatsCount) {
-      errorHelper.addNewError(
-        `Кількість гостей перевищує кількість посадочних місць за столиком`,
-        'countOfGuests',
-      );
-      throw new HttpException(errorHelper.getErrors(), HttpStatus.BAD_REQUEST);
-    }
-
-    // Перевірка дати на вчора
-    const currentDateTime = new Date();
-    const reserveDateTime = new Date(
-      `${createReserveDto.reserveDate}T${createReserveDto.reserveStartTime}`,
-    );
-    // reserveDateTime.setHours(reserveDateTime.getHours() + createReserveDto.reserveDurationTime ); // час закінчення резерву
-
-    if (reserveDateTime <= currentDateTime) {
-      errorHelper.addNewError(
-        `Неприпустима дата чи час резерву`,
-        'reserveDateTime',
-      );
-      throw new HttpException(errorHelper.getErrors(), HttpStatus.BAD_REQUEST);
-    }
+    // Обираємо перший доступний стіл
+    const selectedTable = filteredTables[0];
 
     const newReserve = new ReserveEntity();
-    Object.assign(newReserve, createReserveDto, randomTable);
+    Object.assign(newReserve, createReserveDto, selectedTable);
 
-    newReserve.tableId = randomTable?.id; // Set the tableId property
+    newReserve.tableId = selectedTable?.id; // Set the tableId property
     newReserve.reserveStartTime = new Date(
       `${createReserveDto.reserveDate}T${createReserveDto.reserveStartTime}`,
     ); // Convert 'reserveStartTime' string to Date
 
-    return await this.reserveRepository.save(newReserve);
+    // Додавання нового  бронювання
+    const createdReserve = await this.reserveRepository.save(newReserve);
+
+    /*
+    // Видаляємо інші бронювання на той же час для вибраного столу
+    reservations = reservations.filter(
+      (reservation) =>
+        reservation.tableId !== selectedTable?.id ||
+        reservation.id === createdReserve.id,
+    );
+        */
+
+    return createdReserve;
   }
 }
