@@ -12,4 +12,8 @@ export class BaseRestaurantRequestDto {
   readonly description: string;
 
   readonly location: string;
+
+  readonly openingTime: string;
+
+  readonly closingTime: string;
 }
