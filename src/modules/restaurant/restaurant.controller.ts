@@ -22,11 +22,11 @@ import { RestaurantsResponseInterface } from './models/types/restaurantsResponse
 import { RestaurantService } from './services/restaurant.service';
 
 @UseGuards(AuthGuard)
-@Controller('api/v1')
+@Controller('api/v1/restaurants')
 export class RestaurantController {
   constructor(private readonly restaurantService: RestaurantService) {}
 
-  @Post('restaurants')
+  @Post()
   @UseGuards(AuthGuard)
   @UsePipes(new BackendValidationPipe())
   async create(
@@ -40,7 +40,7 @@ export class RestaurantController {
     return this.restaurantService.buildRestaurantResponse(restaurant);
   }
 
-  @Get('restaurants')
+  @Get()
   @UseGuards(AuthGuard)
   async getByUser(
     @User('id') currentUserId: number,
@@ -51,7 +51,7 @@ export class RestaurantController {
     return this.restaurantService.buildRestaurantsResponse(restaurants);
   }
 
-  @Delete('restaurant')
+  @Delete()
   @UseGuards(AuthGuard)
   @UsePipes(new BackendValidationPipe())
   async delete(
@@ -64,7 +64,7 @@ export class RestaurantController {
     );
   }
 
-  @Put('restaurant')
+  @Put()
   @UseGuards(AuthGuard)
   @UsePipes(new BackendValidationPipe())
   async update(
