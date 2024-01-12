@@ -2,12 +2,14 @@ import { IsNotEmpty } from 'class-validator';
 
 export class BaseTableRequestDto {
   @IsNotEmpty()
-  readonly restaurantId: number;
+  restaurantId: number;
 
   @IsNotEmpty()
-  readonly floorId: number;
+  floorId: number;
 
-  readonly title: string;
+  @IsNotEmpty()
+  title: string;
 
-  readonly seatsCount: number;
+  @IsNotEmpty()
+  seatsCount: number;
 }
