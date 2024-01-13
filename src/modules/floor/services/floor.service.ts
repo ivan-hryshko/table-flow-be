@@ -45,14 +45,14 @@ export class FloorService {
 
     if (!restaurant) {
       throw new HttpException(
-        'Restaurant does not exist',
+        'Ресторан не існує',
         HttpStatus.NOT_FOUND,
       );
     }
 
     if (restaurant.user.id !== currentUser.id) {
       throw new HttpException(
-        'You are not author of restaurant',
+        'Ви не є автором ресторану',
         HttpStatus.FORBIDDEN,
       );
     }
@@ -87,12 +87,12 @@ export class FloorService {
     const floor = await this.getById(deleteFloorDto.id);
 
     if (!floor) {
-      throw new HttpException('Floor does not exist', HttpStatus.NOT_FOUND);
+      throw new HttpException('Поверху не існує', HttpStatus.NOT_FOUND);
     }
 
     if (floor.restaurant.user.id !== currentUserId) {
       throw new HttpException(
-        'You are not author of restaurant',
+        'Ви не є автором ресторану',
         HttpStatus.FORBIDDEN,
       );
     }
@@ -107,12 +107,12 @@ export class FloorService {
     const floor = await this.getById(updateFloorDto.id);
 
     if (!floor) {
-      throw new HttpException('Floor does not exist', HttpStatus.NOT_FOUND);
+      throw new HttpException('Поверху не існує', HttpStatus.NOT_FOUND);
     }
 
     if (floor.restaurant.user.id !== currentUserId) {
       throw new HttpException(
-        'You are not author of restaurant',
+        'Ви не є автором ресторану',
         HttpStatus.FORBIDDEN,
       );
     }
