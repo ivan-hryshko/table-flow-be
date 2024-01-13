@@ -6,9 +6,9 @@ import { Repository } from 'typeorm';
 
 import { JWT_SECRET } from '../../../config';
 import { CreateUserRequestDto } from '../models/dtos/request/create-user.request.dto';
-import { LoginUserDto } from '../models/dtos/request/login-user.request.dto';
-import { UpdateUserDto } from '../models/dtos/request/updateUser.dto';
-import { UserResponseInterface } from '../models/types/userResponse.interface';
+import { LoginUserRequestDto } from '../models/dtos/request/login-user.request.dto';
+import { UpdateUserRequestDto } from '../models/dtos/request/update-user.request.dto';
+import { UserResponseDto } from '../models/dtos/response/user.response.dto';
 import { UserEntity } from '../user.entity';
 
 @Injectable()
@@ -30,29 +30,33 @@ export class UserService {
     return await this.userRepository.save(newUser);
   }
 
-  async loginUser(loginUserDto: LoginUserDto): Promise<UserEntity> {
+  async loginUser(loginUserDto: LoginUserRequestDto): Promise<UserEntity> {
     const user = await this.userRepository.findOne({
       where: {
         email: loginUserDto.email,
       },
       select: ['id', 'email', 'bio', 'image', 'password'],
     });
+
     if (!user) {
       throw new HttpException(
         'Облікові дані не є дійсними',
         HttpStatus.UNPROCESSABLE_ENTITY,
       );
     }
+
     const isPasswordCorrect = await compare(
       loginUserDto.password,
       user.password,
     );
+
     if (!isPasswordCorrect) {
       throw new HttpException(
         'Пароль невірний',
         HttpStatus.UNPROCESSABLE_ENTITY,
       );
     }
+
     delete user.password;
     return user;
   }
@@ -67,10 +71,15 @@ export class UserService {
     );
   }
 
-  buildUserResponse(user: UserEntity): UserResponseInterface {
+  buildUserResponse(user: UserEntity): { user: UserResponseDto } {
     return {
       user: {
-        ...user,
+        id: user.id,
+        email: user.email,
+        bio: user.bio,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        image: user.image,
         token: this.generateJwt(user),
       },
     };
@@ -81,7 +90,7 @@ export class UserService {
   }
 
   async updateUser(
-    updateUserDto: UpdateUserDto,
+    updateUserDto: UpdateUserRequestDto,
     userId: number,
   ): Promise<UserEntity> {
     const user = await this.findById(userId);
