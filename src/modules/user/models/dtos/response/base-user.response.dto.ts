@@ -1,9 +1,13 @@
-import { IsEmail } from 'class-validator';
+import { IsEmail, IsNotEmpty } from 'class-validator';
 
-export class UpdateUserDto {
+export class BaseUserResponseDto {
+  id: number;
+
+  @IsNotEmpty()
   @IsEmail()
   readonly email: string;
 
+  @IsNotEmpty()
   readonly password: string;
 
   readonly bio: string;

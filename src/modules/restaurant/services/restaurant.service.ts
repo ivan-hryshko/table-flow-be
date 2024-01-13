@@ -7,9 +7,9 @@ import { UserEntity } from '../../user/user.entity';
 import { CreateRestaurantRequestDto } from '../models/dtos/request/create-restaurant.request.dto';
 import { DeleteRestaurantRequestDto } from '../models/dtos/request/delete-restaurant.request.dto';
 import { UpdateRestaurantRequestDto } from '../models/dtos/request/update-restaurant.request.dto';
+import { RestaurantResponseDto } from '../models/dtos/response/restaurant.response.dto';
+import { RestaurantsWithCountResponseDto } from '../models/dtos/response/restaurants-with-count.response.dto';
 import { RestaurantQueryParams } from '../models/types/restaurantQuery.types';
-import { RestaurantResponseInterface } from '../models/types/restaurantResponse.interface';
-import { RestaurantsResponseInterface } from '../models/types/restaurantsResponse.interface';
 import { RestaurantEntity } from '../restaurant.entity';
 
 @Injectable()
@@ -18,10 +18,9 @@ export class RestaurantService {
     @InjectRepository(RestaurantEntity)
     private readonly restaurantRepository: Repository<RestaurantEntity>,
   ) {}
-
-  buildRestaurantResponse(
-    restaurant: RestaurantEntity,
-  ): RestaurantResponseInterface {
+  buildRestaurantResponse(restaurant: RestaurantEntity): {
+    restaurant: RestaurantResponseDto;
+  } {
     return {
       restaurant,
     };
@@ -29,7 +28,7 @@ export class RestaurantService {
 
   buildRestaurantsResponse(
     restaurants: RestaurantEntity[],
-  ): RestaurantsResponseInterface {
+  ): RestaurantsWithCountResponseDto {
     return {
       restaurants,
       restaurantsCount: restaurants.length,
@@ -94,7 +93,7 @@ export class RestaurantService {
   async update(
     updateRestaurantDto: UpdateRestaurantRequestDto,
     currentUserId: number,
-  ) {
+  ): Promise<RestaurantEntity> {
     const errorHelper = new ErrorHelper();
     const restaurant = await this.getById(updateRestaurantDto.id);
 

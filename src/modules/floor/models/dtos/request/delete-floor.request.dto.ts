@@ -1,7 +1,7 @@
-import { IsNotEmpty, Min } from 'class-validator';
+import { PickType } from '@nestjs/swagger';
 
-export class DeleteFloorRequestDto {
-  @IsNotEmpty()
-  @Min(0)
-  readonly id: number;
-}
+import { BaseFloorRequestDto } from './base-floor.request.dto';
+
+export class DeleteFloorRequestDto extends PickType(BaseFloorRequestDto, [
+  'id',
+]) {}

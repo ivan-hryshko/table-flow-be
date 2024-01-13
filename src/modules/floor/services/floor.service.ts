@@ -8,9 +8,8 @@ import { FloorEntity } from '../floor.entity';
 import { CreateFloorRequestDto } from '../models/dtos/request/create-floor.request.dto';
 import { DeleteFloorRequestDto } from '../models/dtos/request/delete-floor.request.dto';
 import { UpdateFloorRequestDto } from '../models/dtos/request/update-floor.request.dto';
+import { FloorsResponseDto } from '../models/dtos/response/floors.response.dto';
 import { FloorQueryParams } from '../models/types/floorQuery.types';
-import { FloorResponseInterface } from '../models/types/floorResponse.interface';
-import { FloorsResponseInterface } from '../models/types/floorsResponse.interface';
 
 @Injectable()
 export class FloorService {
@@ -20,13 +19,13 @@ export class FloorService {
     private readonly restaurantService: RestaurantService,
   ) {}
 
-  buildFloorResponse(floor: FloorEntity): FloorResponseInterface {
+  buildFloorResponse(floor: FloorEntity): { floor: FloorEntity } {
     return {
       floor,
     };
   }
 
-  buildFloorsResponse(floors: FloorEntity[]): FloorsResponseInterface {
+  buildFloorsResponse(floors: FloorEntity[]): FloorsResponseDto {
     return {
       floors,
       floorsCount: floors.length,
@@ -37,8 +36,6 @@ export class FloorService {
     currentUser: UserEntity,
     createFloorDto: CreateFloorRequestDto,
   ): Promise<FloorEntity> {
-    const newFloor = new FloorEntity();
-    newFloor.title = createFloorDto.title;
     const restaurant = await this.restaurantService.getById(
       createFloorDto.restaurantId,
     );
@@ -56,11 +53,14 @@ export class FloorService {
         HttpStatus.FORBIDDEN,
       );
     }
+
+    const newFloor = new FloorEntity();
+    newFloor.title = createFloorDto.title;
     newFloor.restaurant = restaurant;
     return await this.floorRepository.save(newFloor);
   }
 
-  async getByUser(query: FloorQueryParams) {
+  async getByUser(query: FloorQueryParams): Promise<FloorEntity[]> {
     return this.floorRepository
       .createQueryBuilder('floor')
       .innerJoin('floor.user', 'user')
@@ -71,7 +71,7 @@ export class FloorService {
       .getMany();
   }
 
-  async getById(floorId: number) {
+  async getById(floorId: number): Promise<FloorEntity> {
     return this.floorRepository
       .createQueryBuilder('floor')
       .innerJoin('floor.restaurant', 'restaurant')
@@ -97,7 +97,10 @@ export class FloorService {
     return this.floorRepository.delete({ id: deleteFloorDto.id });
   }
 
-  async update(updateFloorDto: UpdateFloorRequestDto, currentUserId: number) {
+  async update(
+    updateFloorDto: UpdateFloorRequestDto,
+    currentUserId: number,
+  ): Promise<FloorEntity> {
     const floor = await this.getById(updateFloorDto.id);
 
     if (!floor) {
