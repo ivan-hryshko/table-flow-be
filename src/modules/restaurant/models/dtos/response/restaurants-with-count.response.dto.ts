@@ -1,6 +1,6 @@
-import { RestaurantResponseDto } from './restaurant.response.dto';
+import { RestaurantWithoutRelationsResponseDto } from './restaurant-without-relations.response.dto';
 
 export class RestaurantsWithCountResponseDto {
-  restaurants: RestaurantResponseDto[];
+  restaurants: RestaurantWithoutRelationsResponseDto[];
   restaurantsCount: number;
 }
