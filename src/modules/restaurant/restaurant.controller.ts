@@ -43,7 +43,6 @@ export class RestaurantController {
     return this.restaurantService.buildRestaurantResponse(restaurant);
   }
 
-  @Get()
   @ApiOperation({ description: 'Get all restaurants by user' })
   @Get()
   @UseGuards(AuthGuard)
