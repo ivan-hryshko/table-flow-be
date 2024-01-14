@@ -27,14 +27,6 @@ import { TableWrapperResponseDto } from './models/dtos/response/table-wrapper.re
 import { TablesWithCountResponseDto } from './models/dtos/response/tables-with-count.response.dto';
 import { UpdateTableWrapperResponseDto } from './models/dtos/response/update-table-wrapper.response.dto';
 import { TableService } from './services/table.service';
-<<<<<<< HEAD
-import { TableResponseInterface } from './models/types/tableResponse.interface';
-import { TablesResponseInterface } from './models/types/tablesResponse.interface';
-import { CreateTableRequestDto } from './models/dtos/request/create-table.request.dto';
-import { DeleteTableRequestDto } from './models/dtos/request/delete-table.request.dto';
-import { UpdateTableRequestDto } from './models/dtos/request/update-table.request.dto';
-=======
->>>>>>> main
 
 @ApiTags('Table')
 @Controller('api/v1/tables')
@@ -45,7 +37,6 @@ export class TableController {
   @Post()
   @UseGuards(AuthGuard)
   @UsePipes(new BackendValidationPipe())
-  // @UsePipes(new createTablePipe())
   async create(
     @User() currentUser: UserEntity,
     @Body() createTableDto: CreateTableWrapperRequestDto,
@@ -83,13 +74,13 @@ export class TableController {
     return this.tableService.buildTableResponse(table);
   }
 
-<<<<<<< HEAD
+  @ApiOperation({ description: 'Get all tables by restaurant id' })
   @Get('/restid/:restaurantId')
   @UseGuards(AuthGuard)
   async getAllTablesByRestaurantId(
     @User('id') currentUserId: number,
     @Param('restaurantId') restaurantId: number,
-  ): Promise<TablesResponseInterface> {
+  ): Promise<TablesWithCountResponseDto> {
     const tables = await this.tableService.getAllTablesByRestaurantId(
       restaurantId,
       currentUserId,
@@ -97,9 +88,7 @@ export class TableController {
     return this.tableService.buildTablesResponse(tables);
   }
 
-=======
   @ApiOperation({ description: 'Delete table' })
->>>>>>> main
   @Delete()
   @UseGuards(AuthGuard)
   @UsePipes(new BackendValidationPipe())
