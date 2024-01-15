@@ -5,6 +5,4 @@ import { BaseFloorResponseDto } from './base-floor.response.dto';
 export class CreateFloorResponseDto extends PickType(BaseFloorResponseDto, [
   'id',
   'title',
-  'restaurant',
-  'tables',
 ]) {}

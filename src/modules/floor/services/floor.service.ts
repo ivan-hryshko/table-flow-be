@@ -8,10 +8,7 @@ import { FloorEntity } from '../floor.entity';
 import { CreateFloorRequestDto } from '../models/dtos/request/create-floor.request.dto';
 import { DeleteFloorRequestDto } from '../models/dtos/request/delete-floor.request.dto';
 import { UpdateFloorRequestDto } from '../models/dtos/request/update-floor.request.dto';
-import { CreateFloorResponseDto } from '../models/dtos/response/create-floor.response.dto';
-import { FloorResponseDto } from '../models/dtos/response/floor.response.dto';
 import { FloorsResponseDto } from '../models/dtos/response/floors.response.dto';
-import { UpdateFloorResponseDto } from '../models/dtos/response/update-floor.response.dto';
 import { FloorQueryParams } from '../models/types/floorQuery.types';
 
 @Injectable()
@@ -38,7 +35,7 @@ export class FloorService {
   async create(
     currentUser: UserEntity,
     createFloorDto: CreateFloorRequestDto,
-  ): Promise<CreateFloorResponseDto> {
+  ): Promise<FloorEntity> {
     const restaurant = await this.restaurantService.getById(
       createFloorDto.restaurantId,
     );
@@ -63,7 +60,7 @@ export class FloorService {
     return await this.floorRepository.save(newFloor);
   }
 
-  async getByUser(query: FloorQueryParams): Promise<FloorResponseDto[]> {
+  async getByUser(query: FloorQueryParams): Promise<FloorEntity[]> {
     return this.floorRepository
       .createQueryBuilder('floor')
       .innerJoin('floor.user', 'user')
@@ -74,7 +71,7 @@ export class FloorService {
       .getMany();
   }
 
-  async getById(floorId: number) {
+  async getById(floorId: number): Promise<FloorEntity> {
     return this.floorRepository
       .createQueryBuilder('floor')
       .innerJoin('floor.restaurant', 'restaurant')
@@ -103,7 +100,7 @@ export class FloorService {
   async update(
     updateFloorDto: UpdateFloorRequestDto,
     currentUserId: number,
-  ): Promise<UpdateFloorResponseDto> {
+  ): Promise<FloorEntity> {
     const floor = await this.getById(updateFloorDto.id);
 
     if (!floor) {

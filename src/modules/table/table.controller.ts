@@ -24,8 +24,8 @@ import { DeleteTableWrapperRequestDto } from './models/dtos/request/delete-table
 import { UpdateTableWrapperRequestDto } from './models/dtos/request/update-table-wrapper.request.dto';
 import { CreateTableWrapperResponseDto } from './models/dtos/response/create-table-wrapper.response.dto';
 import { TableWrapperResponseDto } from './models/dtos/response/table-wrapper.response.dto';
+import { TablesWithCountResponseDto } from './models/dtos/response/tables-with-count.response.dto';
 import { UpdateTableWrapperResponseDto } from './models/dtos/response/update-table-wrapper.response.dto';
-import { TablesResponseInterface } from './models/types/tablesResponse.interface';
 import { TableService } from './services/table.service';
 
 @ApiTags('Table')
@@ -51,7 +51,7 @@ export class TableController {
   @UseGuards(AuthGuard)
   async getByUser(
     @User('id') currentUserId: number,
-  ): Promise<TablesResponseInterface> {
+  ): Promise<TablesWithCountResponseDto> {
     const tables = await this.tableService.getByUser({ userId: currentUserId });
     return this.tableService.buildTablesResponse(tables);
   }

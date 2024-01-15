@@ -9,6 +9,4 @@ export class TableResponseDto extends PickType(BaseTableRequestDto, [
   'y',
   'isPlaced',
   'seatsCount',
-  'floor',
-  'restaurant',
 ]) {}
