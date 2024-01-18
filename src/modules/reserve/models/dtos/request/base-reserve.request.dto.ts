@@ -1,14 +1,24 @@
-import { IsNotEmpty } from 'class-validator';
+import { IsNotEmpty, Min } from 'class-validator';
 
 export class BaseReserveRequestDto {
   @IsNotEmpty()
-  readonly restaurantId: number;
+  @Min(0)
+  id: number;
 
-  readonly reserveDate: Date;
+  @IsNotEmpty()
+  @Min(0)
+  restaurantId: number;
 
-  readonly reserveStartTime: Date;
+  @IsNotEmpty()
+  reserveDate: Date;
 
-  readonly reserveDurationTime: number; //TODO додати дефолтне значення
+  @IsNotEmpty()
+  reserveStartTime: Date;
 
-  readonly countOfGuests: number;
+  @IsNotEmpty()
+  reserveDurationTime: number;
+
+  @IsNotEmpty()
+  @Min(1)
+  countOfGuests: number;
 }

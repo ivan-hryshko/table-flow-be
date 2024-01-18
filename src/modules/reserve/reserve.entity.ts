@@ -14,6 +14,9 @@ export class ReserveEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Column()
+  restaurantId: number;
+
   @Column({ default: () => 'CURRENT_TIMESTAMP' })
   reserveDate: Date;
 
