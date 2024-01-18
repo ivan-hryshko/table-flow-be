@@ -32,6 +32,15 @@ export class TableEntity {
   @Column({ default: 2 })
   seatsCount: number;
 
+  @Column({ nullable: true })
+  restaurantId: number;
+
+  @Column({ nullable: true })
+  floorId: number;
+
+  @Column({ nullable: true })
+  userId: number;
+
   @ManyToOne(() => FloorEntity, (floor) => floor.tables, { eager: true })
   floor: FloorEntity;
 

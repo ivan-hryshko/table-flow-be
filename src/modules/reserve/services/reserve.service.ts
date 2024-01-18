@@ -1,14 +1,15 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+
 import { ReserveEntity } from '../reserve.entity';
-import { getConnection, LessThan, MoreThan, Repository } from 'typeorm';
-import { ReserveResponseInterface } from '../models/types/reserveResponse.interface';
 import { CreateReserveRequestDto } from '../models/dtos/request/create-reserve.request.dto';
 import { ErrorHelper } from '../../../utils/errors/errorshelper.helper';
 import { RestaurantService } from '../../restaurant/services/restaurant.service';
 import { TableService } from '../../table/services/table.service';
 import { ReservesResponseInterface } from '../models/types/reservesResponse.interface';
 import { TableEntity } from '../../table/table.entity';
+import { ReserveResponseDto } from '../models/dtos/response/reserve.response.dto';
 
 @Injectable()
 export class ReserveService {
@@ -19,8 +20,12 @@ export class ReserveService {
     private readonly tableService: TableService,
   ) {}
 
-  buildReserveResponse(reserve: ReserveEntity): ReserveResponseInterface {
-    return { reserve };
+  buildReserveResponse(reserve: ReserveEntity): {
+    reserve: ReserveResponseDto;
+  } {
+    return {
+      reserve,
+    };
   }
   buildReservesResponse(reserves: ReserveEntity[]): ReservesResponseInterface {
     return {
@@ -153,26 +158,13 @@ export class ReserveService {
     )[0];
 
     const newReserve: ReserveEntity = new ReserveEntity();
-    Object.assign(newReserve, createReserveDto, selectedTable);
+    Object.assign(newReserve, createReserveDto);
 
     newReserve.tableId = selectedTable?.id; // Set the tableId property
     newReserve.reserveStartTime = new Date(
       `${reserveDate}T${reserveStartTime}`,
     ); // Convert 'reserveStartTime' string to Date
 
-    // Додавання нового  бронювання
-    const createdReserve: ReserveEntity =
-      await this.reserveRepository.save(newReserve);
-
-    /*
-    // Видаляємо інші бронювання на той же час для вибраного столу
-    reservations = reservations.filter(
-      (reservation) =>
-        reservation.tableId !== selectedTable?.id ||
-        reservation.id === createdReserve.id,
-    );
-        */
-
-    return createdReserve;
+    return await this.reserveRepository.save(newReserve);
   }
 }
