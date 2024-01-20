@@ -1,4 +1,4 @@
-import { ApiOperation } from '@nestjs/swagger';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Body, Controller, Post, UseGuards, UsePipes } from '@nestjs/common';
 
 import { ReserveService } from './services/reserve.service';
@@ -9,6 +9,7 @@ import { UserEntity } from '../user/user.entity';
 import { CreateReserveWrapperRequestDto } from './models/dtos/request/create-reserve-wrapper.request.dto';
 import { CreateReserveWrapperResponseDto } from './models/dtos/response/create-reserve-wrapper.response.dto';
 
+@ApiTags('Reserve')
 @Controller('api/v1/reserves')
 export class ReserveController {
   constructor(private readonly reserveService: ReserveService) {}
