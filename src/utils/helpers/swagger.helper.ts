@@ -21,7 +21,6 @@ const postAndPutResponses = {
 
 export class SwaggerHelper {
   static setDefaultResponses(document: OpenAPIObject): void {
-    console.log(document);
     for (const path of Object.keys(document.paths)) {
       for (const method of pathMethods) {
         const route = document.paths[path]?.[method];

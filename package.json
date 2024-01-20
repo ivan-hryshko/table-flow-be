@@ -7,10 +7,12 @@
   "license": "UNLICENSED",
   "scripts": {
     "prebuild": "rimraf dist",
+    "check:node": "node check-node-version.js",
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nodemon",
-    "start:watch": "nest start --watch",
+    "start:dev": "yarn run check:node && nest start --watch -e \"node --env-file environments/dev.env\"",
+    "start:watch": "yarn run check:node && nest start --watch -e \"node --env-file environments/local.env\"",
     "start:prod": "node dist/main.js",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "jest",
@@ -69,6 +71,9 @@
     "ts-node": "10.9.1",
     "tsconfig-paths": "4.2.0",
     "typescript": "5.2.2"
+  },
+  "engines": {
+    "node": ">=20.06.0"
   },
   "jest": {
     "moduleFileExtensions": [
