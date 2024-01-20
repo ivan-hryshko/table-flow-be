@@ -1,10 +1,11 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { compare } from 'bcrypt';
 import { sign } from 'jsonwebtoken';
 import { Repository } from 'typeorm';
 
-import { JWT_SECRET } from '../../../config';
+import { JWTConfig } from '../../../config/config.types';
 import { CreateUserRequestDto } from '../models/dtos/request/create-user.request.dto';
 import { LoginUserRequestDto } from '../models/dtos/request/login-user.request.dto';
 import { UpdateUserRequestDto } from '../models/dtos/request/update-user.request.dto';
@@ -16,6 +17,7 @@ export class UserService {
   constructor(
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
+    private readonly configService: ConfigService,
   ) {}
 
   async createUser(createUserDto: CreateUserRequestDto): Promise<UserEntity> {
@@ -23,7 +25,10 @@ export class UserService {
       email: createUserDto.email,
     });
     if (userByEmail) {
-      throw new HttpException('Email зайнятий', HttpStatus.UNPROCESSABLE_ENTITY);
+      throw new HttpException(
+        'Email зайнятий',
+        HttpStatus.UNPROCESSABLE_ENTITY,
+      );
     }
     const newUser = new UserEntity();
     Object.assign(newUser, createUserDto);
@@ -62,12 +67,14 @@ export class UserService {
   }
 
   generateJwt(user: UserEntity): string {
+    const jwtKey: JWTConfig = this.configService.get('jwt');
+
     return sign(
       {
         id: user.id,
         email: user.email,
       },
-      JWT_SECRET,
+      jwtKey.accessTokenSecret,
     );
   }
 

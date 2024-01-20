@@ -12,7 +12,7 @@ export class PostgresService implements TypeOrmOptionsFactory {
 
   createTypeOrmOptions(): TypeOrmModuleOptions {
     const postgresConfig = this.configService.get<PostgresConfig>('postgres');
-    const folderPath = path.join(process.cwd(), 'dist', 'modules');
+    const folderPath = path.join(process.cwd(), 'dist');
 
     return {
       type: 'postgres',

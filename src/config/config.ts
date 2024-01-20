@@ -5,7 +5,7 @@ import { Config } from './config.types';
 export default (): Config => {
   return {
     app: {
-      host: process.env.APP_HOST || 'local',
+      host: process.env.APP_HOST || 'LOCAL',
       port: parseInt(process.env.APP_PORT) || 3000,
       environment: process.env.APP_ENVIRONMENT || 'local',
     },
