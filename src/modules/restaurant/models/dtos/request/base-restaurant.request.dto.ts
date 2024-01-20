@@ -11,13 +11,13 @@ export class BaseRestaurantRequestDto {
   @IsNotEmpty()
   city: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   type: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   description: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   location: string;
 
   @IsOptional()
