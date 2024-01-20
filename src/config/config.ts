@@ -5,9 +5,9 @@ import { Config } from './config.types';
 export default (): Config => {
   return {
     app: {
-      host: process.env.APP_HOST || 'LOCAL',
+      host: process.env.APP_HOST || 'localhost',
       port: parseInt(process.env.APP_PORT) || 3000,
-      environment: process.env.APP_ENVIRONMENT || 'local',
+      environment: process.env.APP_ENVIRONMENT || 'LOCAL',
     },
     jwt: {
       accessTokenSecret:
