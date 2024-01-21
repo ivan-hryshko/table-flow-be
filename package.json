@@ -27,9 +27,13 @@
     "@aws-sdk/client-s3": "^3.472.0",
     "@aws-sdk/lib-storage": "^3.472.0",
 <<<<<<< HEAD
+<<<<<<< HEAD
     "@aws-sdk/s3-request-presigner": "^3.496.0",
 =======
 >>>>>>> 03a06b2 (Progress)
+=======
+    "@aws-sdk/s3-request-presigner": "^3.496.0",
+>>>>>>> 70e82a2 (Added s3 url signing)
     "@nestjs/common": "10.2.9",
     "@nestjs/config": "3.1.1",
     "@nestjs/core": "10.2.9",

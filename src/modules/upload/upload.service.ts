@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import * as fs from 'node:fs';
 
 =======
@@ -11,17 +12,24 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as path from 'path';
 =======
+=======
+import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import { Progress, Upload } from '@aws-sdk/lib-storage';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+>>>>>>> 70e82a2 (Added s3 url signing)
 import { Injectable } from '@nestjs/common';
-import { S3Client } from "@aws-sdk/client-s3";
-import { Progress, Upload } from "@aws-sdk/lib-storage";
 import { ConfigService } from '@nestjs/config';
+<<<<<<< HEAD
 <<<<<<< HEAD
 import * as fs from 'node:fs';
 >>>>>>> 03a06b2 (Progress)
 =======
 >>>>>>> bb6f1af (Progress)
 import { v4 as uuid } from 'uuid';
+=======
+>>>>>>> 70e82a2 (Added s3 url signing)
 import * as path from 'path';
+import { v4 as uuid } from 'uuid';
 
 import { UploadFileOptions } from './models/types/upload-file-options.interface';
 
@@ -108,6 +116,7 @@ export class UploadService {
       return output;
     }
 
+<<<<<<< HEAD
 =======
       await upload.done();
 =======
@@ -118,11 +127,16 @@ export class UploadService {
     }
     
 >>>>>>> 03a06b2 (Progress)
+=======
+>>>>>>> 70e82a2 (Added s3 url signing)
     catch (e) {
       console.log(e);
     }
   }
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 70e82a2 (Added s3 url signing)
 
   async getSignedUrl(key: string, expiresIn: number): Promise<string> {
     const command = new GetObjectCommand({
@@ -133,6 +147,9 @@ export class UploadService {
 
     return url;
   }
+<<<<<<< HEAD
 =======
 >>>>>>> 03a06b2 (Progress)
+=======
+>>>>>>> 70e82a2 (Added s3 url signing)
 }
