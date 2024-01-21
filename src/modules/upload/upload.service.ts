@@ -15,9 +15,13 @@ import { Injectable } from '@nestjs/common';
 import { S3Client } from "@aws-sdk/client-s3";
 import { Progress, Upload } from "@aws-sdk/lib-storage";
 import { ConfigService } from '@nestjs/config';
+<<<<<<< HEAD
 import * as fs from 'node:fs';
 >>>>>>> 03a06b2 (Progress)
+=======
+>>>>>>> bb6f1af (Progress)
 import { v4 as uuid } from 'uuid';
+import * as path from 'path';
 
 import { UploadFileOptions } from './models/types/upload-file-options.interface';
 
@@ -31,12 +35,18 @@ export class UploadService {
     this.s3Client = new S3Client({
       region: configService.get('S3_REGION'),
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> bb6f1af (Progress)
       credentials: {
         accessKeyId: configService.get('S3_ACCESS_KEY_ID'),
         secretAccessKey: configService.get('S3_SECRET_ACCESS_KEY'),
       },
+<<<<<<< HEAD
 =======
 >>>>>>> 03a06b2 (Progress)
+=======
+>>>>>>> bb6f1af (Progress)
     });
   }
 
@@ -44,6 +54,7 @@ export class UploadService {
     const {
       file,
       directory,
+<<<<<<< HEAD
 <<<<<<< HEAD
       progressCallback = () => {},
     } = options;
@@ -60,20 +71,26 @@ export class UploadService {
           Body: file.buffer,
 =======
       progressCallback,
+=======
+      progressCallback = () => {},
+>>>>>>> bb6f1af (Progress)
     } = options;
 
-    const key = `${directory}/${uuid()}`;
+    const extension = path.extname(file.originalname);
+    const key = `${directory}/${uuid()}${extension}`;
 
     try {
       const upload = new Upload({
-        client: new S3Client({
-          region: this.configService.get('S3_REGION'),
-        }),
+        client: this.s3Client,
         params: {
           Bucket: this.configService.get('S3_BUCKET'),
           Key: key,
+<<<<<<< HEAD
           Body: fs.createReadStream(file.path),
 >>>>>>> 03a06b2 (Progress)
+=======
+          Body: file.buffer,
+>>>>>>> bb6f1af (Progress)
         },
         queueSize: 4, // optional concurrency configuration
         partSize: 1024 * 1024 * 5, // optional size of each part, in bytes, at least 5MB
@@ -85,6 +102,7 @@ export class UploadService {
       });
 
 <<<<<<< HEAD
+<<<<<<< HEAD
       const output = await upload.done();
 
       return output;
@@ -92,6 +110,11 @@ export class UploadService {
 
 =======
       await upload.done();
+=======
+      const output = await upload.done();
+
+      return output;
+>>>>>>> bb6f1af (Progress)
     }
     
 >>>>>>> 03a06b2 (Progress)
