@@ -1,11 +1,11 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { UploadService } from 'src/modules/upload/upload.service';
 import { Repository } from 'typeorm';
 
 import { ErrorHelper } from '../../../utils/errors/errorshelper.helper';
 import { RestaurantEntity } from '../../restaurant/restaurant.entity';
 import { RestaurantService } from '../../restaurant/services/restaurant.service';
+import { UploadService } from '../../upload/upload.service';
 import { UserEntity } from '../../user/user.entity';
 import { FloorEntity } from '../floor.entity';
 import { CreateFloorRequestDto } from '../models/dtos/request/create-floor.request.dto';

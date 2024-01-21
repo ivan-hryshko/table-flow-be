@@ -6,6 +6,7 @@ import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { v4 as uuid } from 'uuid';
+import * as path from 'path';
 
 import { UploadFileOptions } from './models/types/upload-file-options.interface';
 
@@ -18,6 +19,10 @@ export class UploadService {
     this.configService = configService;
     this.s3Client = new S3Client({
       region: configService.get('S3_REGION'),
+      credentials: {
+        accessKeyId: configService.get('S3_ACCESS_KEY_ID'),
+        secretAccessKey: configService.get('S3_SECRET_ACCESS_KEY'),
+      },
     });
   }
 
@@ -25,20 +30,19 @@ export class UploadService {
     const {
       file,
       directory,
-      progressCallback,
+      progressCallback = () => {},
     } = options;
 
-    const key = `${directory}/${uuid()}`;
+    const extension = path.extname(file.originalname);
+    const key = `${directory}/${uuid()}${extension}`;
 
     try {
       const upload = new Upload({
-        client: new S3Client({
-          region: this.configService.get('S3_REGION'),
-        }),
+        client: this.s3Client,
         params: {
           Bucket: this.configService.get('S3_BUCKET'),
           Key: key,
-          Body: fs.createReadStream(file.path),
+          Body: file.buffer,
         },
         queueSize: 4, // optional concurrency configuration
         partSize: 1024 * 1024 * 5, // optional size of each part, in bytes, at least 5MB
@@ -49,7 +53,9 @@ export class UploadService {
         progressCallback(progress);
       });
 
-      await upload.done();
+      const output = await upload.done();
+
+      return output;
     }
     
     catch (e) {
