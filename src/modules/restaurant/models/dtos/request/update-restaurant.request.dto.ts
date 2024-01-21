@@ -11,6 +11,8 @@ export class UpdateRestaurantRequestDto extends PartialType(
     'title',
     'description',
     'location',
+    'openingTime',
+    'closingTime',
   ]),
 ) {
   @IsNotEmpty()

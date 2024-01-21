@@ -9,6 +9,7 @@ import {
 import { FloorEntity } from '../floor/floor.entity';
 import { TableEntity } from '../table/table.entity';
 import { UserEntity } from '../user/user.entity';
+
 @Entity({ name: 'restaurants' })
 export class RestaurantEntity {
   @PrimaryGeneratedColumn()
@@ -28,6 +29,12 @@ export class RestaurantEntity {
 
   @Column({ default: '' })
   location: string;
+
+  @Column({ default: '10:00' })
+  openingTime: string;
+
+  @Column({ default: '24:00' })
+  closingTime: string;
 
   @ManyToOne(() => UserEntity, (user) => user.restaurants, { eager: true })
   user: UserEntity;

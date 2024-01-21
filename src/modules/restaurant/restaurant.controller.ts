@@ -24,12 +24,12 @@ import { RestaurantService } from './services/restaurant.service';
 
 @ApiTags('Restaurant')
 @UseGuards(AuthGuard)
-@Controller('api/v1')
+@Controller('api/v1/restaurants')
 export class RestaurantController {
   constructor(private readonly restaurantService: RestaurantService) {}
 
   @ApiOperation({ description: 'Create restaurant' })
-  @Post('restaurants')
+  @Post()
   @UseGuards(AuthGuard)
   @UsePipes(new BackendValidationPipe())
   async create(
@@ -44,7 +44,7 @@ export class RestaurantController {
   }
 
   @ApiOperation({ description: 'Get all restaurants by user' })
-  @Get('restaurants')
+  @Get()
   @UseGuards(AuthGuard)
   async getAllByUserId(
     @User('id') currentUserId: number,
@@ -56,7 +56,7 @@ export class RestaurantController {
   }
 
   @ApiOperation({ description: 'Delete restaurant' })
-  @Delete('restaurant')
+  @Delete()
   @UseGuards(AuthGuard)
   @UsePipes(new BackendValidationPipe())
   async delete(
@@ -70,7 +70,7 @@ export class RestaurantController {
   }
 
   @ApiOperation({ description: 'Update restaurant' })
-  @Put('restaurant')
+  @Put()
   @UseGuards(AuthGuard)
   @UsePipes(new BackendValidationPipe())
   async update(

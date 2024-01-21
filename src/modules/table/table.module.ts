@@ -16,5 +16,6 @@ import { TableEntity } from './table.entity';
   ],
   controllers: [TableController],
   providers: [TableService, AuthGuard],
+  exports: [TableService],
 })
 export class TableModule {}

@@ -1,4 +1,4 @@
-import { IsNotEmpty, Min, IsOptional } from 'class-validator';
+import { IsNotEmpty, IsOptional, Min } from 'class-validator';
 
 export class BaseRestaurantRequestDto {
   @IsNotEmpty()
@@ -19,4 +19,10 @@ export class BaseRestaurantRequestDto {
 
   @IsOptional()
   location: string;
+
+  @IsOptional()
+  openingTime: string;
+
+  @IsOptional()
+  closingTime: string;
 }

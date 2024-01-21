@@ -1,7 +1,16 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 
 import { FloorEntity } from '../floor/floor.entity';
 import { RestaurantEntity } from '../restaurant/restaurant.entity';
+import { ReserveEntity } from '../reserve/reserve.entity';
 
 @Entity({ name: 'tables' })
 export class TableEntity {
@@ -23,6 +32,15 @@ export class TableEntity {
   @Column({ default: 2 })
   seatsCount: number;
 
+  @Column({ nullable: true })
+  restaurantId: number;
+
+  @Column({ nullable: true })
+  floorId: number;
+
+  @Column({ nullable: true })
+  userId: number;
+
   @ManyToOne(() => FloorEntity, (floor) => floor.tables, { eager: true })
   floor: FloorEntity;
 
@@ -30,4 +48,13 @@ export class TableEntity {
     eager: true,
   })
   restaurant: RestaurantEntity;
+
+  @OneToMany(() => ReserveEntity, (reserve) => reserve.table)
+  reserves: ReserveEntity[];
+
+  @CreateDateColumn()
+  createAt: Date;
+
+  @UpdateDateColumn()
+  updateAt: Date;
 }

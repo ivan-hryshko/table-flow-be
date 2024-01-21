@@ -1,19 +1,24 @@
 import { IsNotEmpty, Min } from 'class-validator';
 
-export class BaseTableRequestDto {
+export class BaseReserveRequestDto {
   @IsNotEmpty()
   @Min(0)
   id: number;
 
   @IsNotEmpty()
+  @Min(0)
   restaurantId: number;
 
   @IsNotEmpty()
-  floorId: number;
+  reserveDate: Date;
 
   @IsNotEmpty()
-  title: string;
+  reserveStartTime: Date;
 
   @IsNotEmpty()
-  seatsCount: number;
+  reserveDurationTime: number;
+
+  @IsNotEmpty()
+  @Min(1)
+  countOfGuests: number;
 }

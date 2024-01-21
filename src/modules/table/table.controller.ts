@@ -37,7 +37,6 @@ export class TableController {
   @Post()
   @UseGuards(AuthGuard)
   @UsePipes(new BackendValidationPipe())
-  // @UsePipes(new createTablePipe())
   async create(
     @User() currentUser: UserEntity,
     @Body() createTableDto: CreateTableWrapperRequestDto,
@@ -73,6 +72,20 @@ export class TableController {
     }
 
     return this.tableService.buildTableResponse(table);
+  }
+
+  @ApiOperation({ description: 'Get all tables by restaurant id' })
+  @Get('/restid/:restaurantId')
+  @UseGuards(AuthGuard)
+  async getAllTablesByRestaurantId(
+    @User('id') currentUserId: number,
+    @Param('restaurantId') restaurantId: number,
+  ): Promise<TablesWithCountResponseDto> {
+    const tables = await this.tableService.getAllTablesByRestaurantId(
+      restaurantId,
+      currentUserId,
+    );
+    return this.tableService.buildTablesResponse(tables);
   }
 
   @ApiOperation({ description: 'Delete table' })

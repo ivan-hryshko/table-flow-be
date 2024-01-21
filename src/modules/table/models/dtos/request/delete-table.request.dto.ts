@@ -1,7 +1,7 @@
-import { IsNotEmpty, Min } from 'class-validator';
+import { PickType } from '@nestjs/swagger';
 
-export class DeleteTableRequestDto {
-  @IsNotEmpty()
-  @Min(0)
-  readonly id: number;
-}
+import { BaseTableRequestDto } from './base-table.request.dto';
+
+export class DeleteTableRequestDto extends PickType(BaseTableRequestDto, [
+  'id',
+]) {}

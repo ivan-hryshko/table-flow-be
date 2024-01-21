@@ -1,13 +1,12 @@
-import { PickType } from '@nestjs/swagger';
-import { IsNotEmpty } from 'class-validator';
+import { PartialType, PickType } from '@nestjs/swagger';
+import { IsNotEmpty, Min } from 'class-validator';
 
 import { BaseTableRequestDto } from './base-table.request.dto';
 
-export class UpdateTableRequestDto extends PickType(BaseTableRequestDto, [
-  'floorId',
-  'title',
-  'seatsCount',
-]) {
+export class UpdateTableRequestDto extends PartialType(
+  PickType(BaseTableRequestDto, ['floorId', 'title', 'seatsCount']),
+) {
   @IsNotEmpty()
-  readonly id: number;
+  @Min(0)
+  id: number;
 }

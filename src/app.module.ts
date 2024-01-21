@@ -8,6 +8,7 @@ import { RestaurantModule } from './modules/restaurant/restaurant.module';
 import { TableModule } from './modules/table/table.module';
 import { UserModule } from './modules/user/user.module';
 import { typeOrmConfigAsync } from './ormconfig';
+import { ReserveModule } from './modules/reserve/reserve.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { typeOrmConfigAsync } from './ormconfig';
     TableModule,
     FloorModule,
     MyConfigModule,
+    ReserveModule,
   ],
 })
 export class AppModule {
