@@ -1,12 +1,15 @@
+<<<<<<< HEAD
 import * as fs from 'node:fs';
 
+=======
+>>>>>>> 1db683a (Added s3 url signing)
 import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { Progress, Upload } from '@aws-sdk/lib-storage';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { v4 as uuid } from 'uuid';
 import * as path from 'path';
+import { v4 as uuid } from 'uuid';
 
 import { UploadFileOptions } from './models/types/upload-file-options.interface';
 
@@ -57,7 +60,7 @@ export class UploadService {
 
       return output;
     }
-    
+
     catch (e) {
       console.log(e);
     }
