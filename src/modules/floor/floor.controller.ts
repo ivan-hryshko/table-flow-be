@@ -17,6 +17,7 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { memoryStorage } from 'multer';
 
 import { BackendValidationPipe } from '../../utils/pipes/backendValidation.pipe';
 import { IntegerValidationPipe } from '../../utils/pipes/integer-validation.pipe';
@@ -33,12 +34,12 @@ import { UpdateFloorWrapperResponseDto } from './models/dtos/response/update-flo
 import { FloorService } from './services/floor.service';
 
 @ApiTags('Floor')
-@Controller('api/v1')
+@Controller('api/v1/floors')
 export class FloorController {
   constructor(private readonly floorService: FloorService) {}
 
   @ApiOperation({ description: 'Create floor' })
-  @Post('floor')
+  @Post()
   @UseGuards(AuthGuard)
   @UsePipes(new BackendValidationPipe())
   async create(
@@ -53,7 +54,7 @@ export class FloorController {
   }
 
   @ApiOperation({ description: 'Get all floors by User' })
-  @Get('floors')
+  @Get()
   @UseGuards(AuthGuard)
   async getAllByUserId(
     @User('id') currentUserId: number,
@@ -63,7 +64,7 @@ export class FloorController {
   }
 
   @ApiOperation({ description: 'Get floor by Id' })
-  @Get('floors/:id')
+  @Get('/:id')
   @UseGuards(AuthGuard)
   async getById(
     @Param('id', IntegerValidationPipe) floorId: number,
@@ -78,7 +79,7 @@ export class FloorController {
   }
 
   @ApiOperation({ description: 'Delete floor' })
-  @Delete('floors/:id')
+  @Delete('/:id')
   @UseGuards(AuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   @UsePipes(new BackendValidationPipe())
@@ -90,7 +91,7 @@ export class FloorController {
   }
 
   @ApiOperation({ description: 'Update floor' })
-  @Put('floor')
+  @Put()
   @UseGuards(AuthGuard)
   @UsePipes(new BackendValidationPipe())
   async update(
@@ -104,9 +105,16 @@ export class FloorController {
     return this.floorService.buildFloorResponse(floor);
   }
 
-  @Patch('floor')
-  @UseInterceptors(FileInterceptor('file'))
-  uploadFile(@UploadedFile() file: Express.Multer.File) {
-    console.log(file);
+  @Patch('/:id/image')
+  @UseGuards(AuthGuard)
+  @UsePipes(new BackendValidationPipe())
+  @UseInterceptors(FileInterceptor('file', { storage: memoryStorage() }))
+  async updateImage(
+    @User('id') currentUserId: number,
+    @Param('id') id: number,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    const floor = await this.floorService.updateImage(id, file, currentUserId);
+    return this.floorService.buildFloorResponse(floor);
   }
 }

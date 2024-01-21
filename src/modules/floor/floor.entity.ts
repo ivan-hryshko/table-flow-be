@@ -23,4 +23,7 @@ export class FloorEntity {
 
   @OneToMany(() => TableEntity, (table) => table.floor, { onDelete: 'CASCADE' })
   tables: TableEntity[];
+
+  @Column({ nullable: true })
+  imgKey: string;
 }

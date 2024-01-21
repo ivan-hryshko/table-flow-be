@@ -11,9 +11,7 @@ export default class TypeOrmConfig {
         url: configService.get('DATABASE_URL'),
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
         synchronize: true, // This for development
-        ssl: {
-          rejectUnauthorized: false,
-        },
+        
         migrations: [__dirname + '/migrations/**/*{.ts,.js}'],
       };
     } else {
