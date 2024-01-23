@@ -167,4 +167,11 @@ export class ReserveService {
 
     return await this.reserveRepository.save(newReserve);
   }
+
+  async getById(reserveId: number) {
+    return this.reserveRepository
+      .createQueryBuilder('reserve')
+      .where('reserve.id = :reserveId', { reserveId })
+      .getOne();
+  }
 }
