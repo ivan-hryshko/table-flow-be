@@ -48,7 +48,6 @@ export class ReserveController {
     const errorHelper = new ErrorHelper();
 
     const reserve = await this.reserveService.getById(reserveId);
-    // Error #1 //
     if (!reserve) {
       errorHelper.addNewError(
         `Reserve with given id:${reserveId} does not exist`,
@@ -56,24 +55,6 @@ export class ReserveController {
       );
       throw new HttpException(errorHelper.getErrors(), HttpStatus.NOT_FOUND);
     }
-    // Response #1 \\
-    // {
-    //   "errors": {
-    //        "reserve": "Reserve with given id:1776 does not exist"
-    // }
-    // }
-
-    // Error #2 \\
-    // if (!reserve)
-    //   throw new NotFoundException(
-    //     'Reserve with given id:${reserveId} does not exist',
-    //   );
-    // Response #2 \\
-    // {
-    //   "message": "Reserve with given id:${reserveId} does not exist",
-    //   "error": "Not Found",
-    //   "statusCode": 404
-    // }
 
     return this.reserveService.buildReserveResponse(reserve);
   }
