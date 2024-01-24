@@ -20,6 +20,7 @@ import { UserEntity } from '../user/user.entity';
 import { CreateReserveWrapperRequestDto } from './models/dtos/request/create-reserve-wrapper.request.dto';
 import { CreateReserveWrapperResponseDto } from './models/dtos/response/create-reserve-wrapper.response.dto';
 import { ErrorHelper } from '../../utils/errors/errorshelper.helper';
+import { ReserveWrapperResponseDto } from './models/dtos/response/reserve-wrapper.response.dto';
 
 @ApiTags('Reserve')
 @Controller('api/v1/reserves')
@@ -41,7 +42,9 @@ export class ReserveController {
   @ApiOperation({ description: 'Get reserve' })
   @Get('/:id')
   @UseGuards(AuthGuard)
-  async getById(@Param('id') reserveId: number) {
+  async getById(
+    @Param('id') reserveId: number,
+  ): Promise<ReserveWrapperResponseDto> {
     const errorHelper = new ErrorHelper();
 
     const reserve = await this.reserveService.getById(reserveId);
