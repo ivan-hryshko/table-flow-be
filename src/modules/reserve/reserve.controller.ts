@@ -2,6 +2,7 @@ import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpException,
   HttpStatus,
@@ -20,6 +21,7 @@ import { CreateReserveWrapperRequestDto } from './models/dtos/request/create-res
 import { CreateReserveWrapperResponseDto } from './models/dtos/response/create-reserve-wrapper.response.dto';
 import { ErrorHelper } from '../../utils/errors/errorshelper.helper';
 import { ReserveWrapperResponseDto } from './models/dtos/response/reserve-wrapper.response.dto';
+import { DeleteReserveWrapperRequestDto } from './models/dtos/request/delete-reserve-wrapper.request.dto';
 
 @ApiTags('Reserve')
 @Controller('api/v1/reserves')
@@ -58,5 +60,19 @@ export class ReserveController {
     }
 
     return this.reserveService.buildReserveResponse(reserve);
+  }
+
+  @ApiOperation({ description: 'Delete reserve' })
+  @Delete()
+  @UseGuards(AuthGuard)
+  @UsePipes(new BackendValidationPipe())
+  async delete(
+    @User('id') currentUserId: number,
+    @Body() deleteReserveDto: DeleteReserveWrapperRequestDto,
+  ) {
+    return await this.reserveService.delete(
+      currentUserId,
+      deleteReserveDto.reserve,
+    );
   }
 }

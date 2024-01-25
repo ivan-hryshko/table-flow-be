@@ -10,6 +10,7 @@ import { TableService } from '../../table/services/table.service';
 import { ReservesResponseInterface } from '../models/types/reservesResponse.interface';
 import { TableEntity } from '../../table/table.entity';
 import { ReserveResponseDto } from '../models/dtos/response/reserve.response.dto';
+import { DeleteReserveRequestDto } from '../models/dtos/request/delete-reserve.request.dto';
 
 @Injectable()
 export class ReserveService {
@@ -178,5 +179,23 @@ export class ReserveService {
       .where('reserve.id = :reserveId', { reserveId })
       .andWhere('user.id = :currentUserId', { currentUserId })
       .getOne();
+  }
+
+  async delete(
+    currentUserId: number,
+    deleteReserveDto: DeleteReserveRequestDto,
+  ) {
+    const errorHelper = new ErrorHelper();
+
+    const reserve = await this.getById(currentUserId, deleteReserveDto.id);
+    if (!reserve) {
+      errorHelper.addNewError(
+        `Резерву з заданим id:${deleteReserveDto.id} не існує або у вас нема прав доступу`,
+        'reserve',
+      );
+      throw new HttpException(errorHelper.getErrors(), HttpStatus.NOT_FOUND);
+    }
+
+    return this.reserveRepository.delete({ id: deleteReserveDto.id });
   }
 }
