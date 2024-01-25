@@ -5,7 +5,6 @@ import {
   Get,
   HttpException,
   HttpStatus,
-  NotFoundException,
   Param,
   Post,
   UseGuards,
@@ -43,16 +42,18 @@ export class ReserveController {
   @Get('/:id')
   @UseGuards(AuthGuard)
   async getById(
+    @User('id') currentUserId: number,
     @Param('id') reserveId: number,
   ): Promise<ReserveWrapperResponseDto> {
     const errorHelper = new ErrorHelper();
 
-    const reserve = await this.reserveService.getById(reserveId);
+    const reserve = await this.reserveService.getById(currentUserId, reserveId);
     if (!reserve) {
       errorHelper.addNewError(
-        `Reserve with given id:${reserveId} does not exist`,
+        `Резерву з заданим id:${reserveId} не існує або у вас нема прав доступу`,
         'reserve',
       );
+
       throw new HttpException(errorHelper.getErrors(), HttpStatus.NOT_FOUND);
     }
 
