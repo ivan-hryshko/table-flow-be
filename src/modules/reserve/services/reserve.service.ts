@@ -167,4 +167,16 @@ export class ReserveService {
 
     return await this.reserveRepository.save(newReserve);
   }
+
+  async getById(currentUserId: number, reserveId: number) {
+    return this.reserveRepository
+      .createQueryBuilder('reserve')
+      .leftJoin('reserve.table', 'table')
+      .leftJoin('table.floor', 'floor')
+      .leftJoin('table.restaurant', 'restaurant')
+      .leftJoin('restaurant.user', 'user')
+      .where('reserve.id = :reserveId', { reserveId })
+      .andWhere('user.id = :currentUserId', { currentUserId })
+      .getOne();
+  }
 }
