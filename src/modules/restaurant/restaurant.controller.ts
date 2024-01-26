@@ -60,7 +60,7 @@ export class RestaurantController {
   @ApiOperation({ description: 'Get restaurant by user' })
   @UseGuards(AuthGuard)
   @Get('/:id')
-  async getById(
+  async getByUserIdAndRestaurantId(
     @User('id') currentUserId: number,
     @Param('id') restaurantId: number,
   ): Promise<RestaurantWrapperResponseDto> {
