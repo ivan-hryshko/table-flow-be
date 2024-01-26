@@ -67,6 +67,42 @@ export class RestaurantService {
       .getOne();
   }
 
+  async getByUserIdAndRestaurantId(
+    restaurantId: number,
+    userId: number,
+  ): Promise<RestaurantEntity> {
+    const errorHelper = new ErrorHelper();
+
+    const restaurant = await this.restaurantRepository
+      .createQueryBuilder('restaurant')
+      .where('restaurant.id = :restaurantId', { restaurantId })
+      .where('restaurant.user.id = :userId', { userId })
+      .innerJoin('restaurant.user', 'user')
+      .addSelect(['user.id', 'user.firstName', 'user.lastName'])
+      .innerJoin('restaurant.floors', 'floors')
+      .addSelect(['floors.id', 'floors.title'])
+      .innerJoin('restaurant.tables', 'tables')
+      .addSelect([
+        'tables.id',
+        'tables.title',
+        'tables.x',
+        'tables.y',
+        'tables.isPlaced',
+        'tables.seatsCount',
+      ])
+      .getOne();
+
+    if (!restaurant) {
+      errorHelper.addNewError(
+        `Ресторан з заданим id:${restaurant.id} не існує або не належить користувачу`,
+        'restaurant',
+      );
+      throw new HttpException(errorHelper.getErrors(), HttpStatus.NOT_FOUND);
+    }
+
+    return restaurant;
+  }
+
   async delete(
     deleteRestaurantDto: DeleteRestaurantRequestDto,
     currentUserId: number,
