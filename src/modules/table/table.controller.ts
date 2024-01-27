@@ -64,10 +64,7 @@ export class TableController {
     const errorHelper = new ErrorHelper();
     const table = await this.tableService.getById(tableId);
     if (!table) {
-      errorHelper.addNewError(
-        `Table with given id:${tableId} does not exist`,
-        'table',
-      );
+      errorHelper.addNewError(`Стіл з заданим id:${tableId} не існує`, 'table');
       throw new HttpException(errorHelper.getErrors(), HttpStatus.NOT_FOUND);
     }
 
