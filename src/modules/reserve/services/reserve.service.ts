@@ -205,18 +205,6 @@ export class ReserveService {
       throw new HttpException(errorHelper.getErrors(), HttpStatus.NOT_FOUND);
     }
 
-    // const restaurant = await this.restaurantService.getById(
-    //   reserve.restaurantId,
-    // );
-    // const isCurrentUserOwner = currentUserId === restaurant.user.id;
-    // if (!isCurrentUserOwner) {
-    //   errorHelper.addNewError(
-    //     `Ви не можете отримати резерв, бо ви не власник ресторану`,
-    //     'owner',
-    //   );
-    //   throw new HttpException(errorHelper.getErrors(), HttpStatus.FORBIDDEN);
-    // }
-
     return reserve;
   }
 
