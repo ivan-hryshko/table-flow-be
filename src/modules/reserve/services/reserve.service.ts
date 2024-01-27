@@ -205,13 +205,25 @@ export class ReserveService {
       throw new HttpException(errorHelper.getErrors(), HttpStatus.NOT_FOUND);
     }
 
+    const restaurant: RestaurantEntity = await this.restaurantService.getById(
+      reserve.restaurantId,
+    );
+    const isCurrentUserOwner = currentUserId === restaurant.user.id;
+    if (!isCurrentUserOwner) {
+      errorHelper.addNewError(
+        `Ви не можете видалити резерв, бо ви не власник ресторану`,
+        'owner',
+      );
+      throw new HttpException(errorHelper.getErrors(), HttpStatus.FORBIDDEN);
+    }
+
     return reserve;
   }
 
   async delete(currentUserId: number, reserveId: number) {
     const errorHelper: ErrorHelper = new ErrorHelper();
 
-    const reserve: ReserveEntity = await this.getById(currentUserId, reserveId);
+    const reserve: ReserveEntity = await this.getRepositoryById(reserveId);
     if (!reserve) {
       errorHelper.addNewError(
         `Резерву з заданим id:${reserveId} не існує`,
@@ -223,7 +235,6 @@ export class ReserveService {
     const restaurant: RestaurantEntity = await this.restaurantService.getById(
       reserve.restaurantId,
     );
-
     const isCurrentUserOwner = currentUserId === restaurant.user.id;
     if (!isCurrentUserOwner) {
       errorHelper.addNewError(
