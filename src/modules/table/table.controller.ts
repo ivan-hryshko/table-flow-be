@@ -27,6 +27,7 @@ import { TableWrapperResponseDto } from './models/dtos/response/table-wrapper.re
 import { TablesWithCountResponseDto } from './models/dtos/response/tables-with-count.response.dto';
 import { UpdateTableWrapperResponseDto } from './models/dtos/response/update-table-wrapper.response.dto';
 import { TableService } from './services/table.service';
+import { TableEntity } from './table.entity';
 
 @ApiTags('Table')
 @Controller('api/v1/tables')
@@ -38,10 +39,13 @@ export class TableController {
   @UseGuards(AuthGuard)
   @UsePipes(new BackendValidationPipe())
   async create(
-    @User() currentUser: UserEntity,
+    @User('id') currentUserId: number,
     @Body() createTableDto: CreateTableWrapperRequestDto,
   ): Promise<CreateTableWrapperResponseDto> {
-    const table = await this.tableService.create(createTableDto.table);
+    const table: TableEntity = await this.tableService.create(
+      currentUserId,
+      createTableDto.table,
+    );
     return this.tableService.buildTableResponse(table);
   }
 
