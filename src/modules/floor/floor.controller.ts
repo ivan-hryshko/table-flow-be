@@ -3,6 +3,8 @@ import {
   Controller,
   Delete,
   Get,
+  NotFoundException,
+  Param,
   Post,
   Put,
   UseGuards,
@@ -15,13 +17,15 @@ import { BackendValidationPipe } from '../../utils/pipes/backendValidation.pipe'
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { User } from '../user/decorators/user.decorator';
 import { UserEntity } from '../user/user.entity';
+import { FloorEntity } from './floor.entity';
+import { FloorService } from './services/floor.service';
 import { CreateFloorWrapperRequestDto } from './models/dtos/request/create-floor-wrapper.request.dto';
 import { DeleteFloorWrapperRequestDto } from './models/dtos/request/delete-floor-wrapper.request.dto';
 import { UpdateFloorWrapperRequestDto } from './models/dtos/request/update-floor-wrapper.request.dto';
 import { CreateFloorWrapperResponseDto } from './models/dtos/response/create-floor-wrapper.response.dto';
-import { FloorsResponseDto } from './models/dtos/response/floors.response.dto';
 import { UpdateFloorWrapperResponseDto } from './models/dtos/response/update-floor-wrapper.response.dto';
-import { FloorService } from './services/floor.service';
+import { FloorsResponseDto } from './models/dtos/response/floors.response.dto';
+import { FloorResponseDto } from './models/dtos/response/floor.response.dto';
 
 @ApiTags('Floor')
 @Controller('api/v1')
@@ -49,19 +53,32 @@ export class FloorController {
   async getAllByUserId(
     @User('id') currentUserId: number,
   ): Promise<FloorsResponseDto> {
-    const floors = await this.floorService.getByUser({ userId: currentUserId });
+    const floors = await this.floorService.getByUser(currentUserId);
     return this.floorService.buildFloorsResponse(floors);
   }
 
+  @ApiOperation({ description: 'Get floor by Id' })
+  @Get('floors/:id')
+  @UseGuards(AuthGuard)
+  async getById(@Param('id') floorId: number) {
+    const floor: FloorEntity = await this.floorService.getById(floorId);
+
+    if (!floor) {
+      throw new NotFoundException(`Floor with id ${floorId} not found`);
+    }
+
+    return this.floorService.buildFloorResponse(floor);
+  }
+
   @ApiOperation({ description: 'Delete floor' })
-  @Delete('floor')
+  @Delete('floors/:id')
   @UseGuards(AuthGuard)
   @UsePipes(new BackendValidationPipe())
   async delete(
     @User('id') currentUserId: number,
-    @Body() deleteFloorDto: DeleteFloorWrapperRequestDto,
+    @Param('id') floorId: number,
   ): Promise<DeleteResult> {
-    return await this.floorService.delete(deleteFloorDto.floor, currentUserId);
+    return await this.floorService.delete(currentUserId, floorId);
   }
 
   @ApiOperation({ description: 'Update floor' })

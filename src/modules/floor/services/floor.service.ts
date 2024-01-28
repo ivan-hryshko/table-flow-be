@@ -41,10 +41,7 @@ export class FloorService {
     );
 
     if (!restaurant) {
-      throw new HttpException(
-        'Ресторан не існує',
-        HttpStatus.NOT_FOUND,
-      );
+      throw new HttpException('Ресторан не існує', HttpStatus.NOT_FOUND);
     }
 
     if (restaurant.user.id !== currentUser.id) {
@@ -60,28 +57,27 @@ export class FloorService {
     return await this.floorRepository.save(newFloor);
   }
 
-  async getByUser(query: FloorQueryParams): Promise<FloorEntity[]> {
-    return this.floorRepository
+  async getByUser(userId: number): Promise<FloorEntity[]> {
+    return await this.floorRepository
       .createQueryBuilder('floor')
-      .innerJoin('floor.user', 'user')
-      .innerJoin('floor.restaurant', 'restaurant')
-      .addSelect(['user.id', 'user.firstName', 'user.lastName'])
-      .addSelect(['restaurant.id', 'restaurant.title'])
-      .where('user.id = :userId', { userId: query.userId })
+      .innerJoinAndSelect('floor.restaurant', 'restaurant')
+      .innerJoinAndSelect('restaurant.user', 'user')
+      .where('user.id = :userId', { userId })
       .getMany();
   }
 
   async getById(floorId: number): Promise<FloorEntity> {
     return this.floorRepository
       .createQueryBuilder('floor')
-      .innerJoin('floor.restaurant', 'restaurant')
+      .innerJoinAndSelect('floor.restaurant', 'restaurant')
+      .innerJoinAndSelect('restaurant.user', 'user')
       .addSelect(['restaurant.id', 'restaurant.title'])
       .where('floor.id = :floorId', { floorId })
       .getOne();
   }
 
-  async delete(deleteFloorDto: DeleteFloorRequestDto, currentUserId: number) {
-    const floor = await this.getById(deleteFloorDto.id);
+  async delete(currentUserId: number, floorId: number) {
+    const floor = await this.getById(floorId);
 
     if (!floor) {
       throw new HttpException('Поверху не існує', HttpStatus.NOT_FOUND);
@@ -94,7 +90,7 @@ export class FloorService {
       );
     }
 
-    return this.floorRepository.delete({ id: deleteFloorDto.id });
+    return this.floorRepository.delete(floorId);
   }
 
   async update(
