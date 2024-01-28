@@ -3,6 +3,8 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   NotFoundException,
   Param,
   Post,
@@ -20,12 +22,11 @@ import { UserEntity } from '../user/user.entity';
 import { FloorEntity } from './floor.entity';
 import { FloorService } from './services/floor.service';
 import { CreateFloorWrapperRequestDto } from './models/dtos/request/create-floor-wrapper.request.dto';
-import { DeleteFloorWrapperRequestDto } from './models/dtos/request/delete-floor-wrapper.request.dto';
 import { UpdateFloorWrapperRequestDto } from './models/dtos/request/update-floor-wrapper.request.dto';
 import { CreateFloorWrapperResponseDto } from './models/dtos/response/create-floor-wrapper.response.dto';
 import { UpdateFloorWrapperResponseDto } from './models/dtos/response/update-floor-wrapper.response.dto';
 import { FloorsResponseDto } from './models/dtos/response/floors.response.dto';
-import { FloorResponseDto } from './models/dtos/response/floor.response.dto';
+import { FloorWrapperResponseDto } from './models/dtos/response/floor-wrapper.response.dto';
 
 @ApiTags('Floor')
 @Controller('api/v1')
@@ -60,7 +61,9 @@ export class FloorController {
   @ApiOperation({ description: 'Get floor by Id' })
   @Get('floors/:id')
   @UseGuards(AuthGuard)
-  async getById(@Param('id') floorId: number) {
+  async getById(
+    @Param('id') floorId: number,
+  ): Promise<FloorWrapperResponseDto> {
     const floor: FloorEntity = await this.floorService.getById(floorId);
 
     if (!floor) {
@@ -73,12 +76,13 @@ export class FloorController {
   @ApiOperation({ description: 'Delete floor' })
   @Delete('floors/:id')
   @UseGuards(AuthGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
   @UsePipes(new BackendValidationPipe())
   async delete(
     @User('id') currentUserId: number,
     @Param('id') floorId: number,
-  ): Promise<DeleteResult> {
-    return await this.floorService.delete(currentUserId, floorId);
+  ): Promise<void> {
+    await this.floorService.delete(currentUserId, floorId);
   }
 
   @ApiOperation({ description: 'Update floor' })

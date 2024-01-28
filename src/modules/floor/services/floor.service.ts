@@ -76,7 +76,7 @@ export class FloorService {
       .getOne();
   }
 
-  async delete(currentUserId: number, floorId: number) {
+  async delete(currentUserId: number, floorId: number): Promise<void> {
     const floor = await this.getById(floorId);
 
     if (!floor) {
@@ -90,7 +90,7 @@ export class FloorService {
       );
     }
 
-    return this.floorRepository.delete(floorId);
+    this.floorRepository.delete(floorId);
   }
 
   async update(

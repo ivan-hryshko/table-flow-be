@@ -21,6 +21,6 @@ export class FloorEntity {
   })
   restaurant: RestaurantEntity;
 
-  @OneToMany(() => TableEntity, (table) => table.floor)
+  @OneToMany(() => TableEntity, (table) => table.floor, { onDelete: 'CASCADE' })
   tables: TableEntity[];
 }
