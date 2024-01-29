@@ -3,17 +3,17 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { ErrorHelper } from '../../../utils/errors/errorshelper.helper';
-import { FloorService } from '../../floor/services/floor.service';
+import { RestaurantEntity } from '../../restaurant/restaurant.entity';
+import { FloorEntity } from '../../floor/floor.entity';
+import { TableEntity } from '../table.entity';
 import { RestaurantService } from '../../restaurant/services/restaurant.service';
+import { FloorService } from '../../floor/services/floor.service';
 import { CreateTableRequestDto } from '../models/dtos/request/create-table.request.dto';
 import { DeleteTableRequestDto } from '../models/dtos/request/delete-table.request.dto';
 import { UpdateTableRequestDto } from '../models/dtos/request/update-table.request.dto';
+import { TableResponseDto } from '../models/dtos/response/table.response.dto';
 import { TablesWithCountResponseDto } from '../models/dtos/response/tables-with-count.response.dto';
 import { TableQueryParams } from '../models/types/tableQuery.types';
-import { TableEntity } from '../table.entity';
-import { FloorEntity } from '../../floor/floor.entity';
-import { RestaurantEntity } from '../../restaurant/restaurant.entity';
-import { TableResponseDto } from '../models/dtos/response/table.response.dto';
 
 @Injectable()
 export class TableService {
@@ -39,7 +39,10 @@ export class TableService {
     };
   }
 
-  async create(createTableDto: CreateTableRequestDto): Promise<TableEntity> {
+  async create(
+    currentUserId: number,
+    createTableDto: CreateTableRequestDto,
+  ): Promise<TableEntity> {
     const errorHelper = new ErrorHelper();
 
     const restaurant: RestaurantEntity = await this.restaurantService.getById(
@@ -47,7 +50,15 @@ export class TableService {
     );
     if (!restaurant) {
       errorHelper.addNewError(
-        `Ресторану з заданим id:${createTableDto.restaurantId} не існує`,
+        `Ресторан з заданим id:${createTableDto.restaurantId} не існує`,
+        'restaurant',
+      );
+      throw new HttpException(errorHelper.getErrors(), HttpStatus.NOT_FOUND);
+    }
+
+    if (createTableDto.restaurantId !== currentUserId) {
+      errorHelper.addNewError(
+        `Ви не можете додати стіл, оскільки ресторан з вказаним id:${createTableDto.restaurantId} не належить поточному юзеру.`,
         'restaurant',
       );
       throw new HttpException(errorHelper.getErrors(), HttpStatus.NOT_FOUND);
@@ -58,7 +69,7 @@ export class TableService {
     );
     if (!floor) {
       errorHelper.addNewError(
-        `Поверху з заданим id:${createTableDto.floorId} не існує`,
+        `Поверх з заданим id:${createTableDto.floorId} не існує`,
         'floor',
       );
       throw new HttpException(errorHelper.getErrors(), HttpStatus.NOT_FOUND);
