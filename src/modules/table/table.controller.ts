@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
   HttpException,
   HttpStatus,
   Param,
@@ -20,7 +21,6 @@ import { AuthGuard } from '../auth/guards/auth.guard';
 import { User } from '../user/decorators/user.decorator';
 import { UserEntity } from '../user/user.entity';
 import { CreateTableWrapperRequestDto } from './models/dtos/request/create-table-wrapper.request.dto';
-import { DeleteTableWrapperRequestDto } from './models/dtos/request/delete-table-wrapper.request.dto';
 import { UpdateTableWrapperRequestDto } from './models/dtos/request/update-table-wrapper.request.dto';
 import { CreateTableWrapperResponseDto } from './models/dtos/response/create-table-wrapper.response.dto';
 import { TableWrapperResponseDto } from './models/dtos/response/table-wrapper.response.dto';
@@ -90,14 +90,15 @@ export class TableController {
   }
 
   @ApiOperation({ description: 'Delete table' })
-  @Delete()
+  @Delete('/:id')
   @UseGuards(AuthGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
   @UsePipes(new BackendValidationPipe())
   async delete(
     @User('id') currentUserId: number,
-    @Body() deleteTableDto: DeleteTableWrapperRequestDto,
-  ): Promise<DeleteResult> {
-    return await this.tableService.delete(deleteTableDto.table, currentUserId);
+    @Param('id') tableId: number,
+  ): Promise<void> {
+    await this.tableService.delete(currentUserId, tableId);
   }
 
   @ApiOperation({ description: 'Update table' })
