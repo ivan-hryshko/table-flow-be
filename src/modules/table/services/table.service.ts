@@ -6,7 +6,6 @@ import { ErrorHelper } from '../../../utils/errors/errorshelper.helper';
 import { FloorService } from '../../floor/services/floor.service';
 import { RestaurantService } from '../../restaurant/services/restaurant.service';
 import { CreateTableRequestDto } from '../models/dtos/request/create-table.request.dto';
-import { DeleteTableRequestDto } from '../models/dtos/request/delete-table.request.dto';
 import { UpdateTableRequestDto } from '../models/dtos/request/update-table.request.dto';
 import { TablesWithCountResponseDto } from '../models/dtos/response/tables-with-count.response.dto';
 import { TableQueryParams } from '../models/types/tableQuery.types';
@@ -119,13 +118,13 @@ export class TableService {
       .getMany();
   }
 
-  async delete(deleteTableDto: DeleteTableRequestDto, currentUserId: number) {
-    const errorHelper = new ErrorHelper();
+  async delete(currentUserId: number, tableId: number): Promise<void> {
+    const errorHelper: ErrorHelper = new ErrorHelper();
 
-    const table = await this.getById(deleteTableDto.id);
+    const table: TableEntity = await this.getById(tableId);
     if (!table) {
       errorHelper.addNewError(
-        `Столик з заданим id:${deleteTableDto.id} не існує`,
+        `Столик з заданим id:${tableId} не існує`,
         'table',
       );
       throw new HttpException(errorHelper.getErrors(), HttpStatus.NOT_FOUND);
@@ -138,7 +137,7 @@ export class TableService {
       );
     }
 
-    return this.tableRepository.delete({ id: deleteTableDto.id });
+    await this.tableRepository.delete(tableId);
   }
 
   async update(updateTableDto: UpdateTableRequestDto, currentUserId: number) {
