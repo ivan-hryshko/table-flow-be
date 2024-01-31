@@ -7,7 +7,6 @@ import { UserEntity } from '../../user/user.entity';
 import { CreateRestaurantRequestDto } from '../models/dtos/request/create-restaurant.request.dto';
 import { DeleteRestaurantRequestDto } from '../models/dtos/request/delete-restaurant.request.dto';
 import { UpdateRestaurantRequestDto } from '../models/dtos/request/update-restaurant.request.dto';
-import { RestaurantResponseDto } from '../models/dtos/response/restaurant.response.dto';
 import { RestaurantsWithCountResponseDto } from '../models/dtos/response/restaurants-with-count.response.dto';
 import { RestaurantQueryParams } from '../models/types/restaurantQuery.types';
 import { RestaurantEntity } from '../restaurant.entity';
@@ -19,7 +18,7 @@ export class RestaurantService {
     private readonly restaurantRepository: Repository<RestaurantEntity>,
   ) {}
   buildRestaurantResponse(restaurant: RestaurantEntity): {
-    restaurant: RestaurantResponseDto;
+    restaurant: RestaurantEntity;
   } {
     return {
       restaurant,
