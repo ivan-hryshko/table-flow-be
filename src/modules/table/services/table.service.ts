@@ -3,8 +3,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { ErrorHelper } from '../../../utils/errors/errorshelper.helper';
-import { RestaurantEntity } from '../../restaurant/restaurant.entity';
-import { FloorEntity } from '../../floor/floor.entity';
 import { TableEntity } from '../table.entity';
 import { RestaurantService } from '../../restaurant/services/restaurant.service';
 import { FloorService } from '../../floor/services/floor.service';
@@ -42,32 +40,24 @@ export class TableService {
     currentUserId: number,
     createTableDto: CreateTableRequestDto,
   ): Promise<TableEntity> {
-    const errorHelper: ErrorHelper = new ErrorHelper();
-
     const { restaurantId, floorId }: { restaurantId: number; floorId: number } =
       createTableDto;
 
-    const restaurant: RestaurantEntity =
-      await this.restaurantService.validateRestaurantOwnership(
-        restaurantId,
-        currentUserId,
-      );
-
-    const floor: FloorEntity = await this.floorService.getById(
-      createTableDto.floorId,
+    await this.restaurantService.validateRestaurantOwnership(
+      restaurantId,
+      currentUserId,
     );
-    if (!floor) {
-      errorHelper.addNewError(
-        `Поверх з заданим id:${createTableDto.floorId} не існує`,
-        'floor',
-      );
-      throw new HttpException(errorHelper.getErrors(), HttpStatus.NOT_FOUND);
-    }
+
+    await this.floorService.validateFloorForUserAndRestaurant(
+      currentUserId,
+      restaurantId,
+      floorId,
+    );
 
     const newTable: TableEntity = new TableEntity();
     newTable.restaurantId = restaurantId;
-    newTable.floorId = createTableDto.floorId;
-    newTable.userId = restaurant.user.id;
+    newTable.floorId = floorId;
+    newTable.userId = currentUserId;
 
     Object.assign(newTable, createTableDto);
 
