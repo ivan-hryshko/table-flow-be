@@ -42,26 +42,16 @@ export class TableService {
     currentUserId: number,
     createTableDto: CreateTableRequestDto,
   ): Promise<TableEntity> {
-    const errorHelper = new ErrorHelper();
+    const errorHelper: ErrorHelper = new ErrorHelper();
 
-    const restaurant: RestaurantEntity = await this.restaurantService.getById(
-      createTableDto.restaurantId,
-    );
-    if (!restaurant) {
-      errorHelper.addNewError(
-        `Ресторан з заданим id:${createTableDto.restaurantId} не існує`,
-        'restaurant',
-      );
-      throw new HttpException(errorHelper.getErrors(), HttpStatus.NOT_FOUND);
-    }
+    const { restaurantId, floorId }: { restaurantId: number; floorId: number } =
+      createTableDto;
 
-    if (createTableDto.restaurantId !== currentUserId) {
-      errorHelper.addNewError(
-        `Ви не можете додати стіл, оскільки ресторан з вказаним id:${createTableDto.restaurantId} не належить поточному юзеру.`,
-        'restaurant',
+    const restaurant: RestaurantEntity =
+      await this.restaurantService.validateRestaurantOwnership(
+        restaurantId,
+        currentUserId,
       );
-      throw new HttpException(errorHelper.getErrors(), HttpStatus.NOT_FOUND);
-    }
 
     const floor: FloorEntity = await this.floorService.getById(
       createTableDto.floorId,
@@ -75,7 +65,7 @@ export class TableService {
     }
 
     const newTable: TableEntity = new TableEntity();
-    newTable.restaurantId = createTableDto.restaurantId;
+    newTable.restaurantId = restaurantId;
     newTable.floorId = createTableDto.floorId;
     newTable.userId = restaurant.user.id;
 
