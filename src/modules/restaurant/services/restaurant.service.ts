@@ -114,4 +114,31 @@ export class RestaurantService {
 
     return this.restaurantRepository.save(restaurant);
   }
+
+  async validateRestaurantOwnership(
+    restaurantId: number,
+    currentUserId: number,
+  ): Promise<RestaurantEntity> {
+    const errorHelper: ErrorHelper = new ErrorHelper();
+
+    const restaurant: RestaurantEntity = await this.getById(restaurantId);
+
+    if (!restaurant) {
+      errorHelper.addNewError(
+        `Ресторан з заданим id:${restaurantId} не існує`,
+        'restaurant',
+      );
+      throw new HttpException(errorHelper.getErrors(), HttpStatus.NOT_FOUND);
+    }
+
+    if (restaurant.user.id !== currentUserId) {
+      errorHelper.addNewError(
+        `Ви не можете додати стіл, оскільки ресторан з вказаним id:${restaurantId} не належить поточному юзеру.`,
+        'restaurant',
+      );
+      throw new HttpException(errorHelper.getErrors(), HttpStatus.NOT_FOUND);
+    }
+
+    return restaurant;
+  }
 }
