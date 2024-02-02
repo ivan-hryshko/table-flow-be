@@ -116,8 +116,8 @@ export class RestaurantService {
   }
 
   async validateRestaurantOwnership(
-    restaurantId: number,
     currentUserId: number,
+    restaurantId: number,
   ): Promise<RestaurantEntity> {
     const errorHelper: ErrorHelper = new ErrorHelper();
 

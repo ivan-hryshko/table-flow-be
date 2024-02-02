@@ -14,7 +14,6 @@ import { ReserveService } from './services/reserve.service';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { User } from '../user/decorators/user.decorator';
 import { BackendValidationPipe } from '../../utils/pipes/backendValidation.pipe';
-import { UserEntity } from '../user/user.entity';
 import { CreateReserveWrapperRequestDto } from './models/dtos/request/create-reserve-wrapper.request.dto';
 import { CreateReserveWrapperResponseDto } from './models/dtos/response/create-reserve-wrapper.response.dto';
 import { ReserveWrapperResponseDto } from './models/dtos/response/reserve-wrapper.response.dto';
@@ -29,10 +28,13 @@ export class ReserveController {
   @UseGuards(AuthGuard)
   @UsePipes(new BackendValidationPipe())
   async create(
-    @User() currentUser: UserEntity,
+    @User('id') currentUserId: number,
     @Body() createReserveDto: CreateReserveWrapperRequestDto,
   ): Promise<CreateReserveWrapperResponseDto> {
-    const reserve = await this.reserveService.create(createReserveDto.reserve);
+    const reserve = await this.reserveService.create(
+      currentUserId,
+      createReserveDto.reserve,
+    );
     return this.reserveService.buildReserveResponse(reserve);
   }
 
