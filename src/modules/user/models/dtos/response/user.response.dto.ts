@@ -9,6 +9,5 @@ export class UserResponseDto extends PickType(BaseUserResponseDto, [
   'email',
   'bio',
   'image',
-]) {
-  token: string;
-}
+  'token',
+]) {}

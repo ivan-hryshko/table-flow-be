@@ -1,5 +1,5 @@
 import { UserResponseDto } from './user.response.dto';
 
-export class LoginUserResponseDto {
+export class CreateUserWrapperResponseDto {
   user: UserResponseDto;
 }

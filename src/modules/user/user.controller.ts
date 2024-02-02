@@ -7,7 +7,11 @@ import {
   UseGuards,
   UsePipes,
 } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiOperation,
+  ApiTags,
+  ApiUnprocessableEntityResponse,
+} from '@nestjs/swagger';
 
 import { BackendValidationPipe } from '../../utils/pipes/backendValidation.pipe';
 import { AuthGuard } from '../auth/guards/auth.guard';
@@ -15,9 +19,9 @@ import { User } from './decorators/user.decorator';
 import { CreateUserWrapperRequestDto } from './models/dtos/request/create-user-wrapper.request.dto';
 import { LoginUserWrapperRequestDto } from './models/dtos/request/login-user-wrapper.request.dto';
 import { UpdateUserWrapperRequestDto } from './models/dtos/request/update-user-wrapper.request.dto';
-import { CreateUserResponseDto } from './models/dtos/response/create-user.response.dto';
-import { LoginUserResponseDto } from './models/dtos/response/login-user.response.dto';
-import { UpdateUserResponseDto } from './models/dtos/response/update-user.response.dto';
+import { CreateUserWrapperResponseDto } from './models/dtos/response/create-user-wrapper.response.dto';
+import { LoginUserWrapperResponseDto } from './models/dtos/response/login-user-wrapper.response.dto';
+import { UpdateUserWrapperResponseDto } from './models/dtos/response/update-user-wrapper.response.dto';
 import { UserService } from './services/user.service';
 import { UserEntity } from './user.entity';
 
@@ -27,21 +31,23 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @ApiOperation({ description: 'User registration' })
+  @ApiUnprocessableEntityResponse({ description: 'Unprocessable Entity' })
   @Post()
   @UsePipes(new BackendValidationPipe())
   async createUser(
     @Body() createUserDto: CreateUserWrapperRequestDto,
-  ): Promise<CreateUserResponseDto> {
+  ): Promise<CreateUserWrapperResponseDto> {
     const user = await this.userService.createUser(createUserDto.user);
     return this.userService.buildUserResponse(user);
   }
 
   @ApiOperation({ description: 'User authentication' })
+  @ApiUnprocessableEntityResponse({ description: 'Unprocessable Entity' })
   @Post('login')
   @UsePipes(new BackendValidationPipe())
   async login(
     @Body() loginDto: LoginUserWrapperRequestDto,
-  ): Promise<LoginUserResponseDto> {
+  ): Promise<LoginUserWrapperResponseDto> {
     const user = await this.userService.loginUser(loginDto.user);
     return this.userService.buildUserResponse(user);
   }
@@ -49,7 +55,9 @@ export class UserController {
   @ApiOperation({ description: 'Get current user' })
   @Get()
   @UseGuards(AuthGuard)
-  async currentUser(@User() user: UserEntity): Promise<CreateUserResponseDto> {
+  async currentUser(
+    @User() user: UserEntity,
+  ): Promise<CreateUserWrapperResponseDto> {
     return this.userService.buildUserResponse(user);
   }
 
@@ -60,7 +68,7 @@ export class UserController {
   async updateUser(
     @User('id') currentUserId: number,
     @Body() updateUserDto: UpdateUserWrapperRequestDto,
-  ): Promise<UpdateUserResponseDto> {
+  ): Promise<UpdateUserWrapperResponseDto> {
     const user = await this.userService.updateUser(
       updateUserDto.user,
       currentUserId,

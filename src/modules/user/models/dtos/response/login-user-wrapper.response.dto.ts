@@ -1,5 +1,5 @@
 import { UserResponseDto } from './user.response.dto';
 
-export class UpdateUserResponseDto {
+export class LoginUserWrapperResponseDto {
   user: UserResponseDto;
 }

@@ -23,7 +23,10 @@ export class UserService {
       email: createUserDto.email,
     });
     if (userByEmail) {
-      throw new HttpException('Email зайнятий', HttpStatus.UNPROCESSABLE_ENTITY);
+      throw new HttpException(
+        'Email зайнятий',
+        HttpStatus.UNPROCESSABLE_ENTITY,
+      );
     }
     const newUser = new UserEntity();
     Object.assign(newUser, createUserDto);
