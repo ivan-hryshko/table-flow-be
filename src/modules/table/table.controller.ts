@@ -13,13 +13,11 @@ import {
   UsePipes,
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import { DeleteResult } from 'typeorm';
 
 import { ErrorHelper } from '../../utils/errors/errorshelper.helper';
 import { BackendValidationPipe } from '../../utils/pipes/backendValidation.pipe';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { User } from '../user/decorators/user.decorator';
-import { UserEntity } from '../user/user.entity';
 import { CreateTableWrapperRequestDto } from './models/dtos/request/create-table-wrapper.request.dto';
 import { UpdateTableWrapperRequestDto } from './models/dtos/request/update-table-wrapper.request.dto';
 import { CreateTableWrapperResponseDto } from './models/dtos/response/create-table-wrapper.response.dto';
@@ -55,7 +53,9 @@ export class TableController {
   async getByUser(
     @User('id') currentUserId: number,
   ): Promise<TablesWithCountResponseDto> {
-    const tables = await this.tableService.getByUser({ userId: currentUserId });
+    const tables: TableEntity[] = await this.tableService.getByUser({
+      userId: currentUserId,
+    });
     return this.tableService.buildTablesResponse(tables);
   }
 
@@ -65,8 +65,9 @@ export class TableController {
   async getById(
     @Param('id') tableId: number,
   ): Promise<TableWrapperResponseDto> {
-    const errorHelper = new ErrorHelper();
-    const table = await this.tableService.getById(tableId);
+    const errorHelper: ErrorHelper = new ErrorHelper();
+
+    const table: TableEntity = await this.tableService.getById(tableId);
     if (!table) {
       errorHelper.addNewError(`Стіл з заданим id:${tableId} не існує`, 'table');
       throw new HttpException(errorHelper.getErrors(), HttpStatus.NOT_FOUND);
@@ -82,10 +83,12 @@ export class TableController {
     @User('id') currentUserId: number,
     @Param('restaurantId') restaurantId: number,
   ): Promise<TablesWithCountResponseDto> {
-    const tables = await this.tableService.getAllTablesByRestaurantId(
-      restaurantId,
-      currentUserId,
-    );
+    const tables: TableEntity[] =
+      await this.tableService.getAllTablesByRestaurantId(
+        currentUserId,
+        restaurantId,
+      );
+
     return this.tableService.buildTablesResponse(tables);
   }
 
@@ -109,9 +112,9 @@ export class TableController {
     @User('id') currentUserId: number,
     @Body() updateTableDto: UpdateTableWrapperRequestDto,
   ): Promise<UpdateTableWrapperResponseDto> {
-    const table = await this.tableService.update(
-      updateTableDto.table,
+    const table: TableEntity = await this.tableService.update(
       currentUserId,
+      updateTableDto.table,
     );
     return this.tableService.buildTableResponse(table);
   }

@@ -11,6 +11,7 @@ import { UpdateTableRequestDto } from '../models/dtos/request/update-table.reque
 import { TableResponseDto } from '../models/dtos/response/table.response.dto';
 import { TablesWithCountResponseDto } from '../models/dtos/response/tables-with-count.response.dto';
 import { TableQueryParams } from '../models/types/tableQuery.types';
+import { FloorEntity } from '../../floor/floor.entity';
 
 @Injectable()
 export class TableService {
@@ -64,7 +65,7 @@ export class TableService {
     return await this.tableRepository.save(newTable);
   }
 
-  async getByUser(query: TableQueryParams) {
+  async getByUser(query: TableQueryParams): Promise<TableEntity[]> {
     return this.tableRepository
       .createQueryBuilder('table')
       .innerJoin('table.floor', 'floor')
@@ -75,7 +76,7 @@ export class TableService {
       .getMany();
   }
 
-  async getById(tableId: number) {
+  async getById(tableId: number): Promise<TableEntity> {
     return await this.tableRepository
       .createQueryBuilder('table')
       .innerJoin('table.floor', 'floor')
@@ -87,18 +88,13 @@ export class TableService {
   }
 
   async getAllTablesByRestaurantId(
+    currentUserId: number,
     restaurantId: number,
-    //TODO чи треба нам другий параметр ??
-    currentUserId: number = 11,
   ): Promise<TableEntity[]> {
-    //TODO Додати перевірку неіснуючого "111" та невірного "114aaa" restaurantId
-
-    if (!restaurantId) {
-      throw new HttpException(
-        `Ресторану з заданим id ${restaurantId} не знайдено`,
-        HttpStatus.NOT_FOUND,
-      );
-    }
+    await this.restaurantService.validateRestaurantOwnership(
+      currentUserId,
+      restaurantId,
+    );
 
     return this.tableRepository
       .createQueryBuilder('table')
@@ -110,6 +106,42 @@ export class TableService {
   }
 
   async delete(currentUserId: number, tableId: number): Promise<void> {
+    await this.validateTableOwnership(currentUserId, tableId);
+
+    await this.tableRepository.delete(tableId);
+  }
+
+  async update(
+    currentUserId: number,
+    updateTableDto: UpdateTableRequestDto,
+  ): Promise<TableEntity> {
+    const { id, floorId }: { id: number; floorId?: number } = updateTableDto;
+
+    const table: TableEntity = await this.validateTableOwnership(
+      currentUserId,
+      id,
+    );
+
+    await this.restaurantService.validateRestaurantOwnership(
+      currentUserId,
+      table.restaurantId,
+    );
+
+    table.floor = await this.floorService.validateFloorForUserAndRestaurant(
+      currentUserId,
+      table.restaurantId,
+      floorId,
+    );
+
+    Object.assign(table, updateTableDto);
+
+    return await this.tableRepository.save(table);
+  }
+
+  async validateTableOwnership(
+    currentUserId: number,
+    tableId: number,
+  ): Promise<TableEntity> {
     const errorHelper: ErrorHelper = new ErrorHelper();
 
     const table: TableEntity = await this.getById(tableId);
@@ -128,61 +160,6 @@ export class TableService {
       );
     }
 
-    await this.tableRepository.delete(tableId);
-  }
-
-  async update(updateTableDto: UpdateTableRequestDto, currentUserId: number) {
-    const errorHelper = new ErrorHelper();
-
-    const table: TableEntity = await this.getById(updateTableDto.id);
-    if (!table) {
-      errorHelper.addNewError(
-        `Столик з заданим id:${updateTableDto.id} не існує`,
-        'table',
-      );
-      throw new HttpException(errorHelper.getErrors(), HttpStatus.NOT_FOUND);
-    }
-
-    if (table.userId !== currentUserId) {
-      throw new HttpException(
-        'Ви не є автором ресторану',
-        HttpStatus.FORBIDDEN,
-      );
-    }
-
-    // TODO перевірити логіку прив'язки ресторану до поверху в новій тасці
-    if (updateTableDto.floorId) {
-      // Перевірка та отримання поверху перед виконанням оновлення
-      const floorToUpdate = await this.floorService.getById(
-        updateTableDto.floorId,
-      );
-
-      if (!floorToUpdate) {
-        errorHelper.addNewError(
-          `Поверху з заданим id:${updateTableDto.floorId} не існує`,
-          'floor',
-        );
-        throw new HttpException(errorHelper.getErrors(), HttpStatus.NOT_FOUND);
-      }
-
-      // Перевірка власника ресторану
-      const restaurant = await this.restaurantService.getById(
-        floorToUpdate.restaurant.id,
-      );
-
-      if (restaurant.user.id !== currentUserId) {
-        throw new HttpException(
-          'Ви не є автором ресторану',
-          HttpStatus.FORBIDDEN,
-        );
-      }
-
-      // Оновлення поверху столу
-      table.floor = floorToUpdate;
-    }
-
-    Object.assign(table, updateTableDto);
-
-    return this.tableRepository.save(table);
+    return table;
   }
 }
