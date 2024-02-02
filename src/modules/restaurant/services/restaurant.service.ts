@@ -132,10 +132,7 @@ export class RestaurantService {
     }
 
     if (restaurant.user.id !== currentUserId) {
-      errorHelper.addNewError(
-        `Ви не можете додати стіл, оскільки ресторан з вказаним id:${restaurantId} не належить поточному юзеру.`,
-        'restaurant',
-      );
+      errorHelper.addNewError(`Ви не є власником ресторану!`, 'owner');
       throw new HttpException(errorHelper.getErrors(), HttpStatus.NOT_FOUND);
     }
 

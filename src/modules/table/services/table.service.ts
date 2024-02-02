@@ -11,7 +11,6 @@ import { UpdateTableRequestDto } from '../models/dtos/request/update-table.reque
 import { TableResponseDto } from '../models/dtos/response/table.response.dto';
 import { TablesWithCountResponseDto } from '../models/dtos/response/tables-with-count.response.dto';
 import { TableQueryParams } from '../models/types/tableQuery.types';
-import { FloorEntity } from '../../floor/floor.entity';
 
 @Injectable()
 export class TableService {
@@ -45,8 +44,8 @@ export class TableService {
       createTableDto;
 
     await this.restaurantService.validateRestaurantOwnership(
-      restaurantId,
       currentUserId,
+      restaurantId,
     );
 
     await this.floorService.validateFloorForUserAndRestaurant(
@@ -76,8 +75,10 @@ export class TableService {
       .getMany();
   }
 
-  async getById(tableId: number): Promise<TableEntity> {
-    return await this.tableRepository
+  async getById(currentUserId: number, tableId: number): Promise<TableEntity> {
+    const errorHelper: ErrorHelper = new ErrorHelper();
+
+    const table: TableEntity = await this.tableRepository
       .createQueryBuilder('table')
       .innerJoin('table.floor', 'floor')
       .innerJoin('table.restaurant', 'restaurant')
@@ -85,6 +86,18 @@ export class TableService {
       .addSelect(['user.id', 'user.firstName', 'user.lastName'])
       .where('table.id = :tableId', { tableId })
       .getOne();
+
+    if (!table) {
+      errorHelper.addNewError(`Стіл з заданим id:${tableId} не існує`, 'table');
+      throw new HttpException(errorHelper.getErrors(), HttpStatus.NOT_FOUND);
+    }
+
+    if (table.userId !== currentUserId) {
+      errorHelper.addNewError(`Ви не є автором ресторану!`, 'owner');
+      throw new HttpException(errorHelper.getErrors(), HttpStatus.FORBIDDEN);
+    }
+
+    return table;
   }
 
   async getAllTablesByRestaurantId(
@@ -144,7 +157,7 @@ export class TableService {
   ): Promise<TableEntity> {
     const errorHelper: ErrorHelper = new ErrorHelper();
 
-    const table: TableEntity = await this.getById(tableId);
+    const table: TableEntity = await this.getById(currentUserId, tableId);
     if (!table) {
       errorHelper.addNewError(
         `Столик з заданим id:${tableId} не існує`,

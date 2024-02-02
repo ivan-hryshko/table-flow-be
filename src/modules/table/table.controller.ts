@@ -56,6 +56,7 @@ export class TableController {
     const tables: TableEntity[] = await this.tableService.getByUser({
       userId: currentUserId,
     });
+
     return this.tableService.buildTablesResponse(tables);
   }
 
@@ -63,15 +64,10 @@ export class TableController {
   @Get('/:id')
   @UseGuards(AuthGuard)
   async getById(
+    @User('id') currentUserId: number,
     @Param('id') tableId: number,
   ): Promise<TableWrapperResponseDto> {
-    const errorHelper: ErrorHelper = new ErrorHelper();
-
-    const table: TableEntity = await this.tableService.getById(tableId);
-    if (!table) {
-      errorHelper.addNewError(`Стіл з заданим id:${tableId} не існує`, 'table');
-      throw new HttpException(errorHelper.getErrors(), HttpStatus.NOT_FOUND);
-    }
+    const table = await this.tableService.getById(currentUserId, tableId);
 
     return this.tableService.buildTableResponse(table);
   }
@@ -116,6 +112,7 @@ export class TableController {
       currentUserId,
       updateTableDto.table,
     );
+
     return this.tableService.buildTableResponse(table);
   }
 }
