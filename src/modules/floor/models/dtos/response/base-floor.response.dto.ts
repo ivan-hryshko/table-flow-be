@@ -6,4 +6,5 @@ export class BaseFloorResponseDto {
   title: string;
   restaurant: RestaurantResponseDto;
   tables: TableResponseDto[];
+  imgSrc: string;
 }
