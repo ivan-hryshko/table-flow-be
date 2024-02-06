@@ -9,7 +9,7 @@ export class BaseRestaurantResponseDto {
   city: string;
   type: string;
   location: string;
-  floors: FloorResponseDto[];
+  floors: any[];
   tables: TableForRestaurantResponseDto[];
   user: UserForRestaurantResponseDto;
   openingTime: string;

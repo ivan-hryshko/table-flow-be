@@ -22,13 +22,13 @@ export class FloorService {
     private readonly uploadService: UploadService,
   ) {}
 
-  buildFloorResponse(floor: FloorEntity): { floor: FloorEntity } {
+  buildFloorResponse(floor: any): { floor: FloorEntity } {
     return {
       floor,
     };
   }
 
-  buildFloorsResponse(floors: FloorEntity[]): FloorsResponseDto {
+  buildFloorsResponse(floors: any[]): FloorsResponseDto {
     return {
       floors,
       floorsCount: floors.length,
