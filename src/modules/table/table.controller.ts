@@ -4,7 +4,6 @@ import {
   Delete,
   Get,
   HttpCode,
-  HttpException,
   HttpStatus,
   Param,
   Post,
@@ -14,7 +13,6 @@ import {
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
-import { ErrorHelper } from '../../utils/errors/errorshelper.helper';
 import { BackendValidationPipe } from '../../utils/pipes/backendValidation.pipe';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { User } from '../user/decorators/user.decorator';
@@ -67,7 +65,10 @@ export class TableController {
     @User('id') currentUserId: number,
     @Param('id') tableId: number,
   ): Promise<TableWrapperResponseDto> {
-    const table = await this.tableService.getById(currentUserId, tableId);
+    const table: TableEntity = await this.tableService.getById(
+      currentUserId,
+      tableId,
+    );
 
     return this.tableService.buildTableResponse(table);
   }

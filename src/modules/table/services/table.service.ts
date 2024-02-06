@@ -40,8 +40,7 @@ export class TableService {
     currentUserId: number,
     createTableDto: CreateTableRequestDto,
   ): Promise<TableEntity> {
-    const { restaurantId, floorId }: { restaurantId: number; floorId: number } =
-      createTableDto;
+    const { restaurantId, floorId } = createTableDto;
 
     await this.restaurantService.validateRestaurantOwnership(
       currentUserId,
