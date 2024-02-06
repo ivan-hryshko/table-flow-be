@@ -10,7 +10,6 @@ import { TableService } from '../../table/services/table.service';
 import { ReservesResponseInterface } from '../models/types/reservesResponse.interface';
 import { TableEntity } from '../../table/table.entity';
 import { ReserveResponseDto } from '../models/dtos/response/reserve.response.dto';
-import { DeleteReserveRequestDto } from '../models/dtos/request/delete-reserve.request.dto';
 import { RestaurantEntity } from '../../restaurant/restaurant.entity';
 
 @Injectable()
@@ -37,6 +36,7 @@ export class ReserveService {
   }
 
   async create(
+    currentUserId: number,
     createReserveDto: CreateReserveRequestDto,
   ): Promise<ReserveEntity> {
     const errorHelper: ErrorHelper = new ErrorHelper();
@@ -64,7 +64,10 @@ export class ReserveService {
     }
 
     const allTablesByRestaurant: TableEntity[] =
-      await this.tableService.getAllTablesByRestaurantId(restaurant.id);
+      await this.tableService.getAllTablesByRestaurantId(
+        currentUserId,
+        restaurant.id,
+      );
 
     // 1 // Перевірка кількості г
     // остей

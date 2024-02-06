@@ -114,4 +114,28 @@ export class RestaurantService {
 
     return this.restaurantRepository.save(restaurant);
   }
+
+  async validateRestaurantOwnership(
+    currentUserId: number,
+    restaurantId: number,
+  ): Promise<RestaurantEntity> {
+    const errorHelper: ErrorHelper = new ErrorHelper();
+
+    const restaurant: RestaurantEntity = await this.getById(restaurantId);
+
+    if (!restaurant) {
+      errorHelper.addNewError(
+        `Ресторан з заданим id:${restaurantId} не існує`,
+        'restaurant',
+      );
+      throw new HttpException(errorHelper.getErrors(), HttpStatus.NOT_FOUND);
+    }
+
+    if (restaurant.user.id !== currentUserId) {
+      errorHelper.addNewError(`Ви не є власником ресторану!`, 'owner');
+      throw new HttpException(errorHelper.getErrors(), HttpStatus.NOT_FOUND);
+    }
+
+    return restaurant;
+  }
 }

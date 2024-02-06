@@ -3,8 +3,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { ErrorHelper } from '../../../utils/errors/errorshelper.helper';
-import { RestaurantEntity } from '../../restaurant/restaurant.entity';
-import { FloorEntity } from '../../floor/floor.entity';
 import { TableEntity } from '../table.entity';
 import { RestaurantService } from '../../restaurant/services/restaurant.service';
 import { FloorService } from '../../floor/services/floor.service';
@@ -42,49 +40,30 @@ export class TableService {
     currentUserId: number,
     createTableDto: CreateTableRequestDto,
   ): Promise<TableEntity> {
-    const errorHelper = new ErrorHelper();
+    const { restaurantId, floorId } = createTableDto;
 
-    const restaurant: RestaurantEntity = await this.restaurantService.getById(
-      createTableDto.restaurantId,
+    await this.restaurantService.validateRestaurantOwnership(
+      currentUserId,
+      restaurantId,
     );
-    if (!restaurant) {
-      errorHelper.addNewError(
-        `Ресторан з заданим id:${createTableDto.restaurantId} не існує`,
-        'restaurant',
-      );
-      throw new HttpException(errorHelper.getErrors(), HttpStatus.NOT_FOUND);
-    }
 
-    if (createTableDto.restaurantId !== currentUserId) {
-      errorHelper.addNewError(
-        `Ви не можете додати стіл, оскільки ресторан з вказаним id:${createTableDto.restaurantId} не належить поточному юзеру.`,
-        'restaurant',
-      );
-      throw new HttpException(errorHelper.getErrors(), HttpStatus.NOT_FOUND);
-    }
-
-    const floor: FloorEntity = await this.floorService.getById(
-      createTableDto.floorId,
+    await this.floorService.validateFloorForUserAndRestaurant(
+      currentUserId,
+      restaurantId,
+      floorId,
     );
-    if (!floor) {
-      errorHelper.addNewError(
-        `Поверх з заданим id:${createTableDto.floorId} не існує`,
-        'floor',
-      );
-      throw new HttpException(errorHelper.getErrors(), HttpStatus.NOT_FOUND);
-    }
 
     const newTable: TableEntity = new TableEntity();
-    newTable.restaurantId = createTableDto.restaurantId;
-    newTable.floorId = createTableDto.floorId;
-    newTable.userId = restaurant.user.id;
+    newTable.restaurantId = restaurantId;
+    newTable.floorId = floorId;
+    newTable.userId = currentUserId;
 
     Object.assign(newTable, createTableDto);
 
     return await this.tableRepository.save(newTable);
   }
 
-  async getByUser(query: TableQueryParams) {
+  async getByUser(query: TableQueryParams): Promise<TableEntity[]> {
     return this.tableRepository
       .createQueryBuilder('table')
       .innerJoin('table.floor', 'floor')
@@ -95,8 +74,10 @@ export class TableService {
       .getMany();
   }
 
-  async getById(tableId: number) {
-    return await this.tableRepository
+  async getById(currentUserId: number, tableId: number): Promise<TableEntity> {
+    const errorHelper: ErrorHelper = new ErrorHelper();
+
+    const table: TableEntity = await this.tableRepository
       .createQueryBuilder('table')
       .innerJoin('table.floor', 'floor')
       .innerJoin('table.restaurant', 'restaurant')
@@ -104,21 +85,28 @@ export class TableService {
       .addSelect(['user.id', 'user.firstName', 'user.lastName'])
       .where('table.id = :tableId', { tableId })
       .getOne();
+
+    if (!table) {
+      errorHelper.addNewError(`Стіл з заданим id:${tableId} не існує`, 'table');
+      throw new HttpException(errorHelper.getErrors(), HttpStatus.NOT_FOUND);
+    }
+
+    if (table.userId !== currentUserId) {
+      errorHelper.addNewError(`Ви не є автором ресторану!`, 'owner');
+      throw new HttpException(errorHelper.getErrors(), HttpStatus.FORBIDDEN);
+    }
+
+    return table;
   }
 
   async getAllTablesByRestaurantId(
+    currentUserId: number,
     restaurantId: number,
-    //TODO чи треба нам другий параметр ??
-    currentUserId: number = 11,
   ): Promise<TableEntity[]> {
-    //TODO Додати перевірку неіснуючого "111" та невірного "114aaa" restaurantId
-
-    if (!restaurantId) {
-      throw new HttpException(
-        `Ресторану з заданим id ${restaurantId} не знайдено`,
-        HttpStatus.NOT_FOUND,
-      );
-    }
+    await this.restaurantService.validateRestaurantOwnership(
+      currentUserId,
+      restaurantId,
+    );
 
     return this.tableRepository
       .createQueryBuilder('table')
@@ -130,9 +118,45 @@ export class TableService {
   }
 
   async delete(currentUserId: number, tableId: number): Promise<void> {
+    await this.validateTableOwnership(currentUserId, tableId);
+
+    await this.tableRepository.delete(tableId);
+  }
+
+  async update(
+    currentUserId: number,
+    updateTableDto: UpdateTableRequestDto,
+  ): Promise<TableEntity> {
+    const { id, floorId }: { id: number; floorId?: number } = updateTableDto;
+
+    const table: TableEntity = await this.validateTableOwnership(
+      currentUserId,
+      id,
+    );
+
+    await this.restaurantService.validateRestaurantOwnership(
+      currentUserId,
+      table.restaurantId,
+    );
+
+    table.floor = await this.floorService.validateFloorForUserAndRestaurant(
+      currentUserId,
+      table.restaurantId,
+      floorId,
+    );
+
+    Object.assign(table, updateTableDto);
+
+    return await this.tableRepository.save(table);
+  }
+
+  async validateTableOwnership(
+    currentUserId: number,
+    tableId: number,
+  ): Promise<TableEntity> {
     const errorHelper: ErrorHelper = new ErrorHelper();
 
-    const table: TableEntity = await this.getById(tableId);
+    const table: TableEntity = await this.getById(currentUserId, tableId);
     if (!table) {
       errorHelper.addNewError(
         `Столик з заданим id:${tableId} не існує`,
@@ -148,61 +172,6 @@ export class TableService {
       );
     }
 
-    await this.tableRepository.delete(tableId);
-  }
-
-  async update(updateTableDto: UpdateTableRequestDto, currentUserId: number) {
-    const errorHelper = new ErrorHelper();
-
-    const table: TableEntity = await this.getById(updateTableDto.id);
-    if (!table) {
-      errorHelper.addNewError(
-        `Столик з заданим id:${updateTableDto.id} не існує`,
-        'table',
-      );
-      throw new HttpException(errorHelper.getErrors(), HttpStatus.NOT_FOUND);
-    }
-
-    if (table.userId !== currentUserId) {
-      throw new HttpException(
-        'Ви не є автором ресторану',
-        HttpStatus.FORBIDDEN,
-      );
-    }
-
-    // TODO перевірити логіку прив'язки ресторану до поверху в новій тасці
-    if (updateTableDto.floorId) {
-      // Перевірка та отримання поверху перед виконанням оновлення
-      const floorToUpdate = await this.floorService.getById(
-        updateTableDto.floorId,
-      );
-
-      if (!floorToUpdate) {
-        errorHelper.addNewError(
-          `Поверху з заданим id:${updateTableDto.floorId} не існує`,
-          'floor',
-        );
-        throw new HttpException(errorHelper.getErrors(), HttpStatus.NOT_FOUND);
-      }
-
-      // Перевірка власника ресторану
-      const restaurant = await this.restaurantService.getById(
-        floorToUpdate.restaurant.id,
-      );
-
-      if (restaurant.user.id !== currentUserId) {
-        throw new HttpException(
-          'Ви не є автором ресторану',
-          HttpStatus.FORBIDDEN,
-        );
-      }
-
-      // Оновлення поверху столу
-      table.floor = floorToUpdate;
-    }
-
-    Object.assign(table, updateTableDto);
-
-    return this.tableRepository.save(table);
+    return table;
   }
 }
