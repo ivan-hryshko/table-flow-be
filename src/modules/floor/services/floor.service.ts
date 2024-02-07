@@ -188,7 +188,7 @@ export class FloorService {
       imgSrcExpiresIn,
     );
 
-    const savedFloor = await this.floorRepository.save(floor)
+    const savedFloor = await this.floorRepository.save(floor);
 
     return {
       ...savedFloor,

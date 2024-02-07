@@ -3,23 +3,13 @@ import {
   Controller,
   Delete,
   Get,
-<<<<<<< HEAD
   HttpCode,
   HttpStatus,
   NotFoundException,
-=======
->>>>>>> bb6f1af (Progress)
   Param,
   Patch,
   Post,
   Put,
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-  Patch,
->>>>>>> 03a06b2 (Progress)
-=======
->>>>>>> bb6f1af (Progress)
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -28,10 +18,6 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { memoryStorage } from 'multer';
-<<<<<<< HEAD
-=======
-import { DeleteResult } from 'typeorm';
->>>>>>> bb6f1af (Progress)
 
 import { BackendValidationPipe } from '../../utils/pipes/backendValidation.pipe';
 import { IntegerValidationPipe } from '../../utils/pipes/integer-validation.pipe';
@@ -42,7 +28,6 @@ import { FloorEntity } from './floor.entity';
 import { CreateFloorWrapperRequestDto } from './models/dtos/request/create-floor-wrapper.request.dto';
 import { UpdateFloorWrapperRequestDto } from './models/dtos/request/update-floor-wrapper.request.dto';
 import { CreateFloorWrapperResponseDto } from './models/dtos/response/create-floor-wrapper.response.dto';
-import { FloorWrapperResponseDto } from './models/dtos/response/floor-wrapper.response.dto';
 import { FloorsResponseDto } from './models/dtos/response/floors.response.dto';
 import { UpdateFloorWrapperResponseDto } from './models/dtos/response/update-floor-wrapper.response.dto';
 import { FloorService } from './services/floor.service';
@@ -82,7 +67,7 @@ export class FloorController {
   @UseGuards(AuthGuard)
   async getById(
     @Param('id', IntegerValidationPipe) floorId: number,
-  ): Promise<FloorWrapperResponseDto> {
+  ): Promise<any> {
     const floor: FloorEntity = await this.floorService.getById(floorId);
 
     if (!floor) {
@@ -93,11 +78,7 @@ export class FloorController {
   }
 
   @ApiOperation({ description: 'Delete floor' })
-<<<<<<< HEAD
   @Delete('/:id')
-=======
-  @Delete()
->>>>>>> bb6f1af (Progress)
   @UseGuards(AuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   @UsePipes(new BackendValidationPipe())
@@ -123,10 +104,6 @@ export class FloorController {
     return this.floorService.buildFloorResponse(floor);
   }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> bb6f1af (Progress)
   @Patch('/:id/image')
   @UseGuards(AuthGuard)
   @UsePipes(new BackendValidationPipe())
@@ -138,14 +115,5 @@ export class FloorController {
   ) {
     const floor = await this.floorService.updateImage(id, file, currentUserId);
     return this.floorService.buildFloorResponse(floor);
-<<<<<<< HEAD
-=======
-  @Patch('floor')
-  @UseInterceptors(FileInterceptor('file'))
-  uploadFile(@UploadedFile() file: Express.Multer.File) {
-    console.log(file);
->>>>>>> 03a06b2 (Progress)
-=======
->>>>>>> bb6f1af (Progress)
   }
 }

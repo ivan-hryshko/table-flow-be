@@ -3,10 +3,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { RestaurantModule } from '../restaurant/restaurant.module';
+import { UploadModule } from '../upload/upload.module';
 import { FloorController } from './floor.controller';
 import { FloorEntity } from './floor.entity';
 import { FloorService } from './services/floor.service';
-import { UploadModule } from '../upload/upload.module';
 
 @Module({
   imports: [
