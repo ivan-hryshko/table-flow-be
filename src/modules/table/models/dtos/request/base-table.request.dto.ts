@@ -1,4 +1,4 @@
-import { IsNotEmpty, Min } from 'class-validator';
+import { IsInt, IsNotEmpty, Min, Validate } from 'class-validator';
 
 export class BaseTableRequestDto {
   @IsNotEmpty()
@@ -6,9 +6,11 @@ export class BaseTableRequestDto {
   id: number;
 
   @IsNotEmpty()
+  @IsInt()
   restaurantId: number;
 
   @IsNotEmpty()
+  @IsInt()
   floorId: number;
 
   @IsNotEmpty()

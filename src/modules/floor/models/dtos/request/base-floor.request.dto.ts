@@ -1,4 +1,4 @@
-import { IsNotEmpty, Min } from 'class-validator';
+import { IsInt, IsNotEmpty, Min } from 'class-validator';
 
 export class BaseFloorRequestDto {
   @IsNotEmpty()
@@ -9,5 +9,6 @@ export class BaseFloorRequestDto {
   readonly title: string;
 
   @IsNotEmpty()
+  @IsInt()
   readonly restaurantId: number;
 }
