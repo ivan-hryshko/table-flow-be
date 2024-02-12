@@ -13,6 +13,7 @@ import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { DeleteResult } from 'typeorm';
 
 import { BackendValidationPipe } from '../../utils/pipes/backendValidation.pipe';
+import { IntegerValidationPipe } from '../../utils/pipes/integer-validation.pipe';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { User } from '../user/decorators/user.decorator';
 import { CreateRestaurantWrapperRequestDto } from './models/dtos/request/create-restaurant-wrapper.request.dto';
@@ -62,7 +63,7 @@ export class RestaurantController {
   @Get('/:id')
   async getByUserIdAndRestaurantId(
     @User('id') currentUserId: number,
-    @Param('id') restaurantId: number,
+    @Param('id', IntegerValidationPipe) restaurantId: number,
   ): Promise<RestaurantWrapperResponseDto> {
     const restaurant = await this.restaurantService.getByUserIdAndRestaurantId(
       restaurantId,

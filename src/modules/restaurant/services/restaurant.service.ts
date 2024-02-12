@@ -75,9 +75,8 @@ export class RestaurantService {
     const restaurant = await this.restaurantRepository
       .createQueryBuilder('restaurant')
       .where('restaurant.id = :restaurantId', { restaurantId })
-      .andWhere('restaurant.user.id = :userId', { userId })
       .innerJoin('restaurant.user', 'user')
-      .addSelect(['user.id', 'user.firstName', 'user.lastName'])
+      .addSelect(['user.id'])
       .leftJoin('restaurant.floors', 'floors')
       .addSelect(['floors.id', 'floors.title'])
       .leftJoin('restaurant.tables', 'tables')
@@ -93,10 +92,15 @@ export class RestaurantService {
 
     if (!restaurant) {
       errorHelper.addNewError(
-        `Ресторан не існує або не належить користувачу`,
+        `Ресторану з заданим id:${restaurantId} не існує`,
         'restaurant',
       );
       throw new HttpException(errorHelper.getErrors(), HttpStatus.NOT_FOUND);
+    }
+
+    if (restaurant.user.id !== userId) {
+      errorHelper.addNewError(`Ви не є автором ресторану`, 'restaurant');
+      throw new HttpException(errorHelper.getErrors(), HttpStatus.FORBIDDEN);
     }
 
     return restaurant;
