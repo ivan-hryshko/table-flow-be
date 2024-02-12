@@ -6,10 +6,10 @@ import { RestaurantService } from '../../restaurant/services/restaurant.service'
 import { UserEntity } from '../../user/user.entity';
 import { FloorEntity } from '../floor.entity';
 import { CreateFloorRequestDto } from '../models/dtos/request/create-floor.request.dto';
-import { DeleteFloorRequestDto } from '../models/dtos/request/delete-floor.request.dto';
 import { UpdateFloorRequestDto } from '../models/dtos/request/update-floor.request.dto';
 import { FloorsResponseDto } from '../models/dtos/response/floors.response.dto';
-import { FloorQueryParams } from '../models/types/floorQuery.types';
+import { RestaurantEntity } from '../../restaurant/restaurant.entity';
+import { ErrorHelper } from '../../../utils/errors/errorshelper.helper';
 
 @Injectable()
 export class FloorService {
@@ -41,10 +41,7 @@ export class FloorService {
     );
 
     if (!restaurant) {
-      throw new HttpException(
-        'Ресторан не існує',
-        HttpStatus.NOT_FOUND,
-      );
+      throw new HttpException('Ресторан не існує', HttpStatus.NOT_FOUND);
     }
 
     if (restaurant.user.id !== currentUser.id) {
@@ -60,28 +57,27 @@ export class FloorService {
     return await this.floorRepository.save(newFloor);
   }
 
-  async getByUser(query: FloorQueryParams): Promise<FloorEntity[]> {
-    return this.floorRepository
+  async getByUser(userId: number): Promise<FloorEntity[]> {
+    return await this.floorRepository
       .createQueryBuilder('floor')
-      .innerJoin('floor.user', 'user')
-      .innerJoin('floor.restaurant', 'restaurant')
-      .addSelect(['user.id', 'user.firstName', 'user.lastName'])
-      .addSelect(['restaurant.id', 'restaurant.title'])
-      .where('user.id = :userId', { userId: query.userId })
+      .innerJoinAndSelect('floor.restaurant', 'restaurant')
+      .innerJoinAndSelect('restaurant.user', 'user')
+      .where('user.id = :userId', { userId })
       .getMany();
   }
 
   async getById(floorId: number): Promise<FloorEntity> {
     return this.floorRepository
       .createQueryBuilder('floor')
-      .innerJoin('floor.restaurant', 'restaurant')
+      .innerJoinAndSelect('floor.restaurant', 'restaurant')
+      .innerJoinAndSelect('restaurant.user', 'user')
       .addSelect(['restaurant.id', 'restaurant.title'])
       .where('floor.id = :floorId', { floorId })
       .getOne();
   }
 
-  async delete(deleteFloorDto: DeleteFloorRequestDto, currentUserId: number) {
-    const floor = await this.getById(deleteFloorDto.id);
+  async delete(currentUserId: number, floorId: number): Promise<void> {
+    const floor = await this.getById(floorId);
 
     if (!floor) {
       throw new HttpException('Поверху не існує', HttpStatus.NOT_FOUND);
@@ -94,7 +90,7 @@ export class FloorService {
       );
     }
 
-    return this.floorRepository.delete({ id: deleteFloorDto.id });
+    this.floorRepository.delete(floorId);
   }
 
   async update(
@@ -117,5 +113,43 @@ export class FloorService {
     Object.assign(floor, updateFloorDto);
 
     return this.floorRepository.save(floor);
+  }
+
+  async validateFloorForUserAndRestaurant(
+    currentUserId: number,
+    restaurantId: number,
+    floorId: number,
+  ): Promise<FloorEntity> {
+    const errorHelper: ErrorHelper = new ErrorHelper();
+
+    const floor: FloorEntity = await this.getById(floorId);
+
+    if (!floor) {
+      errorHelper.addNewError(
+        `Поверх з заданим id:${floorId} не існує`,
+        'floor',
+      );
+      throw new HttpException(errorHelper.getErrors(), HttpStatus.NOT_FOUND);
+    }
+
+    const restaurant: RestaurantEntity =
+      await this.restaurantService.getById(restaurantId);
+    if (restaurant.user.id !== currentUserId) {
+      errorHelper.addNewError(
+        `Ви не можете додати стіл, оскільки ресторан з вказаним id:${restaurantId} не належить поточному юзеру.`,
+        'restaurant',
+      );
+      throw new HttpException(errorHelper.getErrors(), HttpStatus.NOT_FOUND);
+    }
+
+    if (floor.restaurant.id !== restaurantId) {
+      errorHelper.addNewError(
+        `Ви не можете додати стіл, оскільки поверх з вказаним id:${floorId} не належить до ресторану з id:${restaurantId}.`,
+        'restaurant',
+      );
+      throw new HttpException(errorHelper.getErrors(), HttpStatus.NOT_FOUND);
+    }
+
+    return floor;
   }
 }

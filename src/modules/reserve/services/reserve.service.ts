@@ -10,6 +10,7 @@ import { TableService } from '../../table/services/table.service';
 import { ReservesResponseInterface } from '../models/types/reservesResponse.interface';
 import { TableEntity } from '../../table/table.entity';
 import { ReserveResponseDto } from '../models/dtos/response/reserve.response.dto';
+import { RestaurantEntity } from '../../restaurant/restaurant.entity';
 
 @Injectable()
 export class ReserveService {
@@ -35,6 +36,7 @@ export class ReserveService {
   }
 
   async create(
+    currentUserId: number,
     createReserveDto: CreateReserveRequestDto,
   ): Promise<ReserveEntity> {
     const errorHelper: ErrorHelper = new ErrorHelper();
@@ -44,6 +46,12 @@ export class ReserveService {
       reserveDurationTime,
       restaurantId,
       countOfGuests,
+    }: {
+      reserveDate: Date;
+      reserveStartTime: Date;
+      reserveDurationTime: number;
+      restaurantId: number;
+      countOfGuests: number;
     } = createReserveDto;
 
     const restaurant = await this.restaurantService.getById(restaurantId);
@@ -56,9 +64,13 @@ export class ReserveService {
     }
 
     const allTablesByRestaurant: TableEntity[] =
-      await this.tableService.getAllTablesByRestaurantId(restaurant.id);
+      await this.tableService.getAllTablesByRestaurantId(
+        currentUserId,
+        restaurant.id,
+      );
 
-    // 1 // Перевірка кількості гостей
+    // 1 // Перевірка кількості г
+    // остей
     const isGuestCountValid = (table: TableEntity): boolean =>
       countOfGuests <= table.seatsCount;
 
@@ -166,5 +178,75 @@ export class ReserveService {
     ); // Convert 'reserveStartTime' string to Date
 
     return await this.reserveRepository.save(newReserve);
+  }
+
+  async getRepositoryById(reserveId: number): Promise<ReserveEntity | null> {
+    return this.reserveRepository
+      .createQueryBuilder('reserve')
+      .leftJoin('reserve.table', 'table')
+      .leftJoin('table.floor', 'floor')
+      .leftJoin('table.restaurant', 'restaurant')
+      .leftJoin('restaurant.user', 'user')
+      .where('reserve.id = :reserveId', { reserveId })
+      .getOne();
+  }
+
+  async getById(
+    currentUserId: number,
+    reserveId: number,
+  ): Promise<ReserveEntity> {
+    const errorHelper = new ErrorHelper();
+
+    const reserve = await this.getRepositoryById(reserveId);
+
+    if (!reserve) {
+      const errorHelper: ErrorHelper = new ErrorHelper();
+      errorHelper.addNewError(
+        `Резерву з заданим id:${reserveId} не існує`,
+        'reserve',
+      );
+      throw new HttpException(errorHelper.getErrors(), HttpStatus.NOT_FOUND);
+    }
+
+    const restaurant: RestaurantEntity = await this.restaurantService.getById(
+      reserve.restaurantId,
+    );
+    const isCurrentUserOwner = currentUserId === restaurant.user.id;
+    if (!isCurrentUserOwner) {
+      errorHelper.addNewError(
+        `Ви не можете видалити резерв, бо ви не власник ресторану`,
+        'owner',
+      );
+      throw new HttpException(errorHelper.getErrors(), HttpStatus.FORBIDDEN);
+    }
+
+    return reserve;
+  }
+
+  async delete(currentUserId: number, reserveId: number) {
+    const errorHelper: ErrorHelper = new ErrorHelper();
+
+    const reserve: ReserveEntity = await this.getRepositoryById(reserveId);
+    if (!reserve) {
+      errorHelper.addNewError(
+        `Резерву з заданим id:${reserveId} не існує`,
+        'reserve',
+      );
+      throw new HttpException(errorHelper.getErrors(), HttpStatus.NOT_FOUND);
+    }
+
+    const restaurant: RestaurantEntity = await this.restaurantService.getById(
+      reserve.restaurantId,
+    );
+    const isCurrentUserOwner = currentUserId === restaurant.user.id;
+    if (!isCurrentUserOwner) {
+      errorHelper.addNewError(
+        `Ви не можете видалити резерв, бо ви не власник ресторану`,
+        'owner',
+      );
+      throw new HttpException(errorHelper.getErrors(), HttpStatus.FORBIDDEN);
+    }
+
+    return this.reserveRepository.delete(reserveId);
   }
 }
