@@ -13,7 +13,6 @@ import {
   UsePipes,
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import { DeleteResult } from 'typeorm';
 
 import { BackendValidationPipe } from '../../utils/pipes/backendValidation.pipe';
 import { AuthGuard } from '../auth/guards/auth.guard';
@@ -27,6 +26,7 @@ import { CreateFloorWrapperResponseDto } from './models/dtos/response/create-flo
 import { UpdateFloorWrapperResponseDto } from './models/dtos/response/update-floor-wrapper.response.dto';
 import { FloorsResponseDto } from './models/dtos/response/floors.response.dto';
 import { FloorWrapperResponseDto } from './models/dtos/response/floor-wrapper.response.dto';
+import { IntegerValidationPipe } from '../../utils/pipes/integer-validation.pipe';
 
 @ApiTags('Floor')
 @Controller('api/v1')
@@ -62,7 +62,7 @@ export class FloorController {
   @Get('floors/:id')
   @UseGuards(AuthGuard)
   async getById(
-    @Param('id') floorId: number,
+    @Param('id', IntegerValidationPipe) floorId: number,
   ): Promise<FloorWrapperResponseDto> {
     const floor: FloorEntity = await this.floorService.getById(floorId);
 
@@ -80,7 +80,7 @@ export class FloorController {
   @UsePipes(new BackendValidationPipe())
   async delete(
     @User('id') currentUserId: number,
-    @Param('id') floorId: number,
+    @Param('id', IntegerValidationPipe) floorId: number,
   ): Promise<void> {
     await this.floorService.delete(currentUserId, floorId);
   }
