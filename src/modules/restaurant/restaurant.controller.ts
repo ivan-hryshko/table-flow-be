@@ -58,7 +58,7 @@ export class RestaurantController {
     return this.restaurantService.buildRestaurantsResponse(restaurants);
   }
 
-  @ApiOperation({ description: 'Get restaurant by user' })
+  @ApiOperation({ description: 'Get restaurant by user and restaurant id' })
   @UseGuards(AuthGuard)
   @Get('/:id')
   async getByUserIdAndRestaurantId(

@@ -76,7 +76,7 @@ export class RestaurantService {
       .createQueryBuilder('restaurant')
       .where('restaurant.id = :restaurantId', { restaurantId })
       .innerJoin('restaurant.user', 'user')
-      .addSelect(['user.id'])
+      .addSelect(['user.id', 'user.firstName', 'user.lastName'])
       .leftJoin('restaurant.floors', 'floors')
       .addSelect(['floors.id', 'floors.title'])
       .leftJoin('restaurant.tables', 'tables')
