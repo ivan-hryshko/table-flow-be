@@ -12,4 +12,6 @@ export class BaseRestaurantResponseDto {
   floors: FloorResponseDto[];
   tables: TableForRestaurantResponseDto[];
   user: UserForRestaurantResponseDto;
+  openingTime: string;
+  closingTime: string;
 }
