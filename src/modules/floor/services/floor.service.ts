@@ -164,12 +164,12 @@ export class FloorService {
     const floor = await this.getById(id);
 
     if (!floor) {
-      throw new HttpException('Floor does not exist', HttpStatus.NOT_FOUND);
+      throw new HttpException('Поверх не існує', HttpStatus.NOT_FOUND);
     }
 
     if (floor.restaurant.user.id !== currentUserId) {
       throw new HttpException(
-        'You are not author of restaurant',
+        'Ви не є власником ресторану',
         HttpStatus.FORBIDDEN,
       );
     }
