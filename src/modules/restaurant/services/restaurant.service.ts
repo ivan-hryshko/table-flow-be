@@ -7,7 +7,6 @@ import { UserEntity } from '../../user/user.entity';
 import { CreateRestaurantRequestDto } from '../models/dtos/request/create-restaurant.request.dto';
 import { DeleteRestaurantRequestDto } from '../models/dtos/request/delete-restaurant.request.dto';
 import { UpdateRestaurantRequestDto } from '../models/dtos/request/update-restaurant.request.dto';
-import { RestaurantResponseDto } from '../models/dtos/response/restaurant.response.dto';
 import { RestaurantsWithCountResponseDto } from '../models/dtos/response/restaurants-with-count.response.dto';
 import { RestaurantQueryParams } from '../models/types/restaurantQuery.types';
 import { RestaurantEntity } from '../restaurant.entity';
@@ -19,7 +18,7 @@ export class RestaurantService {
     private readonly restaurantRepository: Repository<RestaurantEntity>,
   ) {}
   buildRestaurantResponse(restaurant: RestaurantEntity): {
-    restaurant: RestaurantResponseDto;
+    restaurant: RestaurantEntity;
   } {
     return {
       restaurant,
@@ -65,6 +64,46 @@ export class RestaurantService {
       .addSelect(['user.id', 'user.firstName', 'user.lastName'])
       .where('restaurant.id = :restaurantId', { restaurantId })
       .getOne();
+  }
+
+  async getByUserIdAndRestaurantId(
+    restaurantId: number,
+    userId: number,
+  ): Promise<RestaurantEntity> {
+    const errorHelper = new ErrorHelper();
+
+    const restaurant = await this.restaurantRepository
+      .createQueryBuilder('restaurant')
+      .where('restaurant.id = :restaurantId', { restaurantId })
+      .innerJoin('restaurant.user', 'user')
+      .addSelect(['user.id', 'user.firstName', 'user.lastName'])
+      .leftJoin('restaurant.floors', 'floors')
+      .addSelect(['floors.id', 'floors.title'])
+      .leftJoin('restaurant.tables', 'tables')
+      .addSelect([
+        'tables.id',
+        'tables.title',
+        'tables.x',
+        'tables.y',
+        'tables.isPlaced',
+        'tables.seatsCount',
+      ])
+      .getOne();
+
+    if (!restaurant) {
+      errorHelper.addNewError(
+        `Ресторану з заданим id:${restaurantId} не існує`,
+        'restaurant',
+      );
+      throw new HttpException(errorHelper.getErrors(), HttpStatus.NOT_FOUND);
+    }
+
+    if (restaurant.user.id !== userId) {
+      errorHelper.addNewError(`Ви не є автором ресторану`, 'restaurant');
+      throw new HttpException(errorHelper.getErrors(), HttpStatus.FORBIDDEN);
+    }
+
+    return restaurant;
   }
 
   async delete(

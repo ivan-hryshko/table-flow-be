@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  Param,
   Post,
   Put,
   UseGuards,
@@ -12,12 +13,14 @@ import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { DeleteResult } from 'typeorm';
 
 import { BackendValidationPipe } from '../../utils/pipes/backendValidation.pipe';
+import { IntegerValidationPipe } from '../../utils/pipes/integer-validation.pipe';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { User } from '../user/decorators/user.decorator';
 import { CreateRestaurantWrapperRequestDto } from './models/dtos/request/create-restaurant-wrapper.request.dto';
 import { DeleteRestaurantWrapperRequestDto } from './models/dtos/request/delete-restaurant-wrapper.request.dto';
 import { UpdateRestaurantWrapperRequestDto } from './models/dtos/request/update-restaurant-wrapper.request.dto';
 import { CreateRestaurantWrapperResponseDto } from './models/dtos/response/create-restaurant-wrapper.response.dto';
+import { RestaurantWrapperResponseDto } from './models/dtos/response/restaurant-wrapper.response.dto';
 import { RestaurantsWithCountResponseDto } from './models/dtos/response/restaurants-with-count.response.dto';
 import { UpdateRestaurantWrapperResponseDto } from './models/dtos/response/update-restaurant-wrapper.response.dto';
 import { RestaurantService } from './services/restaurant.service';
@@ -53,6 +56,20 @@ export class RestaurantController {
       userId: currentUserId,
     });
     return this.restaurantService.buildRestaurantsResponse(restaurants);
+  }
+
+  @ApiOperation({ description: 'Get restaurant by user and restaurant id' })
+  @UseGuards(AuthGuard)
+  @Get('/:id')
+  async getByUserIdAndRestaurantId(
+    @User('id') currentUserId: number,
+    @Param('id', IntegerValidationPipe) restaurantId: number,
+  ): Promise<RestaurantWrapperResponseDto> {
+    const restaurant = await this.restaurantService.getByUserIdAndRestaurantId(
+      restaurantId,
+      currentUserId,
+    );
+    return this.restaurantService.buildRestaurantResponse(restaurant);
   }
 
   @ApiOperation({ description: 'Delete restaurant' })
