@@ -1,6 +1,6 @@
 import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { Progress, Upload } from '@aws-sdk/lib-storage';
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import { getSignedUrl as getS3SignedUrl } from '@aws-sdk/s3-request-presigner';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as path from 'path';
@@ -66,7 +66,7 @@ export class UploadService {
       Bucket: this.configService.get('S3_BUCKET'),
       Key: key,
     });
-    const url = await getSignedUrl(this.s3Client, command, { expiresIn });
+    const url = await getS3SignedUrl(this.s3Client, command, { expiresIn });
 
     return url;
   }
