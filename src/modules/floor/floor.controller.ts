@@ -29,6 +29,7 @@ import { CreateFloorWrapperRequestDto } from './models/dtos/request/create-floor
 import { UpdateFloorWrapperRequestDto } from './models/dtos/request/update-floor-wrapper.request.dto';
 import { CreateFloorWrapperResponseDto } from './models/dtos/response/create-floor-wrapper.response.dto';
 import { FloorsResponseDto } from './models/dtos/response/floors.response.dto';
+import { UpdateFloorImageWrapperResponseDto } from './models/dtos/response/update-floor-image-wrapper.response.dto';
 import { UpdateFloorWrapperResponseDto } from './models/dtos/response/update-floor-wrapper.response.dto';
 import { FloorService } from './services/floor.service';
 
@@ -112,7 +113,7 @@ export class FloorController {
     @User('id') currentUserId: number,
     @Param('id') id: number,
     @UploadedFile() file: Express.Multer.File,
-  ) {
+  ): Promise<UpdateFloorImageWrapperResponseDto> {
     const floor = await this.floorService.updateImage(id, file, currentUserId);
     return this.floorService.buildFloorResponse(floor);
   }

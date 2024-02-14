@@ -22,7 +22,7 @@ export class FloorService {
     private readonly uploadService: UploadService,
   ) {}
 
-  buildFloorResponse(floor: any): { floor: FloorEntity } {
+  buildFloorResponse(floor: any): { floor: any } {
     return {
       floor,
     };
