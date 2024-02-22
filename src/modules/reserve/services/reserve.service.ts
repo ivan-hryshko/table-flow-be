@@ -40,28 +40,14 @@ export class ReserveService {
     createReserveDto: CreateReserveRequestDto,
   ): Promise<ReserveEntity> {
     const errorHelper: ErrorHelper = new ErrorHelper();
-    const {
-      reserveDate,
-      reserveStartTime,
-      reserveDurationTime,
-      restaurantId,
-      countOfGuests,
-    }: {
-      reserveDate: Date;
-      reserveStartTime: Date;
-      reserveDurationTime: number;
-      restaurantId: number;
-      countOfGuests: number;
-    } = createReserveDto;
+    const { reserveDate, reserveStartTime, restaurantId } = createReserveDto;
 
-    const restaurant = await this.restaurantService.getById(restaurantId);
-    if (!restaurant) {
-      errorHelper.addNewError(
-        `Ресторан з заданим id:${restaurantId} не існує`,
-        'restaurant',
-      );
-      throw new HttpException(errorHelper.getErrors(), HttpStatus.NOT_FOUND);
-    }
+    const restaurant: RestaurantEntity =
+      await this.restaurantService.getById(restaurantId);
+    await this.restaurantService.validateRestaurantOwnership(
+      currentUserId,
+      restaurantId,
+    );
 
     const allTablesByRestaurant: TableEntity[] =
       await this.tableService.getAllTablesByRestaurantId(
@@ -69,89 +55,9 @@ export class ReserveService {
         restaurant.id,
       );
 
-    // 1 // Перевірка кількості г
-    // остей
-    const isGuestCountValid = (table: TableEntity): boolean =>
-      countOfGuests <= table.seatsCount;
-
-    // 2 // Перевірка часу резерву
-    //TODO переписати дати використовуючи лібу moment.js
-    const reserveStartDateTime: Date = new Date(
-      `${reserveDate}T${reserveStartTime}`,
-    );
-    const reserveEndDateTime: Date = new Date(reserveStartDateTime);
-    reserveEndDateTime.setHours(
-      reserveEndDateTime.getHours() + reserveDurationTime,
-    );
-
-    const isReservationTimeValid = (table: TableEntity) => {
-      const openingRestaurantDateTime: Date = new Date(
-        reserveStartDateTime.toISOString().split('T')[0] +
-          'T' +
-          restaurant.openingTime,
-      );
-
-      const isStartTimeValid: boolean =
-        reserveStartDateTime >= openingRestaurantDateTime;
-
-      const closingRestaurantDateTime: Date = new Date(
-        reserveStartDateTime.toISOString().split('T')[0] +
-          'T' +
-          restaurant.closingTime,
-      );
-      const isEndTimeValid: boolean =
-        reserveEndDateTime <= closingRestaurantDateTime;
-
-      return isStartTimeValid && isEndTimeValid;
-    };
-
-    // 3 // Перевірка наявності інших бронювань на той же час
-    const isNoOverlapReservations = async (
-      table: TableEntity,
-    ): Promise<boolean> => {
-      const reservations: ReserveEntity[] = await this.reserveRepository.find({
-        where: { tableId: table.id },
-      });
-
-      const isValid: boolean = !reservations.some(
-        (reservation: ReserveEntity) => {
-          const existingStart: Date = new Date(reservation.reserveStartTime);
-          const existingEnd: Date = new Date(existingStart);
-          existingEnd.setHours(
-            existingEnd.getHours() + reservation.reserveDurationTime,
-          );
-
-          return (
-            (reserveStartDateTime >= existingStart &&
-              reserveStartDateTime < existingEnd) ||
-            (reserveEndDateTime > existingStart &&
-              reserveEndDateTime <= existingEnd)
-          );
-        },
-      );
-
-      console.log('isNoOverlapReservations >>>>', isValid);
-      return isValid;
-    };
-
-    // Перевірка кожного столу
-    const checkTableConditions = async (table: TableEntity) => {
-      const isGuestCountValidResult: boolean = await isGuestCountValid(table);
-      const isReservationTimeValidResult: boolean =
-        await isReservationTimeValid(table);
-      const isNoOverlapReservationsResult: boolean =
-        await isNoOverlapReservations(table);
-
-      return (
-        isGuestCountValidResult &&
-        isReservationTimeValidResult &&
-        isNoOverlapReservationsResult
-      );
-    };
-
     const availableTables: TableEntity[] = [];
     for (const table of allTablesByRestaurant) {
-      const isValid: boolean = await checkTableConditions(table);
+      const isValid: boolean = await this.checkTableConditions(table);
 
       if (isValid) availableTables.push(table);
     }
@@ -164,15 +70,14 @@ export class ReserveService {
       throw new HttpException(errorHelper.getErrors(), HttpStatus.NOT_FOUND);
     }
 
-    // Обираємо перший стіл з наіменшою кількістю посадкових місць
-    const selectedTable: TableEntity = availableTables.sort(
+    const selectedTableWithMinSeat: TableEntity = availableTables.sort(
       (a: TableEntity, b: TableEntity) => a.seatsCount - b.seatsCount,
     )[0];
 
     const newReserve: ReserveEntity = new ReserveEntity();
     Object.assign(newReserve, createReserveDto);
 
-    newReserve.tableId = selectedTable?.id; // Set the tableId property
+    newReserve.tableId = selectedTableWithMinSeat?.id; // Set the tableId property
     newReserve.reserveStartTime = new Date(
       `${reserveDate}T${reserveStartTime}`,
     ); // Convert 'reserveStartTime' string to Date
@@ -248,5 +153,107 @@ export class ReserveService {
     }
 
     return this.reserveRepository.delete(reserveId);
+  }
+
+  // 1 // Перевірка кількості гостей
+  async isGuestCountValid(
+    createReserveDto: CreateReserveRequestDto,
+    table: TableEntity,
+  ): Promise<boolean> {
+    return createReserveDto.countOfGuests <= table.seatsCount;
+  }
+
+  // 2 // Перевірка часу резерву
+  async isReservationTimeValid(
+    createReserveDto,
+    restaurant,
+    table: TableEntity,
+  ): Promise<boolean> {
+    const { reserveDate, reserveStartTime, reserveDurationTime } =
+      createReserveDto;
+
+    const reserveStartDateTime: Date = new Date(
+      `${reserveDate}T${reserveStartTime}`,
+    );
+    const reserveEndDateTime: Date = new Date(reserveStartDateTime);
+    reserveEndDateTime.setHours(
+      reserveEndDateTime.getHours() + reserveDurationTime,
+    );
+
+    const openingRestaurantDateTime: Date = new Date(
+      reserveStartDateTime.toISOString().split('T')[0] +
+        'T' +
+        restaurant.openingTime,
+    );
+
+    const isStartTimeValid: boolean =
+      reserveStartDateTime >= openingRestaurantDateTime;
+
+    const closingRestaurantDateTime: Date = new Date(
+      reserveStartDateTime.toISOString().split('T')[0] +
+        'T' +
+        restaurant.closingTime,
+    );
+    const isEndTimeValid: boolean =
+      reserveEndDateTime <= closingRestaurantDateTime;
+
+    return isStartTimeValid && isEndTimeValid;
+  }
+
+  // 3 // Перевірка наявності інших бронювань на той же час
+  async isNoOverlapReservations(
+    createReserveDto,
+    table: TableEntity,
+  ): Promise<boolean> {
+    const { reserveDate, reserveStartTime, reserveDurationTime } =
+      createReserveDto;
+
+    const reserveStartDateTime: Date = new Date(
+      `${reserveDate}T${reserveStartTime}`,
+    );
+    const reserveEndDateTime: Date = new Date(reserveStartDateTime);
+    reserveEndDateTime.setHours(
+      reserveEndDateTime.getHours() + reserveDurationTime,
+    );
+
+    const reservations: ReserveEntity[] = await this.reserveRepository.find({
+      where: { tableId: table.id },
+    });
+
+    const isValid: boolean = !reservations.some(
+      (reservation: ReserveEntity) => {
+        const existingStart: Date = new Date(reservation.reserveStartTime);
+        const existingEnd: Date = new Date(existingStart);
+        existingEnd.setHours(
+          existingEnd.getHours() + reservation.reserveDurationTime,
+        );
+
+        return (
+          (reserveStartDateTime >= existingStart &&
+            reserveStartDateTime < existingEnd) ||
+          (reserveEndDateTime > existingStart &&
+            reserveEndDateTime <= existingEnd)
+        );
+      },
+    );
+
+    console.log('isNoOverlapReservations >>>>', isValid);
+    return isValid;
+  }
+
+  // 1+2+3 // Перевірка кожного столу
+  async checkTableConditions(table: TableEntity) {
+    const isGuestCountValidResult: boolean =
+      await this.isGuestCountValid(table);
+    const isReservationTimeValidResult: boolean =
+      await this.isReservationTimeValid(table);
+    const isNoOverlapReservationsResult: boolean =
+      await this.isNoOverlapReservations(table);
+
+    return (
+      isGuestCountValidResult &&
+      isReservationTimeValidResult &&
+      isNoOverlapReservationsResult
+    );
   }
 }
