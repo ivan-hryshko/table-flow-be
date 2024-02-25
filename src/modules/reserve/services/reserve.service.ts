@@ -305,44 +305,18 @@ export class ReserveService {
     restaurant: RestaurantEntity,
     table: TableEntity,
   ): Promise<boolean> {
-    const isGuestCountValidResult: boolean = await this.isGuestCountValid(
-      createReserveDto,
-      table,
-    );
+    const validations = await Promise.all([
+      this.isGuestCountValid(createReserveDto, table),
+      this.isReservationDayValid(createReserveDto),
+      this.isReservationTimeValid(createReserveDto, restaurant),
+      this.isEndTimeValid(createReserveDto, restaurant),
+      this.isNoOverlapReservations(createReserveDto, table),
+    ]);
 
-    const isGuestCountValid: boolean = await this.isGuestCountValid(
-      createReserveDto,
-      table,
-    );
-    const isReservationDayValid: boolean =
-      await this.isReservationDayValid(createReserveDto);
-    const isReservationTimeValid: boolean = await this.isReservationTimeValid(
-      createReserveDto,
-      restaurant,
-    );
-    const isEndTimeValid: boolean = await this.isEndTimeValid(
-      createReserveDto,
-      restaurant,
-    );
-    const isNoOverlapReservations: boolean = await this.isNoOverlapReservations(
-      createReserveDto,
-      table,
-    );
+    const isValid: boolean = validations.every((result) => result);
 
-    console.log(
-      isGuestCountValid,
-      isReservationDayValid,
-      isReservationTimeValid,
-      isEndTimeValid,
-      isNoOverlapReservations,
-    );
+    console.log(...validations);
 
-    return (
-      isGuestCountValid &&
-      isReservationDayValid &&
-      isReservationTimeValid &&
-      isEndTimeValid &&
-      isNoOverlapReservations
-    );
+    return isValid;
   }
 }
