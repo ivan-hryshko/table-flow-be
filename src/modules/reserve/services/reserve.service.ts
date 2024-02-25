@@ -262,9 +262,6 @@ export class ReserveService {
       where: { tableId: table.id },
     });
 
-    console.log('checkPoint 1 >>>>');
-    console.log('reservations1 >>>>', reservations);
-
     const isNoOverlap: boolean = !reservations.some(
       (reservation: ReserveEntity) => {
         const existingStart: Date = new Date(reservation.reserveStartTime);
@@ -281,20 +278,6 @@ export class ReserveService {
         );
       },
     );
-
-    console.log('checkPoint 2 >>>>');
-    console.log('isNoOverlap 2>>>>', isNoOverlap);
-
-    if (!isNoOverlap) {
-      errorHelper.addNewError(
-        `На жаль, всі столики на вказаний час ${reserveStartDateTime.toLocaleDateString()} ${reserveStartDateTime.toLocaleTimeString()} вже зайняті. Будь ласка, оберіть інший час або дату для вашої резервації.`,
-        'reserve',
-      );
-      throw new HttpException(errorHelper.getErrors(), HttpStatus.NOT_FOUND);
-    }
-
-    console.log('checkPoint 3 >>>>');
-    console.log('isNoOverlap 3>>>>', isNoOverlap);
 
     return isNoOverlap;
   }
@@ -313,10 +296,6 @@ export class ReserveService {
       this.isNoOverlapReservations(createReserveDto, table),
     ]);
 
-    const isValid: boolean = validations.every((result) => result);
-
-    console.log(...validations);
-
-    return isValid;
+    return validations.every((result) => result);
   }
 }
