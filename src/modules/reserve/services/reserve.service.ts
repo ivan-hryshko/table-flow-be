@@ -106,17 +106,10 @@ export class ReserveService {
       throw new HttpException(errorHelper.getErrors(), HttpStatus.NOT_FOUND);
     }
 
-    const restaurant: RestaurantEntity = await this.restaurantService.getById(
+    await this.restaurantService.validateRestaurantOwnership(
+      currentUserId,
       reserve.restaurantId,
     );
-    const isCurrentUserOwner: boolean = currentUserId === restaurant.user.id;
-    if (!isCurrentUserOwner) {
-      errorHelper.addNewError(
-        `Ви не можете видалити резерв, бо ви не власник ресторану`,
-        'owner',
-      );
-      throw new HttpException(errorHelper.getErrors(), HttpStatus.FORBIDDEN);
-    }
 
     return reserve;
   }
