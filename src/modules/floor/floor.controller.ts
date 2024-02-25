@@ -7,34 +7,39 @@ import {
   HttpStatus,
   NotFoundException,
   Param,
+  Patch,
   Post,
   Put,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
   UsePipes,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { memoryStorage } from 'multer';
 
 import { BackendValidationPipe } from '../../utils/pipes/backendValidation.pipe';
+import { IntegerValidationPipe } from '../../utils/pipes/integer-validation.pipe';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { User } from '../user/decorators/user.decorator';
 import { UserEntity } from '../user/user.entity';
 import { FloorEntity } from './floor.entity';
-import { FloorService } from './services/floor.service';
 import { CreateFloorWrapperRequestDto } from './models/dtos/request/create-floor-wrapper.request.dto';
 import { UpdateFloorWrapperRequestDto } from './models/dtos/request/update-floor-wrapper.request.dto';
 import { CreateFloorWrapperResponseDto } from './models/dtos/response/create-floor-wrapper.response.dto';
-import { UpdateFloorWrapperResponseDto } from './models/dtos/response/update-floor-wrapper.response.dto';
 import { FloorsResponseDto } from './models/dtos/response/floors.response.dto';
-import { FloorWrapperResponseDto } from './models/dtos/response/floor-wrapper.response.dto';
-import { IntegerValidationPipe } from '../../utils/pipes/integer-validation.pipe';
+import { UpdateFloorImageWrapperResponseDto } from './models/dtos/response/update-floor-image-wrapper.response.dto';
+import { UpdateFloorWrapperResponseDto } from './models/dtos/response/update-floor-wrapper.response.dto';
+import { FloorService } from './services/floor.service';
 
 @ApiTags('Floor')
-@Controller('api/v1')
+@Controller('api/v1/floors')
 export class FloorController {
   constructor(private readonly floorService: FloorService) {}
 
   @ApiOperation({ description: 'Create floor' })
-  @Post('floor')
+  @Post()
   @UseGuards(AuthGuard)
   @UsePipes(new BackendValidationPipe())
   async create(
@@ -49,7 +54,7 @@ export class FloorController {
   }
 
   @ApiOperation({ description: 'Get all floors by User' })
-  @Get('floors')
+  @Get()
   @UseGuards(AuthGuard)
   async getAllByUserId(
     @User('id') currentUserId: number,
@@ -59,11 +64,11 @@ export class FloorController {
   }
 
   @ApiOperation({ description: 'Get floor by Id' })
-  @Get('floors/:id')
+  @Get('/:id')
   @UseGuards(AuthGuard)
   async getById(
     @Param('id', IntegerValidationPipe) floorId: number,
-  ): Promise<FloorWrapperResponseDto> {
+  ): Promise<any> {
     const floor: FloorEntity = await this.floorService.getById(floorId);
 
     if (!floor) {
@@ -74,7 +79,7 @@ export class FloorController {
   }
 
   @ApiOperation({ description: 'Delete floor' })
-  @Delete('floors/:id')
+  @Delete('/:id')
   @UseGuards(AuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   @UsePipes(new BackendValidationPipe())
@@ -86,7 +91,7 @@ export class FloorController {
   }
 
   @ApiOperation({ description: 'Update floor' })
-  @Put('floor')
+  @Put()
   @UseGuards(AuthGuard)
   @UsePipes(new BackendValidationPipe())
   async update(
@@ -97,6 +102,19 @@ export class FloorController {
       updateFloorDto.floor,
       currentUserId,
     );
+    return this.floorService.buildFloorResponse(floor);
+  }
+
+  @Patch('/:id/image')
+  @UseGuards(AuthGuard)
+  @UsePipes(new BackendValidationPipe())
+  @UseInterceptors(FileInterceptor('file', { storage: memoryStorage() }))
+  async updateImage(
+    @User('id') currentUserId: number,
+    @Param('id') id: number,
+    @UploadedFile() file: Express.Multer.File,
+  ): Promise<UpdateFloorImageWrapperResponseDto> {
+    const floor = await this.floorService.updateImage(id, file, currentUserId);
     return this.floorService.buildFloorResponse(floor);
   }
 }
