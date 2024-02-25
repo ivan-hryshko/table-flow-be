@@ -1,13 +1,12 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DeleteResult, Repository } from 'typeorm';
 
 import { ReserveEntity } from '../reserve.entity';
 import { CreateReserveRequestDto } from '../models/dtos/request/create-reserve.request.dto';
 import { ErrorHelper } from '../../../utils/errors/errorshelper.helper';
 import { RestaurantService } from '../../restaurant/services/restaurant.service';
 import { TableService } from '../../table/services/table.service';
-import { ReservesResponseInterface } from '../models/types/reservesResponse.interface';
 import { TableEntity } from '../../table/table.entity';
 import { ReserveResponseDto } from '../models/dtos/response/reserve.response.dto';
 import { RestaurantEntity } from '../../restaurant/restaurant.entity';
@@ -26,12 +25,6 @@ export class ReserveService {
   } {
     return {
       reserve,
-    };
-  }
-  buildReservesResponse(reserves: ReserveEntity[]): ReservesResponseInterface {
-    return {
-      reserves,
-      reservesCount: reserves.length,
     };
   }
 
@@ -56,10 +49,15 @@ export class ReserveService {
       );
 
     const availableTables: TableEntity[] = [];
-    for (const table of allTablesByRestaurant) {
-      const isValid: boolean = await this.checkTableConditions(table);
 
-      if (isValid) availableTables.push(table);
+    for (const table of allTablesByRestaurant) {
+      const isAvailableTables: boolean = await this.checkTableConditions(
+        createReserveDto,
+        restaurant,
+        table,
+      );
+
+      if (isAvailableTables) availableTables.push(table);
     }
 
     if (availableTables.length === 0) {
@@ -85,8 +83,13 @@ export class ReserveService {
     return await this.reserveRepository.save(newReserve);
   }
 
-  async getRepositoryById(reserveId: number): Promise<ReserveEntity | null> {
-    return this.reserveRepository
+  async getById(
+    currentUserId: number,
+    reserveId: number,
+  ): Promise<ReserveEntity> {
+    const errorHelper: ErrorHelper = new ErrorHelper();
+
+    const reserve: ReserveEntity = await this.reserveRepository
       .createQueryBuilder('reserve')
       .leftJoin('reserve.table', 'table')
       .leftJoin('table.floor', 'floor')
@@ -94,18 +97,8 @@ export class ReserveService {
       .leftJoin('restaurant.user', 'user')
       .where('reserve.id = :reserveId', { reserveId })
       .getOne();
-  }
-
-  async getById(
-    currentUserId: number,
-    reserveId: number,
-  ): Promise<ReserveEntity> {
-    const errorHelper = new ErrorHelper();
-
-    const reserve = await this.getRepositoryById(reserveId);
 
     if (!reserve) {
-      const errorHelper: ErrorHelper = new ErrorHelper();
       errorHelper.addNewError(
         `Резерву з заданим id:${reserveId} не існує`,
         'reserve',
@@ -116,7 +109,7 @@ export class ReserveService {
     const restaurant: RestaurantEntity = await this.restaurantService.getById(
       reserve.restaurantId,
     );
-    const isCurrentUserOwner = currentUserId === restaurant.user.id;
+    const isCurrentUserOwner: boolean = currentUserId === restaurant.user.id;
     if (!isCurrentUserOwner) {
       errorHelper.addNewError(
         `Ви не можете видалити резерв, бо ви не власник ресторану`,
@@ -128,30 +121,7 @@ export class ReserveService {
     return reserve;
   }
 
-  async delete(currentUserId: number, reserveId: number) {
-    const errorHelper: ErrorHelper = new ErrorHelper();
-
-    const reserve: ReserveEntity = await this.getRepositoryById(reserveId);
-    if (!reserve) {
-      errorHelper.addNewError(
-        `Резерву з заданим id:${reserveId} не існує`,
-        'reserve',
-      );
-      throw new HttpException(errorHelper.getErrors(), HttpStatus.NOT_FOUND);
-    }
-
-    const restaurant: RestaurantEntity = await this.restaurantService.getById(
-      reserve.restaurantId,
-    );
-    const isCurrentUserOwner = currentUserId === restaurant.user.id;
-    if (!isCurrentUserOwner) {
-      errorHelper.addNewError(
-        `Ви не можете видалити резерв, бо ви не власник ресторану`,
-        'owner',
-      );
-      throw new HttpException(errorHelper.getErrors(), HttpStatus.FORBIDDEN);
-    }
-
+  async delete(reserveId: number): Promise<DeleteResult> {
     return this.reserveRepository.delete(reserveId);
   }
 
@@ -160,15 +130,29 @@ export class ReserveService {
     createReserveDto: CreateReserveRequestDto,
     table: TableEntity,
   ): Promise<boolean> {
-    return createReserveDto.countOfGuests <= table.seatsCount;
+    const errorHelper: ErrorHelper = new ErrorHelper();
+    const { countOfGuests } = createReserveDto;
+
+    const isGuestCountValid: boolean = countOfGuests <= table.seatsCount;
+
+    if (!isGuestCountValid) {
+      errorHelper.addNewError(
+        `Ваш резерв на ${countOfGuests} місць не може бути виконаний. Кількість посадочних місць за жодним столом недостатня. Будь ласка, розгляньте можливість розподілити резерв на декілька менших замовлень.`,
+        'reserve',
+      );
+      throw new HttpException(errorHelper.getErrors(), HttpStatus.NOT_FOUND);
+    }
+
+    return isGuestCountValid;
   }
 
   // 2 // Перевірка часу резерву
   async isReservationTimeValid(
-    createReserveDto,
-    restaurant,
-    table: TableEntity,
+    createReserveDto: CreateReserveRequestDto,
+    restaurant: RestaurantEntity,
   ): Promise<boolean> {
+    const errorHelper: ErrorHelper = new ErrorHelper();
+
     const { reserveDate, reserveStartTime, reserveDurationTime } =
       createReserveDto;
 
@@ -188,6 +172,18 @@ export class ReserveService {
 
     const isStartTimeValid: boolean =
       reserveStartDateTime >= openingRestaurantDateTime;
+    if (!isStartTimeValid) {
+      const formattedReserveTime: string =
+        reserveStartDateTime.toLocaleTimeString();
+      const formattedOpeningTime: string =
+        openingRestaurantDateTime.toLocaleTimeString();
+
+      errorHelper.addNewError(
+        `Обраний час резерву ${formattedReserveTime} не може бути раніше, ніж час відкриття ресторану ${formattedOpeningTime}. Будь ласка, виберіть інший час.`,
+        'reserve',
+      );
+      throw new HttpException(errorHelper.getErrors(), HttpStatus.NOT_FOUND);
+    }
 
     const closingRestaurantDateTime: Date = new Date(
       reserveStartDateTime.toISOString().split('T')[0] +
@@ -196,15 +192,24 @@ export class ReserveService {
     );
     const isEndTimeValid: boolean =
       reserveEndDateTime <= closingRestaurantDateTime;
+    if (!isEndTimeValid) {
+      errorHelper.addNewError(
+        `Час завершення резерву (${reserveEndDateTime}) перевищує час закриття ресторану (${closingRestaurantDateTime}). Будь ласка, виберіть інший час для завершення свого резерву.`,
+        'reserve',
+      );
+      throw new HttpException(errorHelper.getErrors(), HttpStatus.NOT_FOUND);
+    }
 
     return isStartTimeValid && isEndTimeValid;
   }
 
   // 3 // Перевірка наявності інших бронювань на той же час
   async isNoOverlapReservations(
-    createReserveDto,
+    createReserveDto: CreateReserveRequestDto,
     table: TableEntity,
   ): Promise<boolean> {
+    const errorHelper: ErrorHelper = new ErrorHelper();
+
     const { reserveDate, reserveStartTime, reserveDurationTime } =
       createReserveDto;
 
@@ -220,7 +225,7 @@ export class ReserveService {
       where: { tableId: table.id },
     });
 
-    const isValid: boolean = !reservations.some(
+    const isNoOverlap: boolean = !reservations.some(
       (reservation: ReserveEntity) => {
         const existingStart: Date = new Date(reservation.reserveStartTime);
         const existingEnd: Date = new Date(existingStart);
@@ -237,18 +242,34 @@ export class ReserveService {
       },
     );
 
-    console.log('isNoOverlapReservations >>>>', isValid);
-    return isValid;
+    if (!isNoOverlap) {
+      const formattedDate = reserveStartDateTime.toLocaleDateString();
+      const formattedTime = reserveStartDateTime.toLocaleTimeString();
+
+      errorHelper.addNewError(
+        `На жаль, всі столики на вказаний час ${formattedDate} ${formattedTime} вже зайняті. Будь ласка, оберіть інший час або дату для вашої резервації.`,
+        'reserve',
+      );
+      throw new HttpException(errorHelper.getErrors(), HttpStatus.NOT_FOUND);
+    }
+
+    return isNoOverlap;
   }
 
   // 1+2+3 // Перевірка кожного столу
-  async checkTableConditions(table: TableEntity) {
-    const isGuestCountValidResult: boolean =
-      await this.isGuestCountValid(table);
+  async checkTableConditions(
+    createReserveDto: CreateReserveRequestDto,
+    restaurant: RestaurantEntity,
+    table: TableEntity,
+  ): Promise<boolean> {
+    const isGuestCountValidResult: boolean = await this.isGuestCountValid(
+      createReserveDto,
+      table,
+    );
     const isReservationTimeValidResult: boolean =
-      await this.isReservationTimeValid(table);
+      await this.isReservationTimeValid(createReserveDto, restaurant);
     const isNoOverlapReservationsResult: boolean =
-      await this.isNoOverlapReservations(table);
+      await this.isNoOverlapReservations(createReserveDto, table);
 
     return (
       isGuestCountValidResult &&
