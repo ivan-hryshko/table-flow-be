@@ -139,7 +139,29 @@ export class ReserveService {
     return isGuestCountValid;
   }
 
-  // 2 // Перевірка часу резерву
+  // 2 // Перевірка дня резерву
+  async isReservationDayValid(
+    createReserveDto: CreateReserveRequestDto,
+  ): Promise<boolean> {
+    const errorHelper: ErrorHelper = new ErrorHelper();
+
+    const reserveDate: Date = new Date(createReserveDto.reserveDate);
+    const currentDay: Date = new Date();
+
+    const isDayValid: boolean = currentDay < reserveDate;
+
+    if (!isDayValid) {
+      errorHelper.addNewError(
+        `Обраний день резерву ${reserveDate.toLocaleDateString()} меньше, ніж поточний день ${currentDay.toLocaleDateString()}. Будь ласка, виберіть ішний день.`,
+        'reserve',
+      );
+      throw new HttpException(errorHelper.getErrors(), HttpStatus.NOT_FOUND);
+    }
+
+    return isDayValid;
+  }
+
+  // 3 // Перевірка часу резерву
   async isReservationTimeValid(
     createReserveDto: CreateReserveRequestDto,
     restaurant: RestaurantEntity,
@@ -178,25 +200,47 @@ export class ReserveService {
       throw new HttpException(errorHelper.getErrors(), HttpStatus.NOT_FOUND);
     }
 
+    return isStartTimeValid;
+  }
+
+  // 4 // Перевірка до часу закриття ресторану
+  async isEndTimeValid(
+    createReserveDto: CreateReserveRequestDto,
+    restaurant: RestaurantEntity,
+  ): Promise<boolean> {
+    const errorHelper: ErrorHelper = new ErrorHelper();
+
+    const { reserveDate, reserveStartTime, reserveDurationTime } =
+      createReserveDto;
+
+    const reserveStartDateTime: Date = new Date(
+      `${reserveDate}T${reserveStartTime}`,
+    );
+
     const closingRestaurantDateTime: Date = new Date(
       reserveStartDateTime.toISOString().split('T')[0] +
         'T' +
         restaurant.closingTime,
     );
+    const reserveEndDateTime: Date = new Date(reserveStartDateTime);
+    reserveEndDateTime.setHours(
+      reserveEndDateTime.getHours() + reserveDurationTime,
+    );
+
     const isEndTimeValid: boolean =
       reserveEndDateTime <= closingRestaurantDateTime;
     if (!isEndTimeValid) {
       errorHelper.addNewError(
-        `Час завершення резерву (${reserveEndDateTime}) перевищує час закриття ресторану (${closingRestaurantDateTime}). Будь ласка, виберіть інший час для завершення свого резерву.`,
+        `Час завершення резерву (${reserveEndDateTime.toLocaleString()}) перевищує час закриття ресторану (${closingRestaurantDateTime.toLocaleString()}). Будь ласка, виберіть інший час для завершення свого резерву.`,
         'reserve',
       );
       throw new HttpException(errorHelper.getErrors(), HttpStatus.NOT_FOUND);
     }
 
-    return isStartTimeValid && isEndTimeValid;
+    return isEndTimeValid;
   }
 
-  // 3 // Перевірка наявності інших бронювань на той же час
+  // 5 // Перевірка наявності інших бронювань на той же час
   async isNoOverlapReservations(
     createReserveDto: CreateReserveRequestDto,
     table: TableEntity,
@@ -218,6 +262,9 @@ export class ReserveService {
       where: { tableId: table.id },
     });
 
+    console.log('checkPoint 1 >>>>');
+    console.log('reservations1 >>>>', reservations);
+
     const isNoOverlap: boolean = !reservations.some(
       (reservation: ReserveEntity) => {
         const existingStart: Date = new Date(reservation.reserveStartTime);
@@ -235,21 +282,24 @@ export class ReserveService {
       },
     );
 
-    if (!isNoOverlap) {
-      const formattedDate = reserveStartDateTime.toLocaleDateString();
-      const formattedTime = reserveStartDateTime.toLocaleTimeString();
+    console.log('checkPoint 2 >>>>');
+    console.log('isNoOverlap 2>>>>', isNoOverlap);
 
+    if (!isNoOverlap) {
       errorHelper.addNewError(
-        `На жаль, всі столики на вказаний час ${formattedDate} ${formattedTime} вже зайняті. Будь ласка, оберіть інший час або дату для вашої резервації.`,
+        `На жаль, всі столики на вказаний час ${reserveStartDateTime.toLocaleDateString()} ${reserveStartDateTime.toLocaleTimeString()} вже зайняті. Будь ласка, оберіть інший час або дату для вашої резервації.`,
         'reserve',
       );
       throw new HttpException(errorHelper.getErrors(), HttpStatus.NOT_FOUND);
     }
 
+    console.log('checkPoint 3 >>>>');
+    console.log('isNoOverlap 3>>>>', isNoOverlap);
+
     return isNoOverlap;
   }
 
-  // 1+2+3 // Перевірка кожного столу
+  // 1+2+3+4+5 // Перевірка кожного столу
   async checkTableConditions(
     createReserveDto: CreateReserveRequestDto,
     restaurant: RestaurantEntity,
@@ -259,15 +309,40 @@ export class ReserveService {
       createReserveDto,
       table,
     );
-    const isReservationTimeValidResult: boolean =
-      await this.isReservationTimeValid(createReserveDto, restaurant);
-    const isNoOverlapReservationsResult: boolean =
-      await this.isNoOverlapReservations(createReserveDto, table);
+
+    const isGuestCountValid: boolean = await this.isGuestCountValid(
+      createReserveDto,
+      table,
+    );
+    const isReservationDayValid: boolean =
+      await this.isReservationDayValid(createReserveDto);
+    const isReservationTimeValid: boolean = await this.isReservationTimeValid(
+      createReserveDto,
+      restaurant,
+    );
+    const isEndTimeValid: boolean = await this.isEndTimeValid(
+      createReserveDto,
+      restaurant,
+    );
+    const isNoOverlapReservations: boolean = await this.isNoOverlapReservations(
+      createReserveDto,
+      table,
+    );
+
+    console.log(
+      isGuestCountValid,
+      isReservationDayValid,
+      isReservationTimeValid,
+      isEndTimeValid,
+      isNoOverlapReservations,
+    );
 
     return (
-      isGuestCountValidResult &&
-      isReservationTimeValidResult &&
-      isNoOverlapReservationsResult
+      isGuestCountValid &&
+      isReservationDayValid &&
+      isReservationTimeValid &&
+      isEndTimeValid &&
+      isNoOverlapReservations
     );
   }
 }
