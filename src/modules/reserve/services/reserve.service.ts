@@ -20,13 +20,9 @@ export class ReserveService {
     private readonly tableService: TableService,
   ) {}
 
-  buildReserveResponse(reserve: ReserveEntity): {
-    reserve: ReserveResponseDto;
-  } {
-    return {
-      reserve,
-    };
-  }
+  buildReserveResponse = (
+    reserve: ReserveEntity,
+  ): { reserve: ReserveResponseDto } => ({ reserve });
 
   async create(
     currentUserId: number,
@@ -62,7 +58,7 @@ export class ReserveService {
 
     if (availableTables.length === 0) {
       errorHelper.addNewError(
-        `На цей час або дату немає доступних столів`,
+        `На жаль, всі столики на вказану дату ${reserveDate} або час ${reserveStartTime} вже зайняті. Будь ласка, оберіть інший час або дату для вашої резервації.`,
         'table',
       );
       throw new HttpException(errorHelper.getErrors(), HttpStatus.NOT_FOUND);
@@ -139,7 +135,7 @@ export class ReserveService {
     return isGuestCountValid;
   }
 
-  // 2 // Перевірка дня резерву
+  // 2 // Перевірка Дня резерву
   async isReservationDayValid(
     createReserveDto: CreateReserveRequestDto,
   ): Promise<boolean> {
@@ -161,7 +157,7 @@ export class ReserveService {
     return isDayValid;
   }
 
-  // 3 // Перевірка часу резерву
+  // 3 // Перевірка Часу резерву
   async isReservationTimeValid(
     createReserveDto: CreateReserveRequestDto,
     restaurant: RestaurantEntity,
@@ -203,7 +199,7 @@ export class ReserveService {
     return isStartTimeValid;
   }
 
-  // 4 // Перевірка до часу закриття ресторану
+  // 4 // Перевірка часу закінчення резерву до часу закриття ресторану
   async isEndTimeValid(
     createReserveDto: CreateReserveRequestDto,
     restaurant: RestaurantEntity,
@@ -245,8 +241,6 @@ export class ReserveService {
     createReserveDto: CreateReserveRequestDto,
     table: TableEntity,
   ): Promise<boolean> {
-    const errorHelper: ErrorHelper = new ErrorHelper();
-
     const { reserveDate, reserveStartTime, reserveDurationTime } =
       createReserveDto;
 
@@ -282,7 +276,7 @@ export class ReserveService {
     return isNoOverlap;
   }
 
-  // 1+2+3+4+5 // Перевірка кожного столу
+  // 1+2+3+4+5 // Перевірка кожного столу за всіма умовами
   async checkTableConditions(
     createReserveDto: CreateReserveRequestDto,
     restaurant: RestaurantEntity,
