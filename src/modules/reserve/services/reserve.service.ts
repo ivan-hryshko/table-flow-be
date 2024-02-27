@@ -10,6 +10,7 @@ import { TableService } from '../../table/services/table.service';
 import { TableEntity } from '../../table/table.entity';
 import { ReserveResponseDto } from '../models/dtos/response/reserve.response.dto';
 import { RestaurantEntity } from '../../restaurant/restaurant.entity';
+import { UpdateReserveRequestDto } from '../models/dtos/request/update-reserve.request.dto';
 
 @Injectable()
 export class ReserveService {
@@ -112,6 +113,36 @@ export class ReserveService {
 
   async delete(reserveId: number): Promise<DeleteResult> {
     return this.reserveRepository.delete(reserveId);
+  }
+
+  async update(
+    currentUserId: number,
+    updateReserveDto: UpdateReserveRequestDto,
+  ): Promise<ReserveEntity> {
+    const errorHelper: ErrorHelper = new ErrorHelper();
+
+    const reserve: ReserveEntity = await this.getById(
+      currentUserId,
+      updateReserveDto.id,
+    );
+
+    if (!reserve)
+      throw new HttpException('Резерв не існує', HttpStatus.NOT_FOUND);
+
+    const table = await this.tableService.getById(
+      currentUserId,
+      reserve.tableId,
+    );
+    if (table.userId !== currentUserId) {
+      errorHelper.addNewError(
+        `Ви не можете змінити резерв, оскільки ви не власник ресторану`,
+        'reserve',
+      );
+    }
+
+    Object.assign(reserve, updateReserveDto);
+
+    return this.reserveRepository.save(reserve);
   }
 
   // 1 // Перевірка кількості гостей
