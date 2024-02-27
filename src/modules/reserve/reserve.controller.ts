@@ -21,6 +21,7 @@ import { ReserveWrapperResponseDto } from './models/dtos/response/reserve-wrappe
 import { ReserveEntity } from './reserve.entity';
 import { DeleteResult } from 'typeorm';
 import { UpdateReserveWrapperRequestDto } from './models/dtos/request/update-reserve-wrapper.request.dto';
+import { IntegerValidationPipe } from '../../utils/pipes/integer-validation.pipe';
 
 @ApiTags('Reserve')
 @Controller('api/v1/reserves')
@@ -47,7 +48,7 @@ export class ReserveController {
   @UseGuards(AuthGuard)
   async getById(
     @User('id') currentUserId: number,
-    @Param('id') reserveId: number,
+    @Param('id', IntegerValidationPipe) reserveId: number,
   ): Promise<ReserveWrapperResponseDto> {
     const reserve: ReserveEntity = await this.reserveService.getById(
       currentUserId,
@@ -62,10 +63,10 @@ export class ReserveController {
   @UseGuards(AuthGuard)
   @UsePipes(new BackendValidationPipe())
   async delete(@Param('id') reserveId: number): Promise<DeleteResult> {
-    return await this.reserveService.delete(reserveId);
+    return await this.reserveService.delete(currentUserId, reserveId);
   }
 
-  @ApiOperation({ description: 'Update reserve' })
+ @ApiOperation({ description: 'Update reserve' })
   @Put()
   @UseGuards(AuthGuard)
   @UsePipes(new BackendValidationPipe())

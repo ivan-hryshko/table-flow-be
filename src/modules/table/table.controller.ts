@@ -24,6 +24,7 @@ import { TablesWithCountResponseDto } from './models/dtos/response/tables-with-c
 import { UpdateTableWrapperResponseDto } from './models/dtos/response/update-table-wrapper.response.dto';
 import { TableService } from './services/table.service';
 import { TableEntity } from './table.entity';
+import { IntegerValidationPipe } from '../../utils/pipes/integer-validation.pipe';
 
 @ApiTags('Table')
 @Controller('api/v1/tables')
@@ -63,7 +64,7 @@ export class TableController {
   @UseGuards(AuthGuard)
   async getById(
     @User('id') currentUserId: number,
-    @Param('id') tableId: number,
+    @Param('id', IntegerValidationPipe) tableId: number,
   ): Promise<TableWrapperResponseDto> {
     const table: TableEntity = await this.tableService.getById(
       currentUserId,
@@ -78,7 +79,7 @@ export class TableController {
   @UseGuards(AuthGuard)
   async getAllTablesByRestaurantId(
     @User('id') currentUserId: number,
-    @Param('restaurantId') restaurantId: number,
+    @Param('restaurantId', IntegerValidationPipe) restaurantId: number,
   ): Promise<TablesWithCountResponseDto> {
     const tables: TableEntity[] =
       await this.tableService.getAllTablesByRestaurantId(
@@ -96,7 +97,7 @@ export class TableController {
   @UsePipes(new BackendValidationPipe())
   async delete(
     @User('id') currentUserId: number,
-    @Param('id') tableId: number,
+    @Param('id', IntegerValidationPipe) tableId: number,
   ): Promise<void> {
     await this.tableService.delete(currentUserId, tableId);
   }

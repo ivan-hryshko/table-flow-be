@@ -2,14 +2,16 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
+import { ErrorHelper } from '../../../utils/errors/errorshelper.helper';
+import { RestaurantEntity } from '../../restaurant/restaurant.entity';
 import { RestaurantService } from '../../restaurant/services/restaurant.service';
+import { UploadService } from '../../upload/upload.service';
 import { UserEntity } from '../../user/user.entity';
 import { FloorEntity } from '../floor.entity';
 import { CreateFloorRequestDto } from '../models/dtos/request/create-floor.request.dto';
 import { UpdateFloorRequestDto } from '../models/dtos/request/update-floor.request.dto';
+import { FloorResponseDto } from '../models/dtos/response/floor.response.dto';
 import { FloorsResponseDto } from '../models/dtos/response/floors.response.dto';
-import { RestaurantEntity } from '../../restaurant/restaurant.entity';
-import { ErrorHelper } from '../../../utils/errors/errorshelper.helper';
 
 @Injectable()
 export class FloorService {
@@ -17,15 +19,16 @@ export class FloorService {
     @InjectRepository(FloorEntity)
     private readonly floorRepository: Repository<FloorEntity>,
     private readonly restaurantService: RestaurantService,
+    private readonly uploadService: UploadService,
   ) {}
 
-  buildFloorResponse(floor: FloorEntity): { floor: FloorEntity } {
+  buildFloorResponse(floor: any): { floor: any } {
     return {
       floor,
     };
   }
 
-  buildFloorsResponse(floors: FloorEntity[]): FloorsResponseDto {
+  buildFloorsResponse(floors: any[]): FloorsResponseDto {
     return {
       floors,
       floorsCount: floors.length,
@@ -151,5 +154,45 @@ export class FloorService {
     }
 
     return floor;
+  }
+
+  async updateImage(
+    id: number,
+    file: Express.Multer.File,
+    currentUserId: number,
+  ): Promise<FloorResponseDto> {
+    const floor = await this.getById(id);
+
+    if (!floor) {
+      throw new HttpException('Поверх не існує', HttpStatus.NOT_FOUND);
+    }
+
+    if (floor.restaurant.user.id !== currentUserId) {
+      throw new HttpException(
+        'Ви не є власником ресторану',
+        HttpStatus.FORBIDDEN,
+      );
+    }
+
+    const uploadedFile = await this.uploadService.uploadFile({
+      file,
+      directory: 'floorImages',
+    });
+
+    floor.imgKey = uploadedFile.Key;
+
+    const imgSrcExpiresIn = 60;
+
+    const imgSrc = await this.uploadService.getSignedUrl(
+      uploadedFile.Key,
+      imgSrcExpiresIn,
+    );
+
+    const savedFloor = await this.floorRepository.save(floor);
+
+    return {
+      ...savedFloor,
+      imgSrc,
+    };
   }
 }

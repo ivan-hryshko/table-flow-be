@@ -1,5 +1,6 @@
 import { FloorResponseDto } from '../../../../floor/models/dtos/response/floor.response.dto';
-import { TableResponseDto } from '../../../../table/models/dtos/response/table.response.dto';
+import { TableForRestaurantResponseDto } from '../../../../table/models/dtos/response/table-for-restaurant.response.dto';
+import { UserForRestaurantResponseDto } from '../../../../user/models/dtos/response/user-for-restaurant.response.dto';
 
 export class BaseRestaurantResponseDto {
   id: number;
@@ -8,6 +9,9 @@ export class BaseRestaurantResponseDto {
   city: string;
   type: string;
   location: string;
-  floors: FloorResponseDto[];
-  tables: TableResponseDto[];
+  floors: any[];
+  tables: TableForRestaurantResponseDto[];
+  user: UserForRestaurantResponseDto;
+  openingTime: string;
+  closingTime: string;
 }
