@@ -6,6 +6,7 @@ import {
   Get,
   Param,
   Post,
+  Put,
   UseGuards,
   UsePipes,
 } from '@nestjs/common';
@@ -19,6 +20,7 @@ import { CreateReserveWrapperResponseDto } from './models/dtos/response/create-r
 import { ReserveWrapperResponseDto } from './models/dtos/response/reserve-wrapper.response.dto';
 import { ReserveEntity } from './reserve.entity';
 import { DeleteResult } from 'typeorm';
+import { UpdateReserveWrapperRequestDto } from './models/dtos/request/update-reserve-wrapper.request.dto';
 
 @ApiTags('Reserve')
 @Controller('api/v1/reserves')
@@ -61,5 +63,21 @@ export class ReserveController {
   @UsePipes(new BackendValidationPipe())
   async delete(@Param('id') reserveId: number): Promise<DeleteResult> {
     return await this.reserveService.delete(reserveId);
+  }
+
+  @ApiOperation({ description: 'Update reserve' })
+  @Put()
+  @UseGuards(AuthGuard)
+  @UsePipes(new BackendValidationPipe())
+  async update(
+    @User('id') currentUserId: number,
+    @Body() updateReserveDto: UpdateReserveWrapperRequestDto,
+  ): Promise<UpdateReserveWrapperRequestDto> {
+    const reserve: ReserveEntity = await this.reserveService.update(
+      currentUserId,
+      updateReserveDto.reserve,
+    );
+
+    return this.reserveService.buildReserveResponse(reserve);
   }
 }
