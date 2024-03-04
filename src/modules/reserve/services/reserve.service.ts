@@ -111,7 +111,26 @@ export class ReserveService {
     return reserve;
   }
 
-  async delete(reserveId: number): Promise<DeleteResult> {
+  async delete(currentUserId: number, reserveId: number) {
+    const errorHelper: ErrorHelper = new ErrorHelper();
+
+    const reserve: ReserveEntity = await this.getById(currentUserId, reserveId);
+    if (!reserve) {
+      errorHelper.addNewError(
+        `Резерву з заданим id:${reserveId} не існує`,
+        'reserve',
+      );
+      throw new HttpException(errorHelper.getErrors(), HttpStatus.NOT_FOUND);
+    }
+
+    const restaurant: RestaurantEntity = await this.restaurantService.getById(
+      reserve.restaurantId,
+    );
+    await this.restaurantService.validateRestaurantOwnership(
+      currentUserId,
+      restaurant.id,
+    );
+
     return this.reserveRepository.delete(reserveId);
   }
 
@@ -129,7 +148,7 @@ export class ReserveService {
     if (!reserve)
       throw new HttpException('Резерв не існує', HttpStatus.NOT_FOUND);
 
-    const table = await this.tableService.getById(
+    const table: TableEntity = await this.tableService.getById(
       currentUserId,
       reserve.tableId,
     );
@@ -174,8 +193,10 @@ export class ReserveService {
 
     const reserveDate: Date = new Date(createReserveDto.reserveDate);
     const currentDay: Date = new Date();
+    currentDay.setUTCHours(0, 0, 0, 0);
+    const currentDateZeroTime: Date = new Date(currentDay);
 
-    const isDayValid: boolean = currentDay < reserveDate;
+    const isDayValid: boolean = reserveDate >= currentDateZeroTime;
 
     if (!isDayValid) {
       errorHelper.addNewError(
