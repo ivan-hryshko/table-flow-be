@@ -17,7 +17,6 @@ import { BackendValidationPipe } from '../../utils/pipes/backendValidation.pipe'
 import { CreateReserveWrapperRequestDto } from './models/dtos/request/create-reserve-wrapper.request.dto';
 import { CreateReserveWrapperResponseDto } from './models/dtos/response/create-reserve-wrapper.response.dto';
 import { ReserveWrapperResponseDto } from './models/dtos/response/reserve-wrapper.response.dto';
-import { IntegerValidationPipe } from '../../utils/pipes/integer-validation.pipe';
 
 @ApiTags('Reserve')
 @Controller('api/v1/reserves')
@@ -44,7 +43,7 @@ export class ReserveController {
   @UseGuards(AuthGuard)
   async getById(
     @User('id') currentUserId: number,
-    @Param('id', IntegerValidationPipe) reserveId: number,
+    @Param('id') reserveId: number,
   ): Promise<ReserveWrapperResponseDto> {
     const reserve = await this.reserveService.getById(currentUserId, reserveId);
 
@@ -57,7 +56,7 @@ export class ReserveController {
   @UsePipes(new BackendValidationPipe())
   async delete(
     @User('id') currentUserId: number,
-    @Param('id', IntegerValidationPipe) reserveId: number,
+    @Param('id') reserveId: number,
   ) {
     return await this.reserveService.delete(currentUserId, reserveId);
   }
