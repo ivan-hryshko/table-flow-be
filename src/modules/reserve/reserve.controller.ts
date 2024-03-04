@@ -12,16 +12,16 @@ import {
 } from '@nestjs/common';
 
 import { ReserveService } from './services/reserve.service';
+import { ReserveEntity } from './reserve.entity';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { User } from '../user/decorators/user.decorator';
+import { IntegerValidationPipe } from '../../utils/pipes/integer-validation.pipe';
 import { BackendValidationPipe } from '../../utils/pipes/backendValidation.pipe';
 import { CreateReserveWrapperRequestDto } from './models/dtos/request/create-reserve-wrapper.request.dto';
 import { CreateReserveWrapperResponseDto } from './models/dtos/response/create-reserve-wrapper.response.dto';
 import { ReserveWrapperResponseDto } from './models/dtos/response/reserve-wrapper.response.dto';
-import { ReserveEntity } from './reserve.entity';
-import { DeleteResult } from 'typeorm';
 import { UpdateReserveWrapperRequestDto } from './models/dtos/request/update-reserve-wrapper.request.dto';
-import { IntegerValidationPipe } from '../../utils/pipes/integer-validation.pipe';
+import { DeleteResult } from 'typeorm';
 
 @ApiTags('Reserve')
 @Controller('api/v1/reserves')
@@ -48,7 +48,7 @@ export class ReserveController {
   @UseGuards(AuthGuard)
   async getById(
     @User('id') currentUserId: number,
-    @Param('id', IntegerValidationPipe) reserveId: number,
+    @Param('id') reserveId: number,
   ): Promise<ReserveWrapperResponseDto> {
     const reserve: ReserveEntity = await this.reserveService.getById(
       currentUserId,
@@ -62,11 +62,14 @@ export class ReserveController {
   @Delete('/:id')
   @UseGuards(AuthGuard)
   @UsePipes(new BackendValidationPipe())
-  async delete(@Param('id') reserveId: number): Promise<DeleteResult> {
+  async delete(
+    @User('id') currentUserId: number,
+    @Param('id', IntegerValidationPipe) reserveId: number,
+  ): Promise<DeleteResult> {
     return await this.reserveService.delete(currentUserId, reserveId);
   }
 
- @ApiOperation({ description: 'Update reserve' })
+  @ApiOperation({ description: 'Update reserve' })
   @Put()
   @UseGuards(AuthGuard)
   @UsePipes(new BackendValidationPipe())
