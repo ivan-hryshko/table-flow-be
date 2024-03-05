@@ -14,6 +14,15 @@ export class ReserveEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
+  // @Column()
+  // name: string;
+  //
+  // @Column()
+  // phone: string;
+  //
+  // @Column()
+  // comment: string;
+
   @Column()
   restaurantId: number;
 
