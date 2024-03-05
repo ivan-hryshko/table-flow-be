@@ -36,7 +36,7 @@ export class FloorService {
   }
 
   async create(
-    currentUser: UserEntity,
+    currentUserId: number,
     createFloorDto: CreateFloorRequestDto,
   ): Promise<FloorEntity> {
     const restaurant = await this.restaurantService.getById(
@@ -47,7 +47,7 @@ export class FloorService {
       throw new HttpException('Ресторан не існує', HttpStatus.NOT_FOUND);
     }
 
-    if (restaurant.user.id !== currentUser.id) {
+    if (restaurant.user.id !== currentUserId) {
       throw new HttpException(
         'Ви не є автором ресторану',
         HttpStatus.FORBIDDEN,
