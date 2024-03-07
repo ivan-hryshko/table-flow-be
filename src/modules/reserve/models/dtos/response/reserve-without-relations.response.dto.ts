@@ -6,6 +6,9 @@ export class ReserveWithoutRelationsResponseDto extends PickType(
   BaseReserveResponseDto,
   [
     'id',
+    'customerName',
+    'phone',
+    'comment',
     'restaurantId',
     'reserveDate',
     'reserveStartTime',
