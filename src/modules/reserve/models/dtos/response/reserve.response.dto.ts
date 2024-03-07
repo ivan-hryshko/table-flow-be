@@ -4,9 +4,9 @@ import { BaseReserveResponseDto } from './base-reserve.response.dto';
 
 export class ReserveResponseDto extends PickType(BaseReserveResponseDto, [
   'id',
-  // 'name',
-  // 'phone',
-  // 'comment',
+  'customerName',
+  'phone',
+  'comment',
   'restaurantId',
   'reserveDate',
   'reserveStartTime',

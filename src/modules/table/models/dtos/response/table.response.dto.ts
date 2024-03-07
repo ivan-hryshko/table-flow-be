@@ -1,8 +1,8 @@
 import { PickType } from '@nestjs/swagger';
 
-import { BaseTableRequestDto } from './base-table.response.dto';
+import { BaseTableResponseDto } from './base-table.response.dto';
 
-export class TableResponseDto extends PickType(BaseTableRequestDto, [
+export class TableResponseDto extends PickType(BaseTableResponseDto, [
   'id',
   'title',
   'x',

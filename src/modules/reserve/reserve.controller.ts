@@ -21,7 +21,7 @@ import { CreateReserveWrapperRequestDto } from './models/dtos/request/create-res
 import { CreateReserveWrapperResponseDto } from './models/dtos/response/create-reserve-wrapper.response.dto';
 import { ReserveWrapperResponseDto } from './models/dtos/response/reserve-wrapper.response.dto';
 import { UpdateReserveWrapperRequestDto } from './models/dtos/request/update-reserve-wrapper.request.dto';
-import { DeleteResult } from 'typeorm';
+import { UpdateReserveWrapperResponseDto } from './models/dtos/response/update-reserve-wrapper.response.dto';
 
 @ApiTags('Reserve')
 @Controller('api/v1/reserves')
@@ -65,8 +65,8 @@ export class ReserveController {
   async delete(
     @User('id') currentUserId: number,
     @Param('id', IntegerValidationPipe) reserveId: number,
-  ): Promise<DeleteResult> {
-    return await this.reserveService.delete(currentUserId, reserveId);
+  ): Promise<void> {
+    await this.reserveService.delete(currentUserId, reserveId);
   }
 
   @ApiOperation({ description: 'Update reserve' })
@@ -76,7 +76,7 @@ export class ReserveController {
   async update(
     @User('id') currentUserId: number,
     @Body() updateReserveDto: UpdateReserveWrapperRequestDto,
-  ): Promise<UpdateReserveWrapperRequestDto> {
+  ): Promise<UpdateReserveWrapperResponseDto> {
     const reserve: ReserveEntity = await this.reserveService.update(
       currentUserId,
       updateReserveDto.reserve,

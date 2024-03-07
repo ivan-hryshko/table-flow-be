@@ -5,9 +5,9 @@ import { BaseReserveRequestDto } from './base-reserve.request.dto';
 
 export class UpdateReserveRequestDto extends PartialType(
   PickType(BaseReserveRequestDto, [
-    // 'name',
-    // 'phone',
-    // 'comment',
+    'customerName',
+    'phone',
+    'comment',
     'restaurantId',
     'reserveDate',
     'reserveStartTime',

@@ -1,5 +1,5 @@
-import { CreateReserveResponseDto } from './create-reserve.response.dto';
+import { ReserveResponseDto } from './reserve.response.dto';
 
 export class CreateReserveWrapperResponseDto {
-  reserve: CreateReserveResponseDto;
+  reserve: ReserveResponseDto;
 }

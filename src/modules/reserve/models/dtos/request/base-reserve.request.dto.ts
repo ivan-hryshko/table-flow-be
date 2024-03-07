@@ -1,19 +1,18 @@
 import { IsInt, IsNotEmpty, Min } from 'class-validator';
-import { Column } from 'typeorm';
 
 export class BaseReserveRequestDto {
   @IsNotEmpty()
   @Min(0)
   id: number;
 
-  // @IsNotEmpty()
-  // name: string;
-  //
-  // @IsNotEmpty()
-  // phone: string;
-  //
-  // @IsNotEmpty()
-  // comment: string;
+  @IsNotEmpty()
+  customerName: string;
+
+  @IsNotEmpty()
+  phone: string;
+
+  @IsNotEmpty()
+  comment: string;
 
   @IsNotEmpty()
   @Min(0)
