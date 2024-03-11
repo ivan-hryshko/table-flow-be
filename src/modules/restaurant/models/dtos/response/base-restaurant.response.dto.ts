@@ -14,4 +14,5 @@ export class BaseRestaurantResponseDto {
   user: UserForRestaurantResponseDto;
   openingTime: string;
   closingTime: string;
+  floorTitle: string;
 }

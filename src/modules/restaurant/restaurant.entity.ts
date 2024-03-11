@@ -36,6 +36,9 @@ export class RestaurantEntity {
   @Column({ default: '24:00' })
   closingTime: string;
 
+  @Column({ default: '' })
+  floorTitle: string;
+
   @ManyToOne(() => UserEntity, (user) => user.restaurants, { eager: true })
   user: UserEntity;
 
