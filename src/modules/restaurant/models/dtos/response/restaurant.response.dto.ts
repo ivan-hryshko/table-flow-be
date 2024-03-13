@@ -11,7 +11,6 @@ export class RestaurantResponseDto extends PickType(BaseRestaurantResponseDto, [
   'location',
   'openingTime',
   'closingTime',
-  'floorTitle',
   'floors',
   'tables',
   'user',

@@ -15,6 +15,5 @@ export class UpdateRestaurantResponseDto extends PickType(
     'tables',
     'openingTime',
     'closingTime',
-    'floorTitle',
   ],
 ) {}

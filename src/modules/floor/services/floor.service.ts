@@ -1,4 +1,10 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  forwardRef,
+  HttpException,
+  HttpStatus,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
@@ -6,7 +12,6 @@ import { ErrorHelper } from '../../../utils/errors/errorshelper.helper';
 import { RestaurantEntity } from '../../restaurant/restaurant.entity';
 import { RestaurantService } from '../../restaurant/services/restaurant.service';
 import { UploadService } from '../../upload/upload.service';
-import { UserEntity } from '../../user/user.entity';
 import { FloorEntity } from '../floor.entity';
 import { CreateFloorRequestDto } from '../models/dtos/request/create-floor.request.dto';
 import { UpdateFloorRequestDto } from '../models/dtos/request/update-floor.request.dto';
@@ -18,8 +23,9 @@ export class FloorService {
   constructor(
     @InjectRepository(FloorEntity)
     private readonly floorRepository: Repository<FloorEntity>,
-    private readonly restaurantService: RestaurantService,
     private readonly uploadService: UploadService,
+    @Inject(forwardRef(() => RestaurantService))
+    private readonly restaurantService: RestaurantService,
   ) {}
 
   buildFloorResponse(floor: any): { floor: any } {

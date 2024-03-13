@@ -13,6 +13,5 @@ export class RestaurantWithoutRelationsResponseDto extends PickType(
     'location',
     'openingTime',
     'closingTime',
-    'floorTitle',
   ],
 ) {}
