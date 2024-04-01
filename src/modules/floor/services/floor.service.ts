@@ -63,7 +63,7 @@ export class FloorService {
     const newFloor = new FloorEntity();
     newFloor.title = createFloorDto.title;
     newFloor.restaurantId = createFloorDto.restaurantId;
-    // newFloor.restaurant = restaurant;
+
     return await this.floorRepository.save(newFloor);
   }
 
@@ -196,8 +196,6 @@ export class FloorService {
     );
 
     const savedFloor = await this.floorRepository.save(floor);
-
-    // console.log('savedFloor >>>>', savedFloor);
 
     return {
       ...savedFloor,

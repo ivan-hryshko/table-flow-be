@@ -29,7 +29,4 @@ export class FloorEntity {
 
   @Column({ nullable: true })
   imgKey: string;
-
-  // @Column({ nullable: true })
-  // imgSrc: string;
 }
