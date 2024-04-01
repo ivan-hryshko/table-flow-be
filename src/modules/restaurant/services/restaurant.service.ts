@@ -61,7 +61,7 @@ export class RestaurantService {
       await this.restaurantRepository.save(newRestaurant);
 
     const floor = await this.floorService.create(currentUser.id, {
-      title: createRestaurantDto.floorTitle || 'default Title',
+      title: createRestaurantDto.floorTitle || 'Перший поверх',
       restaurantId: restaurant.id,
     });
 
