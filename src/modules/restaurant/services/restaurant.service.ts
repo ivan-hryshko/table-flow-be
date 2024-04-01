@@ -44,6 +44,7 @@ export class RestaurantService {
     };
   }
 
+  // зміна
   async create(
     currentUser: UserEntity,
     createRestaurantDto: CreateRestaurantRequestDto,
@@ -52,11 +53,15 @@ export class RestaurantService {
     Object.assign(newRestaurant, createRestaurantDto);
     newRestaurant.user = currentUser;
 
+    if ('floorTitle' in newRestaurant) {
+      delete newRestaurant.floorTitle;
+    }
+
     const restaurant: RestaurantEntity =
       await this.restaurantRepository.save(newRestaurant);
 
     const floor = await this.floorService.create(currentUser.id, {
-      title: createRestaurantDto.floorTitle,
+      title: createRestaurantDto.floorTitle || 'default Title',
       restaurantId: restaurant.id,
     });
 

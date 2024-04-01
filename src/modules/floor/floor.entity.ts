@@ -16,6 +16,9 @@ export class FloorEntity {
   @Column({ default: '' })
   title: string;
 
+  @Column({ nullable: true })
+  restaurantId: number;
+
   @ManyToOne(() => RestaurantEntity, (restaurant) => restaurant.floors, {
     eager: true,
   })
@@ -26,4 +29,7 @@ export class FloorEntity {
 
   @Column({ nullable: true })
   imgKey: string;
+
+  // @Column({ nullable: true })
+  // imgSrc: string;
 }

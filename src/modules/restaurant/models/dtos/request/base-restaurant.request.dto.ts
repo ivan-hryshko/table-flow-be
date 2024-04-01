@@ -26,6 +26,6 @@ export class BaseRestaurantRequestDto {
   @IsOptional()
   closingTime: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   floorTitle: string;
 }

@@ -15,6 +15,10 @@ export class UploadService {
 
   constructor(configService: ConfigService) {
     this.configService = configService;
+
+    const s3Region = configService.get('S3_REGION');
+    console.log('S3_REGION:', s3Region); // Перевірка значення S3_REGION
+
     this.s3Client = new S3Client({
       region: configService.get('S3_REGION'),
       credentials: {
@@ -25,11 +29,9 @@ export class UploadService {
   }
 
   async uploadFile(options: UploadFileOptions) {
-    const {
-      file,
-      directory,
-      progressCallback = () => {},
-    } = options;
+    console.log('uploadFile service');
+
+    const { file, directory, progressCallback = () => {} } = options;
 
     const extension = path.extname(file.originalname);
     const key = `${directory}/${uuid()}${extension}`;
@@ -54,9 +56,7 @@ export class UploadService {
       const output = await upload.done();
 
       return output;
-    }
-    
-    catch (e) {
+    } catch (e) {
       console.log(e);
     }
   }
