@@ -50,6 +50,7 @@ export class FloorController {
       currentUserId,
       createFloorDto.floor,
     );
+
     return this.floorService.buildFloorResponse(floor);
   }
 
@@ -115,6 +116,7 @@ export class FloorController {
     @UploadedFile() file: Express.Multer.File,
   ): Promise<UpdateFloorImageWrapperResponseDto> {
     const floor = await this.floorService.updateImage(id, file, currentUserId);
+
     return this.floorService.buildFloorResponse(floor);
   }
 }

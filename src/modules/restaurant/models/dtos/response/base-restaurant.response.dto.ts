@@ -1,4 +1,3 @@
-import { FloorResponseDto } from '../../../../floor/models/dtos/response/floor.response.dto';
 import { TableForRestaurantResponseDto } from '../../../../table/models/dtos/response/table-for-restaurant.response.dto';
 import { UserForRestaurantResponseDto } from '../../../../user/models/dtos/response/user-for-restaurant.response.dto';
 

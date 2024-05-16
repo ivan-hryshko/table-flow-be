@@ -1,4 +1,10 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  forwardRef,
+  HttpException,
+  HttpStatus,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
@@ -10,12 +16,16 @@ import { UpdateRestaurantRequestDto } from '../models/dtos/request/update-restau
 import { RestaurantsWithCountResponseDto } from '../models/dtos/response/restaurants-with-count.response.dto';
 import { RestaurantQueryParams } from '../models/types/restaurantQuery.types';
 import { RestaurantEntity } from '../restaurant.entity';
+import { FloorService } from '../../floor/services/floor.service';
+import { FloorEntity } from '../../floor/floor.entity';
 
 @Injectable()
 export class RestaurantService {
   constructor(
     @InjectRepository(RestaurantEntity)
     private readonly restaurantRepository: Repository<RestaurantEntity>,
+    @Inject(forwardRef(() => FloorService))
+    private readonly floorService: FloorService,
   ) {}
   buildRestaurantResponse(restaurant: RestaurantEntity): {
     restaurant: RestaurantEntity;
@@ -34,6 +44,7 @@ export class RestaurantService {
     };
   }
 
+  // зміна
   async create(
     currentUser: UserEntity,
     createRestaurantDto: CreateRestaurantRequestDto,
@@ -41,7 +52,22 @@ export class RestaurantService {
     const newRestaurant = new RestaurantEntity();
     Object.assign(newRestaurant, createRestaurantDto);
     newRestaurant.user = currentUser;
-    return await this.restaurantRepository.save(newRestaurant);
+
+    if ('floorTitle' in newRestaurant) {
+      delete newRestaurant.floorTitle;
+    }
+
+    const restaurant: RestaurantEntity =
+      await this.restaurantRepository.save(newRestaurant);
+
+    const floor = await this.floorService.create(currentUser.id, {
+      title: createRestaurantDto.floorTitle || 'Перший поверх',
+      restaurantId: restaurant.id,
+    });
+
+    restaurant.floors = [floor];
+
+    return restaurant;
   }
 
   async getByUser(query: RestaurantQueryParams) {
