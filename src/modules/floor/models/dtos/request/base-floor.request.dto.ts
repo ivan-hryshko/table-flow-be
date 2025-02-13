@@ -3,12 +3,12 @@ import { IsInt, IsNotEmpty, Min } from 'class-validator';
 export class BaseFloorRequestDto {
   @IsNotEmpty()
   @Min(0)
-  readonly id: number;
+  id: number;
 
   @IsNotEmpty()
-  readonly title: string;
+  title: string;
 
   @IsNotEmpty()
   @IsInt()
-  readonly restaurantId: number;
+  restaurantId: number;
 }

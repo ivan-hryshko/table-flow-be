@@ -13,6 +13,7 @@ export class UpdateRestaurantRequestDto extends PartialType(
     'location',
     'openingTime',
     'closingTime',
+    'floorTitle',
   ]),
 ) {
   @IsNotEmpty()

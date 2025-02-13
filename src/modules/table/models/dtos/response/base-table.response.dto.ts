@@ -1,4 +1,4 @@
-export class BaseTableRequestDto {
+export class BaseTableResponseDto {
   id: number;
   title: string;
   x: number;

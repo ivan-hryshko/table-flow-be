@@ -6,6 +6,15 @@ export class BaseReserveRequestDto {
   id: number;
 
   @IsNotEmpty()
+  customerName: string;
+
+  @IsNotEmpty()
+  phone: string;
+
+  @IsNotEmpty()
+  comment: string;
+
+  @IsNotEmpty()
   @Min(0)
   @IsInt()
   restaurantId: number;

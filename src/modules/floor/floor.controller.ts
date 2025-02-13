@@ -43,13 +43,14 @@ export class FloorController {
   @UseGuards(AuthGuard)
   @UsePipes(new BackendValidationPipe())
   async create(
-    @User() currentUser: UserEntity,
+    @User('id') currentUserId: number,
     @Body() createFloorDto: CreateFloorWrapperRequestDto,
   ): Promise<CreateFloorWrapperResponseDto> {
     const floor = await this.floorService.create(
-      currentUser,
+      currentUserId,
       createFloorDto.floor,
     );
+
     return this.floorService.buildFloorResponse(floor);
   }
 
@@ -115,6 +116,7 @@ export class FloorController {
     @UploadedFile() file: Express.Multer.File,
   ): Promise<UpdateFloorImageWrapperResponseDto> {
     const floor = await this.floorService.updateImage(id, file, currentUserId);
+
     return this.floorService.buildFloorResponse(floor);
   }
 }

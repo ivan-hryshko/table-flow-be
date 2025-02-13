@@ -1,9 +1,12 @@
-import { PickType } from '@nestjs/swagger';
+import { PartialType, PickType } from '@nestjs/swagger';
+import { IsNotEmpty, Min } from 'class-validator';
 
 import { BaseFloorRequestDto } from './base-floor.request.dto';
 
-export class UpdateFloorRequestDto extends PickType(BaseFloorRequestDto, [
-  'id',
-]) {
-  readonly title: string;
+export class UpdateFloorRequestDto extends PartialType(
+  PickType(BaseFloorRequestDto, ['title']),
+) {
+  @IsNotEmpty()
+  @Min(0)
+  id: number;
 }
