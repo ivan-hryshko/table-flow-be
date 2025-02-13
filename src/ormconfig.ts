@@ -4,11 +4,11 @@ import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConne
 
 export default class TypeOrmConfig {
   static getConfig(configService: ConfigService): PostgresConnectionOptions {
-    console.log('hello');
-    if (configService.get('IS_PROD')) {
+    const DATABASE_URL = `postgres://${configService.get('POSTGRES_USER')}:${configService.get('POSTGRES_PASSWORD')}@${configService.get('POSTGRES_HOST')}:${configService.get('POSTGRES_PORT')}/${configService.get('POSTGRES_NAME')}`
+    if (configService.get('IS_PROD') === 'true') {
       return {
         type: 'postgres',
-        url: configService.get('DATABASE_URL'),
+        url: DATABASE_URL,
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
         synchronize: true, // This for development
         ssl: {
@@ -19,7 +19,8 @@ export default class TypeOrmConfig {
     } else {
       return {
         type: 'postgres',
-        url: configService.get('DATABASE_URL'),
+        url: DATABASE_URL,
+        ssl: false,
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
         synchronize: true, // This for development
         migrations: [__dirname + '/migrations/**/*{.ts,.js}'],
